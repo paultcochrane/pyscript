@@ -5,7 +5,6 @@
 #  zero    - replaces qubit with |0> state
 #  discard - discard qubit (put "|" vertical bar on qubit wire)
 #  slash   - put slash on qubit wire
-#  swap    - two-qubit swap operation 
 #  Utwo    - two-qubit operation U
 #  SS      - two-qubit gate, symmetric; open squares
 
@@ -96,45 +95,56 @@ class Circled(Group,Circle):
 # -------------------------------------------------------------------------
 class Gate(Group):
 
-    _targets=[P(0,0)]
-    _controls=[]
-        
     control=None
     target=None
-
+    
     dot_r=.1
    
     # target object get set in __init__
-    _targetobj=None
-    _controlobj=None
+    targetobj=None
+    controlobj=None
 
-    def __init__(self,tobj,target=None,control=None,cobj=None):
+
+    def __init__(self,tobj,**dict):
         
-        apply(Group.__init__, (self,))
+        Group.__init__(self,**dict)
 
-        self._targetobj=tobj
+        # XXX should we take a copy???
+        self.targetobj=tobj.copy()
 
-        if type(target) in (type(()),type([])):
-            self._targets=target
-        elif isinstance(target,P):
-            self._targets=[target]
+        if self.controlobj is None:
+            self.controlobj=Dot(r=self.dot_r)
+
+        # fix up target and control points    
+        if type(self.target) in (type(()),type([])):
+            pass
+        elif isinstance(self.target,P):
+            self.target=[self.target]
+        elif self.target is None:
+            self.target=[P(0,0)]
+        else:
+            raise "don't understand target structure for Gate"
             
-        if type(control) in (type(()),type([])):
-            self._controls=control
-        elif isinstance(control,P):
-            self._controls=[control]
+        if type(self.control) in (type(()),type([])):
+            pass
+        elif isinstance(self.control,P):
+            self.control=[self.control]
+        elif self.control is None:
+            self.control=[]
+        else:
+            raise "don't understand control structure for Gate"
 
         self._make()
 
     def settarget(self,*p):
         
-        self._targets=p
+        self.target=p
         self._make()
         
         
     def setcontrol(self,*p):
 
-        self._controls=p
+        self.control=p
         self._make()
         
     def _make(self):
@@ -142,22 +152,23 @@ class Gate(Group):
         self.clear()
         
         # calc average target point
-        tp=self._targets[0]
-        if len(self._targets)>1:
-            for tt in self._targets[1:]:
+        tp=self.target[0]
+        if len(self.target)>1:
+            for tt in self.target[1:]:
                 tp=tp+tt
-            tp=tp/float(len(self._targets))
+            tp=tp/float(len(self.target))
         
-        self._targetobj.c=tp
+        self.targetobj.c=tp
 
         #XXX should target adjust height here
 
         # add controls 
-        for cc in self._controls:
+        for cc in self.control:
             self.append(Path(tp,cc))
-            self.append(Dot(cc,r=self.dot_r))
+            self.controlobj.c=cc
+            self.append(self.controlobj.copy())
 
-        self.append(self._targetobj)
+        self.append(self.targetobj)
             
 
 # -------------------------------------------------------------------------
@@ -180,12 +191,12 @@ def Z(**dict): return GBT('$Z$',**dict)
 def S(**dict): return GBT('$S$',**dict)
 def T(**dict): return GBT('$T$',**dict)
 
-def Rx(arg,**dict): return GCT('$R_x(%s)$'%arg,**dict)
-def Ry(arg,**dict): return GCT('$R_y(%s)$'%arg,**dict)
-def Rz(arg,**dict): return GCT('$R_z(%s)$'%arg,**dict)
+def RX(arg,**dict): return GCT('$R_x(%s)$'%arg,**dict)
+def RY(arg,**dict): return GCT('$R_y(%s)$'%arg,**dict)
+def RZ(arg,**dict): return GCT('$R_z(%s)$'%arg,**dict)
 
 # -------------------------------------------------------------------------
-def Not(**dict):
+def NOT(**dict):
     r=.2
     return Gate(
         Group(Circle(r=r),Path(P(0,r),P(0,-r)),Path(P(-r,0),P(r,0))),
@@ -196,8 +207,11 @@ def CSIGN(**dict):
 
 ZZ=CSIGN
 # -------------------------------------------------------------------------
-#def Swap(**dict):
-#    return Gate(Dot(r=Gate.dot_r),**dict)
+def SWAP(**dict):
+    x=Group(Path(P(-.1,.1),P(.1,-.1)),Path(P(-.1,-.1),P(.1,.1)))
+    dict['controlobj']=dict.get('controlobj',x)
+    return Gate(x,**dict)
+    #return Gate(x,**dict)
 # -------------------------------------------------------------------------
 
 # XXX make this a class!
@@ -326,17 +340,21 @@ class Assemble(Group):
                 wire=QWire().set(w,x0,x1)
                 self.insert(0,wire)
                 self.wires.append(wire)
+            print self.wires
         else:
             w=-min(wires)
+            wirestmp=[]
             for wire in self.wires:
                 # if it already an instance this will have no effect
                 # otherwise create an instance
-                wire=apply(wire)
+                wire=apply(wire,())
                 wire.set(w,x0,x1)
                 self.insert(0,wire)
+                wirestmp.append(wire)
                 w-=1
-                
-                
+            self.wires=wirestmp
+
+        
     def setgate(self,gate,target,control=None):
 
         # if it already an instance this will have no effect
