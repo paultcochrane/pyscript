@@ -404,6 +404,10 @@ class Text(Area):
                 kern=reduce(lambda x,y:x+y,kerns)
                             
                 width+=kern
+            else:
+                # this is to catch the case when there are no characters
+                # in the string, but self.kerning==1
+                settext="("+string+")"
 
         else:
             settext="("+string+")"
