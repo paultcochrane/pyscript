@@ -7,7 +7,7 @@ Module for reading and writing AFM files.
 # Taken and adapted from afmLib.py in fonttools by Just van Rossum
 
 import re,os,string,types,cPickle,rexec,sys
-
+from base import FontError
 import pyscript
 
 FONTDIR=os.path.join(pyscript.__path__[0],"fonts")
@@ -76,7 +76,7 @@ class ConvertAFM:
                  'StartComposites',
                  'EndComposites',
                  ]
-	
+        
     def __init__(self, filename):
 
         self._attrs = {}
@@ -90,17 +90,17 @@ class ConvertAFM:
 
     def parse(self,path):
 
-	f = open(path, 'rb')
-	data = f.read()
-	f.close()
-	# read any text file, regardless whether it's
+        f = open(path, 'rb')
+        data = f.read()
+        f.close()
+        # read any text file, regardless whether it's
         # formatted for Mac, Unix or Dos
-	sep = ""
-	if '\r' in data:
-		sep = sep + '\r'	# mac or dos
-	if '\n' in data:
-		sep = sep + '\n'	# unix or dos
-	lines=string.split(data, sep)
+        sep = ""
+        if '\r' in data:
+                sep = sep + '\r'	# mac or dos
+        if '\n' in data:
+                sep = sep + '\n'	# unix or dos
+        lines=string.split(data, sep)
 
         for line in lines:
             if not string.strip(line):
@@ -153,7 +153,7 @@ class ConvertAFM:
         fp=open(filename,"w")
         cPickle.dump(afm,fp)
         fp.close()
-	
+        
     def parsechar(self, rest):
         m = charRE.match(rest)
         if m is None:
@@ -181,7 +181,7 @@ class ConvertAFM:
         # fix for all kernings
         if len(leftchar)==len(rightchar)==1:
             self._kerning[(ord(leftchar),ord(rightchar))]=value
-	
+        
     def parseattr(self, word, rest):
         if word == "FontBBox":
             l, b, r, t = map(string.atoi, string.split(rest))
@@ -195,7 +195,7 @@ class ConvertAFM:
                 self._attrs[word] = rest
             else:
                 self._attrs[word] = value
-	
+        
     def parsecomposite(self, rest):
         m = compositeRE.match(rest)
         if m is None:
@@ -217,11 +217,11 @@ class ConvertAFM:
                 break
         assert len(components) == ncomponents
         self._composites[charname] = components
-	
+        
 # -------------------------------------------------------------------
-	
+        
 class AFM:
-	
+        
     def __init__(self,fontname):
 
         fontname=string.lower(fontname)
@@ -229,32 +229,35 @@ class AFM:
 
         # the import statement seem a little bit of a hack
         # but this will work for now.
-        f=__import__('pyscript.fonts.%s'%fontname,None,None,[fontname])
-
+        try:
+            f=__import__('pyscript.fonts.%s'%fontname,None,None,[fontname])
+        except ImportError,x:
+            # rename the exception
+            raise FontError,x
         self.f=f
 
         
     def has_kernpair(self, pair):
         return self.f.kerning.has_key(pair)
-	
+        
     def kernpairs(self):
         return self.f.kerning.keys()
-	
+        
     def has_char(self, char):
         return self.f.chars.has_key(char)
-	
+        
     def chars(self):
         return self.f.chars.keys()
-	
+        
     def comments(self):
         return self.f.comments
-	
+        
     def __getattr__(self, attr):
         if self.f.attrs.has_key(attr):
             return self.f.attrs[attr]
         else:
             raise AttributeError, attr
-		
+                
     def __getitem__(self, key):
         if type(key) == types.TupleType:
             # key is a tuple, return the kernpair
@@ -262,7 +265,7 @@ class AFM:
         else:
             # return the metrics instead
             return self.f.chars[key]
-	
+        
     def __repr__(self):
         if hasattr(self, "FullName"):
             return '<AFM object for %s>' % self.FullName
@@ -279,16 +282,16 @@ class AFM:
         @return: xl,yb,xr,yt
         '''
 
-	chars=map(ord,list(string))
+        chars=map(ord,list(string))
 
-	# order: width l b r t
+        # order: width l b r t
 
-	# use 'reduce' and 'map' as they're written in C
+        # use 'reduce' and 'map' as they're written in C
 
-	# add up all the widths
-	width= reduce(lambda x, y: x+self[y][0],chars,0)
+        # add up all the widths
+        width= reduce(lambda x, y: x+self[y][0],chars,0)
 
-	# subtract the kerning
+        # subtract the kerning
         if kerning==1:
             if len(chars)>1:
                 kk=map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:])
@@ -298,23 +301,23 @@ class AFM:
         kk=map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:])
         print kk
 
-	# get rid of the end bits
-	start=self[chars[0]][1]
-	f=self[chars[-1]]
-	width = width-start-(f[0]-f[3])
+        # get rid of the end bits
+        start=self[chars[0]][1]
+        f=self[chars[-1]]
+        width = width-start-(f[0]-f[3])
 
 
-	# accumulate maximum height
-	top = reduce(lambda x, y: max(x,self[y][4]),chars,0)
+        # accumulate maximum height
+        top = reduce(lambda x, y: max(x,self[y][4]),chars,0)
 
-	# accumulate lowest point
-	bottom = reduce(lambda x, y: min(x,self[y][2]),chars,self[chars[0]][2])
+        # accumulate lowest point
+        bottom = reduce(lambda x, y: min(x,self[y][2]),chars,self[chars[0]][2])
 
         sc=size/1000.
-	xl=start*sc
-	yb=bottom*sc
-	xr=xl+width*sc
-	yt=top*sc
+        xl=start*sc
+        yb=bottom*sc
+        xr=xl+width*sc
+        yt=top*sc
 
         return xl,yb,xr,yt
 

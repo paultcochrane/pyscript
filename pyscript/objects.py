@@ -28,7 +28,7 @@ from defaults import *
 from util import *
 from vectors import *
 
-from base import PsObj,Color
+from base import PsObj,Color,PyScriptError,FontError
 
 
 from functions import *
@@ -375,13 +375,15 @@ class Text(Area):
     A single line text object within an Area object
     '''
     
-    text=''
-    font="Times-Roman"
-    size=12
+    # these all affect the size so should be dynamic
+    _text=''
+    _font="Times-Roman"
+    _size=12
+    _kerning=1
+    
     fg=Color(0)
     bg=None
-    kerning=1
-    
+
     def __init__(self,text="",**dict):
         '''
         @param text: the string to typeset
@@ -391,28 +393,57 @@ class Text(Area):
          - fg: color object
         '''
 
-        self.text=text
-
-
         # get the bbox
-        # first need font and scale
-        # Can't use base mechanism ... property items might get called
-        self.font=dict.get('font',self.font)
-        self.size=dict.get('size',self.size)
-        self.kerning=dict.get('kerning',self.kerning)
+        # first need font and scale BEFORE positioning
+        # for efficiency don't use dynamic attributes
+        self._text=text
+        self._font=dict.get('font',self._font)
+        self._size=dict.get('size',self._size)
+        self._kerning=dict.get('kerning',self._kerning)
+        
+        # Now calc sizes from AFM
+        self._typeset()
 
-        settext,x1,y1,x2,y2=self._typeset(text)
-
-        self.settext=settext
-        self.offset=-P(x1,y1)/float(defaults.units)
-        self.width=(x2-x1)/float(defaults.units)
-        self.height=(y2-y1)/float(defaults.units)
 
         apply(Area.__init__,(self,),dict)
 
-    def _typeset(self,string):
         
-        font=AFM(self.font)
+    def _get_font(self):
+        return self._font
+    def _set_font(self,fontname):
+        self._font=fontname
+        self._typeset()
+    font = property(_get_font,_set_font)
+        
+    def _get_size(self):
+        return self._size
+    def _set_size(self,size):
+        self._size=size
+        self._typeset()
+    size = property(_get_size,_set_size)
+
+    def _get_kerning(self):
+        return self._kerning
+    def _set_kerning(self,kerning):
+        self._kerning=kerning
+        self._typeset()
+    kerning = property(_get_kerning,_set_kerning)
+
+    def _get_text(self):
+        return self._text
+    def _set_text(self,text):
+        self._text=text
+        self._typeset()
+    text = property(_get_text,_set_text)
+    
+    def _typeset(self):
+        
+        string=self.text
+        afm=AFM(self._font)
+        
+        # set the correct postscript font name
+        self._font=afm.FontName
+        
         size=self.size
         sc=size/1000.
 
@@ -424,12 +455,12 @@ class Text(Area):
         # use 'reduce' and 'map' as they're written in C
 
         # add up all the widths
-        width= reduce(lambda x, y: x+font[y][0],chars,0)
+        width= reduce(lambda x, y: x+afm[y][0],chars,0)
 
         # subtract the kerning
         if self.kerning==1:
             if len(chars)>1:
-                kerns=map(lambda x,y:font[(x,y)] ,chars[:-1],chars[1:])
+                kerns=map(lambda x,y:afm[(x,y)] ,chars[:-1],chars[1:])
                 
                 charlist=list(string)
 
@@ -455,23 +486,25 @@ class Text(Area):
             settext="("+string+")"
 
         # get rid of the end bits
-        start=font[chars[0]][1]
-        f=font[chars[-1]]
+        start=afm[chars[0]][1]
+        f=afm[chars[-1]]
         width = width-start-(f[0]-f[3])
 
         # accumulate maximum height
-        top = reduce(lambda x, y: max(x,font[y][4]),chars,0)
+        top = reduce(lambda x, y: max(x,afm[y][4]),chars,0)
 
         # accumulate lowest point
-        bottom = reduce(lambda x, y: min(x,font[y][2]),chars,font[chars[0]][2])
+        bottom = reduce(lambda x, y: min(x,afm[y][2]),chars,afm[chars[0]][2])
 
-        xl=start*sc
-        yb=bottom*sc
-        xr=xl+width*sc
-        yt=top*sc
+        x1=start*sc
+        y1=bottom*sc
+        x2=x1+width*sc
+        y2=top*sc
 
-        return settext,xl,yb,xr,yt
-        
+        self.settext=settext
+        self.offset=-P(x1,y1)/float(defaults.units)
+        self.width=(x2-x1)/float(defaults.units)
+        self.height=(y2-y1)/float(defaults.units)
 
     def body(self):
         out=cStringIO.StringIO()
@@ -485,7 +518,7 @@ class Text(Area):
         out.write("%(offset)s moveto\n"%ATTR)
         out.write("/%(font)s %(size)s selectfont %(fg)s \n"%ATTR)
         out.write("mark %(settext)s kernshow\n"%ATTR)
-        
+
         return out.getvalue()
 
 

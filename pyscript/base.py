@@ -22,6 +22,13 @@ import types
 import string
 
 # -------------------------------------------------------------------------
+class PyScriptError(Exception):
+    pass
+
+class FontError(Exception):
+    pass
+
+# -------------------------------------------------------------------------
 
 class PsObj(object):
     """
