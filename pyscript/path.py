@@ -302,8 +302,8 @@ class C(object):
         # for convenience return a reference to us
         return self
 
-    def copy(self):
-        return copy.deepcopy(self)
+#    def copy(self):
+#        return copy.deepcopy(self)
 
 
     def _get_fullyspecified(self):
@@ -442,10 +442,10 @@ class Path(AffineObj):
         # first point must be, well a point
         assert isinstance(path[0],P)
 
-	# if the last point of a closed path has been
-	# skipped, add it now
-	if not isinstance(path[-1],P) and self.closed:
-	    path.append(path[0])
+        # if the last point of a closed path has been
+        # skipped, add it now
+        if not isinstance(path[-1],P) and self.closed:
+            path.append(path[0])
 
 	
         cp=path.pop(0) # current point
