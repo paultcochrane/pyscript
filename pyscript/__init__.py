@@ -14,10 +14,19 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-from defaults import *
-from groups import *
-from objects import *
-from render import *
-from path import C,Path
-from base import Dash
+# $Id$
+
+"""
+PyScript - Postscript graphics from python
+"""
+
+from pyscript.defaults import *
+from pyscript.groups import *
+from pyscript.objects import *
+from pyscript.render import *
+from pyscript.path import C, Path
+from pyscript.base import Dash
+
+__revision__ = '$Revision$'
+
 # vim: expandtab shiftwidth=4:
