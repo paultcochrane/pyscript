@@ -418,8 +418,8 @@ def TeXstuff(objects):
     fp.write(defaults.tex_head)
     for tex in objects:
         fp.write('\\special{ps:PyScriptStart}\n')
-        fp.write(tex.text)
-        fp.write('\n\\special{ps:PyScriptEnd}\n')
+        fp.write("{%s}\n"%tex.text)
+        fp.write('\\special{ps:PyScriptEnd}\n')
         fp.write('\\newpage\n')
     fp.write(defaults.tex_tail)
     fp.close()
