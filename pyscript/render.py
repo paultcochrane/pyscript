@@ -18,7 +18,7 @@
 Create the actual postscript
 """
 
-VERSION="0.0.1"
+VERSION="0.3"
 
 import sys,os
 import cStringIO
