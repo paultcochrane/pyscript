@@ -11,7 +11,9 @@ MAIN = align.eps\
        qcirc.eps\
        sphere.eps\
        stateSwap.eps\
-       tex.eps
+       teleport.eps\
+       tex.eps\
+       tutorial.eps
 
 #view: $(MAIN).ps
 #	gv $(MAIN).ps
