@@ -26,7 +26,7 @@ __revision__ = '$Revision$'
 # File Format Specification). Still, it should read most "common" AFM files.
 # Taken and adapted from afmLib.py in fonttools by Just van Rossum
 
-import re, os, string, types, cPickle, sys  #, rexec
+import re, os, types, cPickle, sys
 from pyscript.base import FontError
 import pyscript
 
@@ -139,10 +139,11 @@ class ConvertAFM:
             sep = sep + '\r'	# mac or dos
         if '\n' in data: 
             sep = sep + '\n'	# unix or dos
-        lines = string.split(data, sep)
+        #lines = string.split(data, sep)
+        lines = data.split(sep)
 
         for line in lines:
-            if not string.strip(line):
+            if not line.strip():
                 continue
             m = identifierRE.match(line)
             if m is None:
@@ -150,7 +151,7 @@ class ConvertAFM:
 
             pos = m.regs[1][1]
             word = line[:pos]
-            rest = string.strip(line[pos:])
+            rest = line[pos:].strip()
             if word in self._keywords:
                 continue
             if word == "C":
@@ -172,22 +173,80 @@ class ConvertAFM:
 
         out = open(filename, "w")
 
-        out.write("attrs=%s"%repr(self._attrs))
-        out.write("\n")
-        out.write("chars=%s"%repr(self._chars))
-        out.write("\n")
-        out.write("kerning=%s"%repr(self._kerning))
-        out.write("\n")
-        out.write("comments=%s"%repr(self._comments))
-        out.write("\n")
-        out.write("composites=%s"%repr(self._composites))
-        out.write("\n")
+        # the new ugly way, that produces nice files
+
+        # docstring
+        out.write('"""\n')
+        out.write("Pyscript font module for %s\n" %
+                self._attrs['FullName'])
+        out.write('"""\n')
+
+        # this is the revision attribute useful for python
+        # with extra code due to cvs keyword expansion issues
+        out.write("__revision__ = '$")
+        out.write("Revision$'\n")
+
+
+        
+        # write out the attributes
+        out.write("attrs = {\n")
+        for key in self._attrs.keys():
+            value = self._attrs[key]
+            if str(value.__class__) == "<type 'str'>":
+                out.write("'%s' : '%s',\n" % \
+                        (key, value))
+            else:
+                out.write("'%s' : %s,\n" % \
+                        (key, value))
+        out.write("}\n")
+
+        # write out the characters
+        out.write("chars = {\n")
+        for key in self._chars.keys():
+            value = self._chars[key]
+            out.write("%s : %s,\n" % \
+                    (key, value))
+        out.write("}\n");
+
+        # write out the kerning
+        out.write("kerning = {\n")
+        for key in self._kerning.keys():
+            value = self._kerning[key]
+            out.write("%s : %s,\n" % \
+                    (key, value))
+        out.write("}\n")
+
+        # write out the comments
+        out.write("comments = [\n")
+        for elem in self._comments:
+            out.write("'%s',\n" % elem)
+        out.write("]\n")
+
+        # write out the composites
+        out.write("composites = {\n")
+        for key in self._composites.keys():
+            value = self._composites[key]
+            out.write("%s : %s,\n" % \
+                    (key, value))
+        out.write("}\n")
+
+        # the old, simple way, that produces ugly files
+        # out.write("attrs = %s"%repr(self._attrs))
+        # out.write("\n")
+        # out.write("chars = %s"%repr(self._chars))
+        # out.write("\n")
+        # out.write("kerning = %s"%repr(self._kerning))
+        # out.write("\n")
+        # out.write("comments = %s"%repr(self._comments))
+        # out.write("\n")
+        # out.write("composites = %s"%repr(self._composites))
+        # out.write("\n")
 
         out.close()
 
     def write2(self, filename):
         """
-        Another version of writing the font file (I think...)
+        Another version of writing the font file, uses the CPickle module
 
         @param filename: the name of the font file to write
         @type filename: string
@@ -220,7 +279,8 @@ class ConvertAFM:
             things.append(rest[fr:to])
         #charname = things[2]
         del things[2]
-        charnum, width, l, b, r, t = map(string.atoi, things)
+        #charnum, width, l, b, r, t = map(string.atoi, things)
+        charnum, width, l, b, r, t = map(int, things)
         # width l b r t
         self._chars[charnum] = width, l, b, r, t
 
@@ -239,7 +299,7 @@ class ConvertAFM:
             things.append(rest[fr:to])
         leftchar, rightchar, value = things
 
-        value = string.atoi(value)
+        value = int(value)
         #self._kerning[(leftchar, rightchar)] = value
         # fix for all kernings
         if len(leftchar) == len(rightchar) == 1:
@@ -256,13 +316,14 @@ class ConvertAFM:
         @type rest: string
         """
         if word == "FontBBox":
-            l, b, r, t = map(string.atoi, string.split(rest))
+            #l, b, r, t = map(string.atoi, string.split(rest))
+            l, b, r, t = map(int, rest.split())
             self._attrs[word] = l, b, r, t
         elif word == "Comment":
             self._comments.append(rest)
         else:
             try:
-                value = string.atoi(rest)
+                value = int(rest)
             except (ValueError, OverflowError):
                 self._attrs[word] = rest
             else:
@@ -315,8 +376,8 @@ class AFM:
         # from occurring
         self.FullName = fontname
 
-        fontname = string.lower(fontname)
-        fontname = string.replace(fontname, "-", "_")
+        fontname = fontname.lower()
+        fontname = fontname.replace("-", "_")
 
         # the import statement seem a little bit of a hack
         # but this will work for now.
@@ -468,19 +529,19 @@ if __name__ == "__main__":
     # utility for converting afm files to pyscripts
     # font modules
 
-    for filename in sys.argv[1:]:
+    for afmFname in sys.argv[1:]:
 
-        afm = ConvertAFM(filename)
+        afmObj = ConvertAFM(afmFname)
 
-        dir, file = os.path.split(filename)
+        dirname, fname = os.path.split(afmFname)
 
-        base, ext = os.path.splitext(file)
+        base, ext = os.path.splitext(fname)
 
-        base = string.lower(base)
-        base = string.replace(base, "-", "_")
+        base = base.lower()
+        base = base.replace("-", "_")
         
-        outfile = os.path.join(dir, base+".py")
+        outfile = os.path.join(dirname, base+".py")
 
-        afm.write(outfile)
+        afmObj.write(outfile)
 
 # vim: expandtab shiftwidth=4:
