@@ -1,13 +1,14 @@
+# $Id$
 
 MAIN = align.eps\
        align2.eps\
        atom.eps\
+       bifurcate.eps\
        detector.eps\
        distribute.eps\
        div_con.eps\
        flower_algorithm.eps\
        qcirc.eps\
-       sarah.eps\
        sphere.eps\
        stateSwap.eps\
        tex.eps
