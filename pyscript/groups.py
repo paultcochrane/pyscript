@@ -217,9 +217,11 @@ def Align(*items,**dict):
             # Nothing to do here ...
             return
         objects=items[0]
+	if len(objects) <= 1:
+	    return
     else:
         # create a group around the objects
-        objects=items
+        objects=Group(items)
 
     # keep a reference to the anchor ... we'll
     # move it back later
