@@ -18,13 +18,13 @@
 Groupies
 """
 
-import cStringIO
+import cStringIO,time,os,sys,string
 
 from types import *
 from vectors import *
-from objects import Area
+from objects import Area,TeX
 from defaults import defaults
-
+from version import version
 
 # -------------------------------------------------------------------------
 
@@ -48,20 +48,23 @@ class Group(Area):
     def __getitem__(self,i):
         return self.objects[i]
         
-    def __setitem__(self,i,other):
-        self.objects[i]=other
+    # these will break alignment
+    #def __setitem__(self,i,other):
+    #    self.objects[i]=other
 
     def __getslice__(self,i,j):
         return self.objects[i:j]
 
-    def __setslice__(self,i,j,wert):
-        self.objects[i:j]=wert
+    #def __setslice__(self,i,j,wert):
+    #    self.objects[i:j]=wert
 
     def __len__(self):
         return len(self.objects)
 
     def insert(self,idx,obj):
 
+        if isinstance(obj,Page):
+            raise "Can't add a Page to %s"%str(self.__class__)
         self.objbox.union(obj.bbox())
         self.objects.insert(idx,obj)
 
@@ -70,6 +73,8 @@ class Group(Area):
         append object(s) to group
         '''
         for obj in objs:
+            if isinstance(obj,Page):
+                raise "Can't add a Page to %s"%str(self.__class__)
             self.objbox.union(obj.bbox())
             self.objects.append(obj)
 
@@ -320,3 +325,476 @@ def Distribute(*items,**dict):
 
 # -------------------------------------------------------------------------
 
+PSMacros="""%%BeginProcSet: pyscript
+/PyScriptDict 10 dict def PyScriptDict begin
+%%show text with kerning if supplied
+/kernshow { 0 2 2 counttomark 2 sub { -2 roll } for
+counttomark 2 idiv { exch show 0 rmoveto} repeat pop
+} bind def
+/BeginEPSF { 
+/b4_Inc_state save def 
+/dict_count countdictstack def 
+/op_count count 1 sub def      
+userdict begin                 
+/showpage { } def              
+0 setgray 0 setlinecap         
+1 setlinewidth 0 setlinejoin
+10 setmiterlimit [ ] 0 setdash newpath
+/languagelevel where           
+{pop languagelevel             
+1 ne                           
+{false setstrokeadjust false setoverprint
+} if
+} if
+} bind def
+/EndEPSF { 
+count op_count sub {pop} repeat 
+countdictstack dict_count sub {end} repeat
+b4_Inc_state restore
+} bind def
+/PyScriptStart {} def
+/PyScriptEnd {} def
+/showpage {} def
+end
+%%EndProcSet
+"""
+
+
+def collecttex(objects,tex=[]):
+    '''
+    Collect the TeX objects in the order theyre rendered
+    '''
+    for object in objects:
+        if isinstance(object,TeX):
+            tex.append(object)
+        elif isinstance(object,Group):
+            tex=collecttex(object.objects,tex)
+    return tex
+
+
+def TeXstuff(objects):
+    '''
+    Get the actual postscript code and insert it into
+    the tex objects. Also grab prolog
+    '''
+
+    objects=collecttex(objects)
+    if len(objects)==0:
+        return ""
+    
+    print "Collecting postscript for TeX objects ..."
+    
+    file="temp.tex"
+    fp=open(file,"w")
+    fp.write(defaults.tex_head)
+    for tex in objects:
+        fp.write('\\special{ps:PyScriptStart}\n')
+        fp.write(tex.text)
+        fp.write('\n\\special{ps:PyScriptEnd}\n')
+        fp.write('\\newpage\n')
+    fp.write(defaults.tex_tail)
+    fp.close()
+
+    ##os.system(defaults.tex_command%file+'> pyscript.log 2>&1')
+    #(fi,foe) = os.popen4(defaults.tex_command%file)
+    #fi.close()
+    #sys.stderr.writelines(str(foe.readlines()))
+    #sys.stderr.write('\n')
+    #foe.close()
+
+    # TeX it twice ... only pay attention to the 2nd one
+    os.popen(defaults.tex_command%file)
+    foe = os.popen(defaults.tex_command%file)
+    sys.stderr.write(foe.read(-1))
+    sys.stderr.write('\n')
+    # Help the user out by throwing the latex log to stderr
+    if os.path.exists("%s.log"%file):
+        fp=open("%s.log"%file,'r')
+        sys.stderr.write(fp.read(-1))
+        fp.close()
+    if foe.close() is not None:
+        raise "Latex Error"
+    
+    (fi,foe) = os.popen4("dvips -q -tunknown %s -o temp.ps temp.dvi"%defaults.dvips_options)
+    fi.close()
+    err=foe.read(-1)
+    sys.stderr.write(err)
+    sys.stderr.write('\n')
+    foe.close()
+    if len(err)>0:
+        raise "dvips Error"
+
+    fp=open("temp.ps","r")
+    ps=fp.read(-1)
+    fp.close()
+
+    # Now rip it appart .. use string rather than re which
+    # gets caught on recursion limits
+    
+    # grab prolog dvips dosn't use %%BeginProlog!
+    start=string.index(ps,"%%EndComments")+14
+    end=string.index(ps,"%%EndProlog")
+    prolog=ps[start:end]
+
+    tt=[]
+    pos1=end
+    while 1:
+        pos1=string.find(ps,"PyScriptStart",pos1)
+        if pos1 <0:break
+        pos2=string.find(ps,"PyScriptEnd",pos1)
+        
+        tt.append("TeXDict begin 1 0 bop\n%s\neop end"%ps[pos1+14:pos2])
+        pos1=pos2
+    
+    assert len(tt)==len(objects)
+
+    for ii in range(len(objects)):
+        objects[ii].bodyps=tt[ii]
+
+
+    # remove showpage
+    # no we don't ... this kills some things
+    #defs=re.sub("(?m)showpage","",defs)
+
+    # Cant's seem to set a paper size of 0x0 without tinkering with
+    # dvips config files. We need this so it matches with -E offsets.
+    # the closest is the 'unknown' paper format which unfortunately
+    # introduces some postript code that uses 'setpageparams' and 
+    # 'setpage' for size. Can't seem to overide
+    # those def easily so hunt out that code and kill it:
+    # defs=re.sub("(?s)statusdict /setpageparams known.*?if } if","",defs)
+
+    return prolog
+
+
+class Eps(Group):
+    '''
+    Create the EPS
+    '''
+    
+    # extra padding around EPS bbox to absorb effect
+    # of line thicknesses etc (in pt)
+    pad=2
+    
+    def __init__(self,*objects,**dict):
+        '''
+        Override to allow fixed dimentions to be set
+        '''
+        args=(self,)+objects
+        apply(Group.__init__,args,dict)
+
+        b=self.bbox()
+
+        # width and height have special meaning here
+        if dict.has_key('width') and dict.has_key('height'):
+            sx=dict['width']/float(b.width)
+            sy=dict['height']/float(b.height)
+            del dict['width']
+            del dict['height']
+        elif dict.has_key('width'):
+            sx=sy=dict['width']/float(b.width)
+            del dict['width']
+        elif dict.has_key('height'):
+            sx=sy=dict['height']/float(b.height)
+            del dict['height']
+        else:
+            sx=sy=1
+            
+        self.scale(sx,sy)
+
+        # initialise again since scaling must be applied BEFORE
+        # any positioning args (width/height will be correct now)
+        apply(Group.__init__,args,dict)
+        
+    
+    def write(self,fp,title="PyScriptEPS"):
+        '''
+        write a self-contained EPS file
+        '''
+        # --- Header Comments ---
+        
+        # We conform DSC 3.0...
+        fp.write("%!PS-Adobe-3.0 EPSF-3.0\n")
+        fp.write("%%%%BoundingBox: %d %d %d %d\n"%self.bbox_pp())
+        fp.write("%%%%Creator: PyScript %s\n"%version)
+        fp.write("%%%%CreationDate: %s\n"%time.ctime(time.time()))
+        # Color() can use CMYK ... don't need this with level 2 spec below
+        # fp.write("%%Extensions: CMYK\n")
+        # we've used some level 2 ops:
+        fp.write("%%LanguageLevel: 2\n")
+        fp.write("%%%%Title: %s\n"%title)
+        # Say it's a single page:
+        fp.write("%%Pages: 1\n") 
+        fp.write("%%EndComments\n")
+
+        # --- Prolog ---
+        fp.write("%%BeginProlog\n")
+        fp.write(PSMacros)
+        # insert TeX prolog & fonts here
+        fp.write(TeXstuff(self))
+        fp.write("%%EndProlog\n")
+
+        # --- Setup ---
+        fp.write("%%BeginSetup\n")
+        fp.write("PyScriptDict begin\n")
+        fp.write('/uu {%f mul} def '%defaults.units)
+        fp.write('%g setlinewidth \n'%defaults.linewidth)
+        fp.write('%d setlinecap %d setlinejoin %g setmiterlimit %s setdash\n'%\
+                 (defaults.linecap,
+                  defaults.linejoin,
+                  defaults.miterlimit,
+                  defaults.dash
+                  ))
+        fp.write("end\n")
+        fp.write("%%EndSetup\n")
+
+        # --- Code ---
+        fp.write("%%Page: 1 1\n")
+        fp.write("PyScriptDict begin\n")
+        fp.write(self.prebody())
+        fp.write(Group.body(self))
+        fp.write(self.postbody())
+        fp.write("end %PyScriptDict\n") # does this go after Trailer?
+        fp.write("showpage\n") # where should this go?
+
+        # --- Trailer ---
+        fp.write("%%Trailer\n") 
+        fp.write("%%EOF\n") 
+        
+    def __str__(self):
+        '''
+        Eps file with correct pre- and post- code for embeding
+        '''
+        out=cStringIO.StringIO()
+
+        out.write("BeginEPSF\n")
+        out.write("%%BeginDocument: PyScriptEPS\n")
+        self.write(out)
+        out.write("%%EndDocument\n")
+        out.write("EndEPSF\n")
+        
+        return out.getvalue()
+
+    def bbox_pp(self):
+        '''
+        Return the bbox in pp
+        '''
+        
+        # Grab the groups bounding box
+        b=self.bbox()
+        
+        p=self.pad
+
+        x1=round(b.sw[0]*defaults.units)-p
+        y1=round(b.sw[1]*defaults.units)-p
+
+        x2=round(b.ne[0]*defaults.units)+p
+        y2=round(b.ne[1]*defaults.units)+p
+         
+        return x1,y1,x2,y2
+        
+# -------------------------------------------------------------------------
+
+
+class Page(Group):
+    '''
+    A postscript page
+    '''
+
+    size='a4'
+    orientation="Portrait"
+    label=None
+    
+    # From gs_statd.ps which defines the paper sizes for gs:
+    # Define various paper formats.  The Adobe documentation defines only these:
+    # 11x17, a3, a4, a4small, b5, ledger, legal, letter, lettersmall, note.
+    # These procedures are also accessed as data structures during initialization,
+    # so the page dimensions must be the first two elements of the procedure.
+
+    PAPERSIZES={
+        # Page sizes defined by Adobe documentation
+        "11x17":(792,1224),
+        # a3 see below
+        # a4 see below
+        # a4small should be a4 with an ImagingBBox of [25 25 570 817].
+        # b5 see below
+        "ledger":(1224,792), # 11x17 landscape
+        "legal":(612,1008),
+        "letter":(612,792),
+        # lettersmall should be letter with an ImagingBBox of [25 25 587 767].
+        # note should be letter (or some other size) with the ImagingBBox
+        # shrunk by 25 units on all 4 sides.
+
+        # ISO standard paper sizes
+        "a0":(2380,3368),
+        "a1":(1684,2380),
+        "a2":(1190,1684),
+        "a3":(842,1190),
+        "a4":(595,842),
+        "a5":(421,595),
+        "a6":(297,421),
+        "a7":(210, 297),
+        "a8":(148, 210),
+        "a9":(105, 148),
+        "a10":(74, 105),
+        # ISO and JIS B sizes are different....
+        # first ISO
+        "b0":(2836, 4008),
+        "b1":(2004, 2836),
+        "b2":(1418, 2004),
+        "b3":(1002, 1418),
+        "b4":(709, 1002),
+        "b5":(501, 709),
+        "b6":(354, 501),
+        "jisb0":(2916, 4128),
+        "jisb1":(2064, 2916),
+        "jisb2":(1458, 2064),
+        "jisb3":(1032, 1458),
+        "jisb4":(729, 1032),
+        "jisb5":(516, 729),
+        "jisb6":(363, 516),
+        "c0":(2600, 3677),
+        "c1":(1837, 2600),
+        "c2":(1298, 1837),
+        "c3":(918, 1298),
+        "c4":(649, 918),
+        "c5":(459, 649),
+        "c6":(323, 459),
+        # U.S. CAD standard paper sizes
+        "archE":(2592, 3456),
+        "archD":(1728, 2592),
+        "archC":(1296, 1728),
+        "archB":(864, 1296),
+        "archA":(648, 864),
+        # Other paper sizes
+        "flsa":(612, 936), # U.S. foolscap
+        "flse":(612, 936), # European foolscap
+        "halfletter":(396, 612),
+        }
+    
+    def area(self):
+        '''
+        return an area object same size as page in default units
+        '''
+        d1,d2,w,h=self.bbox_pp()
+        
+        w,h=w/float(defaults.units),h/float(defaults.units)
+        
+        return Area(sw=P(0,0),width=w,height=h)
+        
+    def recalc_size(self):
+        # disable this as we're always the same size
+        pass
+    
+    def bbox(self):
+        
+        area=self.area()
+        return Bbox(sw=area.sw,width=area.width,height=area.height)
+
+    def bbox_pp(self):
+        
+        w,h=self.PAPERSIZES[self.size]
+        if self.orientation=="Landscape": 
+            h,w=w,h
+        
+        return 0,0,w,h
+    
+    def write(self,fp,number):
+        '''
+        write a self-contained PS Page
+        '''
+        
+        label=self.label
+        if label is None: label=str(number)
+        fp.write("%%%%Page: %s %d\n"%(label,number))
+
+        assert self.orientation in ("Portrait","Landscape")
+        fp.write("%%%%PageOrientation: %s\n"%self.orientation)
+
+        d1,d2,w,h=self.bbox_pp()
+        fp.write("%%%%PageBoundingBox: %d %d %d %d\n"%\
+                 (0,0,w,h))
+
+        # --- Setup ---
+        fp.write("%%BeginPageSetup\n")
+        fp.write("%%%%BeginFeature: *PageSize %s\n"%self.size)
+        fp.write("<</PageSize [%d %d] /ImagingBBox null>> setpagedevice\n"%(w,h))
+        fp.write("%%EndFeature\n")
+        # remember the page graphics state
+        fp.write("/pgsave save def\n")
+        fp.write("%%EndPageSetup\n")
+    
+        fp.write("PyScriptDict begin\n")
+        fp.write(self.prebody())
+        fp.write(Group.body(self))
+        fp.write(self.postbody())
+        fp.write("end %PyScriptDict\n") # does this go after Trailer?
+
+        # restore the graphics state and show the page
+        fp.write("pgsave restore showpage\n")
+
+        
+class Pages(Group):
+    
+    def write(self,fp,title="PyScriptPS"):
+        '''
+        write the Pages
+        '''
+        fp.write("%!PS-Adobe-3.0\n")
+        fp.write("%%%%Creator: PyScript %s\n"%version)
+        fp.write("%%%%CreationDate: %s\n"%time.ctime(time.time()))
+        # Color() can use CMYK ... don't need this with level 2 spec below
+        # fp.write("%%Extensions: CMYK\n")
+        # we've used some level 2 ops:
+        fp.write("%%LanguageLevel: 2\n")
+        fp.write("%%%%Title: %s\n"%title)
+        # Say it's a single page:
+        fp.write("%%Pages: %d\n"%len(self)) 
+        fp.write("%%EndComments\n")
+
+        # --- Prolog ---
+        fp.write("%%BeginProlog\n")
+        fp.write(PSMacros)
+        # insert TeX prolog & fonts here
+        fp.write(TeXstuff(self))
+        fp.write("%%EndProlog\n")
+
+        # --- Setup ---
+        fp.write("%%BeginSetup\n")
+        fp.write("PyScriptDict begin\n")
+        fp.write('/uu {%f mul} def '%defaults.units)
+        fp.write('%g setlinewidth \n'%defaults.linewidth)
+        fp.write('%d setlinecap %d setlinejoin %g setmiterlimit %s setdash\n'%\
+                 (defaults.linecap,
+                  defaults.linejoin,
+                  defaults.miterlimit,
+                  defaults.dash
+                  ))
+        fp.write("end\n")
+        fp.write("%%EndSetup\n")
+
+        for pp in range(len(self)):
+            self[pp].write(fp,pp+1)
+        
+        # --- Trailer ---
+        fp.write("%%Trailer\n") 
+        fp.write("%%EOF\n") 
+
+    def insert(self,idx,obj):
+        self.objbox.union(obj.bbox())
+        self.objects.insert(idx,obj)
+
+    def append(self,*objs):
+        '''
+        append object(s) to group
+        '''
+        for obj in objs:
+            self.objbox.union(obj.bbox())
+            self.objects.append(obj)
+
+        # update size
+        if self.objbox.is_set():
+            self.isw=self.objbox.sw
+            self.width=self.objbox.width
+            self.height=self.objbox.height
+        
