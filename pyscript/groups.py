@@ -292,11 +292,12 @@ class Align(Group):
     space = None
     angle = 0
 
-    alignable=[]
 
     def __init__(self, *objects, **dict):
 
         Group.__init__(self,**dict)
+
+        self.aligned=[]
 
         self.append(*objects)
         
@@ -319,14 +320,14 @@ class Align(Group):
         for obj in objects:
             if isinstance(obj, PsObj):
 
-                if len(self.alignable)==0:
+                if len(self.aligned)==0:
                     # first object sets the position ...
                     Group.append(self,obj)
-                    self.alignable.append(obj)
+                    self.aligned.append(obj)
                 else: 
 
                     # align the object
-                    p1 = getattr(self.alignable[-1].bbox(), a1)
+                    p1 = getattr(self.aligned[-1].bbox(), a1)
                     p2 = getattr(obj.bbox(), a2)
 
                     if space is not None:
@@ -339,7 +340,7 @@ class Align(Group):
                         obj.move((U(angle+90)*(p2-p1))*U(angle-90))
             
                     Group.append(self,obj)
-                    self.alignable.append(obj)
+                    self.aligned.append(obj)
 
             else:
                 # append but don't align
