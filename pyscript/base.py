@@ -392,8 +392,10 @@ class Color(PsObj):
         newcol = []
         for ii in self.color:
             newcol.append(min(1, ii*other))
-        return Color(tuple(newcol))
 
+        # XXX this breaks things:
+        #return Color(tuple(newcol))
+        return apply(Color, tuple(newcol))
 # -------------------------------------------------------------------------
 class Dash(PsObj):
     """

@@ -158,31 +158,6 @@ class Poster(Page, VAlign):
                 signature,
                 )
 
-# ----------------------------------------------------------------------
-# these looked reasonable:
-
-#    size="A0"
-#    orientation="portrait"
-#
-#    gutter=.2*4 # paper margin for A4 in cm
-#        
-#    pad=.3*4
-#        
-#    bg=Color('DarkSlateBlue')
-#
-#    title=""
-#    title_fg=Color('Yellow')
-#    title_scale=2*4
-#    title_width=.7
-#
-#    authors=""
-#    authors_fg=Color(0)
-#    authors_scale=1*4
-#    authors_width=.8*4
-#    
-#    logo_height=.8*4
-
-
 
 # ----------------------------------------------------------------------
 # Talk Class
