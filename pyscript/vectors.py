@@ -26,133 +26,141 @@ __revision__ = '$Revision$'
 # Originally written by Mario Chemnitz (ucla@hrz.tu-chemnitz.de)
 # Cut back and reworked to suit pyscript
 
-from math import sqrt,acos,sin,cos,pi,atan2
-from base import PsObj
+from math import sqrt, sin, cos, pi, atan2
+from pyscript.base import PsObj
 
 
 class Matrix:
     '''
     2x2 matrix class
     '''
-    type='Matrix'
+    type = 'Matrix'
  
-    def __init__(self,a=0.0,b=0.0,c=0.0,d=0.0):
+    def __init__(self, a = 0.0, b = 0.0, c = 0.0, d = 0.0):
         # / a b \
         # \ c d /
-        self.data=[a,b,c,d]
+        self.data = [a, b, c, d]
  
 
-    def body(s):
-        d=s.data
+    def body(self, s):
+        """
+        Return the postscript body
+        """
+        d = s.data
         
         #NB postscript uses transpose
-        return "[%g %g %g %g]"%(d[0],d[2],d[1],d[3])
+        return "[%g %g %g %g]" % (d[0], d[2], d[1], d[3])
 
-    def __add__(s,o):
-        if isinstance(o,Matrix):
-            return Matrix(s[0]+o[0],s[1]+o[1],s[2]+o[2],s[3]+o[3])
+    def __add__(self, s, o):
+        if isinstance(o, Matrix):
+            return Matrix(s[0]+o[0], s[1]+o[1], s[2]+o[2], s[3]+o[3])
         else:
-            raise TypeError,"non-matrix (%s) in matrix addition"%type(o)
+            raise TypeError, "non-matrix (%s) in matrix addition"\
+                     % type(o)
 
-    __radd__=__add__
+    __radd__ = __add__
   
-    def __sub__(s,o):
-        if isinstance(o,Matrix):
-            return Matrix(s[0]-o[0],s[1]-o[1],s[2]-o[2],s[3]-o[3])
+    def __sub__(self, s, o):
+        if isinstance(o, Matrix):
+            return Matrix(s[0]-o[0], s[1]-o[1], s[2]-o[2], s[3]-o[3])
         else:
-            raise TypeError,"non-matrix (%s) in matrix subtraction"%type(o)
+            raise TypeError, "non-matrix (%s) in matrix subtraction"\
+                    % type(o)
 
-    def __rsub__(s,o):
-        if isinstance(o,Matrix):
-            return Matrix(o[0]-s[0],o[1]-s[1],o[2]-s[2],o[3]-s[3])
+    def __rsub__(self, s, o):
+        if isinstance(o, Matrix):
+            return Matrix(o[0]-s[0], o[1]-s[1], o[2]-s[2], o[3]-s[3])
         else:
-            raise TypeError,"non-matrix (%s) in right matrix subtraction"%type(o)
+            raise TypeError, "non-matrix (%s) in right matrix subtraction"\
+                    % type(o)
 
-    def __neg__(s):
-        return Matrix(-s[0],-s[1],-s[2],-s[3])
+    def __neg__(self, s):
+        return Matrix(-s[0], -s[1], -s[2], -s[3])
         
     def __len__(self):
         return 4
 
-    def __getitem__(self,i):
+    def __getitem__(self, i):
         if i < (len(self)):
             return self.data[i]
         else:
-            raise IndexError,"index reading error"
+            raise IndexError, "index reading error"
     
-    def __setitem__(self,i,other):
+    def __setitem__(self, i, other):
         if i < (len(self)):
-            self.data[i]=other
+            self.data[i] = other
         else:
-            raise IndexError,"index writing error"
+            raise IndexError, "index writing error"
 
     # reads entry from row i and column j: -> data element
-    def __getslice__(self,i,j):
+    def __getslice__(self, i, j):
         if i<2 and j<2:
             return self.data[2*i+j]
         else:
-            raise IndexError,"index reading error"
+            raise IndexError, "index reading error"
 
     # writes matrix element to row i and column j
-    def __setslice__(self,i,j,wert):
+    def __setslice__(self, i, j, wert):
         if i<2 and j<2:
-            self.data[2*i+j]=wert
+            self.data[2*i+j] = wert
         else:
-            raise IndexError,"index writing error"
+            raise IndexError, "index writing error"
 
     #E matrix multiplication (self*other): -> matrix or vector
-    def __mul__(self,other):
-        if isinstance(other,Matrix):
-            tmp=Matrix()
+    def __mul__(self, other):
+        if isinstance(other, Matrix):
+            tmp = Matrix()
             for i in range(2):
                 for j in range(2):
                     for k in range(2):
-                        tmp[i:j]=tmp[i:j]+self[i:k]*other[k:j]
+                        tmp[i:j] = tmp[i:j]+self[i:k]*other[k:j]
             return tmp
-        elif isinstance(other,P):
-            tmp=P()
+        elif isinstance(other, P):
+            tmp = P()
             for i in range(2):
                 for k in range(2):
-                    tmp[i]=tmp[i]+self[i:k]*other[k]
+                    tmp[i] = tmp[i]+self[i:k]*other[k]
             return tmp      
-        elif isinstance(other,(int,float)):
-            tmp=Matrix()
+        elif isinstance(other, (int, float)):
+            tmp = Matrix()
             for i in range(len(self)):
-                tmp[i]=self[i]*other
+                tmp[i] = self[i]*other
             return tmp	
         else:
-            raise TypeError,"m-n-error in matrix multiplication"
+            raise TypeError, "m-n-error in matrix multiplication"
       
     # E operand for matrix multiplication is on the right (other*self):
     # -> matrix
-    def __rmul__(self,other):
-        if isinstance(other,Matrix):
-            tmp=Matrix()
+    def __rmul__(self, other):
+        if isinstance(other, Matrix):
+            tmp = Matrix()
             for i in range(len(self)):
-                tmp[i]=other*self[i]
+                tmp[i] = other*self[i]
             return tmp	
         else:
-            raise TypeError,"error in right matrix multiplication"
+            raise TypeError, "error in right matrix multiplication"
 
-    def det(s):
+    def det(self, s):
         return s[0]*s[3]-s[1]*s[2]
 
-    def inverse(s):
+    def inverse(self, s):
 
-        d=s.det()
+        d = s.det()
 
-        if d==0 : raise "determinant=0, cannot calc inverse"
+        if d == 0 : 
+            raise ValueError, "determinant=0, cannot calc inverse"
 
-        return Matrix(s[3],-s[1],-s[2],s[0])/float(d)
+        return Matrix(s[3], -s[1], -s[2], s[0])/float(d)
 
 
-    def __div__(self,n):
+    def __div__(self, n):
         # only for numbers!
-        assert isinstance(n,(int,float)), "only division by numbers implemented"
-        n=float(n)
-        tmp=Matrix()
+        assert isinstance(n, (int, float)), \
+                "only division by numbers implemented"
+        n = float(n)
+        tmp = Matrix()
         for i in range(len(self)):
-            tmp[i]=self[i]/n
+            tmp[i] = self[i]/n
         return tmp
   
 
@@ -166,85 +174,96 @@ class P(PsObj):
     operations always return type 'P' vectors
     """
 
-    point=[0,0]
+    point = [0, 0]
 
-    def __init__(self,x=0.0,y=0.0,**dict):
+    def __init__(self, x = 0.0, y = 0.0, **options):
 
-        self.point=[x,y]
+        self.point = [x, y]
 
-        apply(PsObj.__init__,(self,),dict)
+        PsObj.__init__(self)
         
     def __len__(self):
         return 2
 
-    def __getitem__(self,i):
+    def __getitem__(self, i):
         if i < (len(self)):
             return self.point[i]
         else:
-            raise IndexError,"index reading error"
+            raise IndexError, "index reading error"
     
-    def __setitem__(self,i,other):
+    def __setitem__(self, i, other):
         if i < (len(self)):
-            self.point[i]=other
+            self.point[i] = other
         else:
-            raise IndexError,"index writing error"
+            raise IndexError, "index writing error"
 
-    def __add__(s,o):
-        if isinstance(o,P):
-            return P(s[0]+o[0],s[1]+o[1])
-        elif isinstance(o,(float,int)):
-            return P(s[0]+o,s[1]+o)
+    def __add__(self, o):
+        if isinstance(o, P):
+            return P(self[0]+o[0], self[1]+o[1])
+        elif isinstance(o, (float, int)):
+            return P(self[0]+o, self[1]+o)
         else:
-            raise TypeError, "non-vector (%s) in vector addition"%type(o)
+            raise TypeError, "non-vector (%s) in vector addition"\
+                    % type(o)
 
-    __radd__=__add__
+    __radd__ = __add__
 
-    def __sub__(s,o):
-        if isinstance(o,P):
-            return P(s[0]-o[0],s[1]-o[1])
+    def __sub__(self, o):
+        if isinstance(o, P):
+            return P(self[0]-o[0], self[1]-o[1])
         else:
-            raise TypeError, "non-vector (%s) in vector subtraction"%type(o)
+            raise TypeError, "non-vector (%s) in vector subtraction"\
+                    % type(o)
 
-    def __rsub__(s,o):
-        if isinstance(o,P):
-            return P(o[0]-s[0],o[1]-s[1])
+    def __rsub__(self, o):
+        if isinstance(o, P):
+            return P(o[0]-self[0], o[1]-self[1])
         else:
-            raise TypeError, "non-vector (%s) in right vector subtraction"%type(o)
+            raise TypeError, "non-vector (%s) in right vector subtraction"\
+                    % type(o)
 
-    def __neg__(s):
-        return P(-s[0],-s[1])
+    def __neg__(self):
+        return P(-self[0], -self[1])
 
-    def __mul__(s,o):
-        if isinstance(o,P):
+    def __mul__(self, o):
+        if isinstance(o, P):
             # Dot product
-            return s[0]*o[0]+s[1]*o[1]
-        elif isinstance(o,Matrix):
+            return self[0]*o[0]+self[1]*o[1]
+        elif isinstance(o, Matrix):
             raise TypeError, "other must not be a matrix"
         else:
-            return P(s[0]*o,s[1]*o)
+            return P(self[0]*o, self[1]*o)
 
-    def __rmul__(s,o):
-        return P(s[0]*o,s[1]*o)
+    def __rmul__(self, o):
+        return P(self[0]*o, self[1]*o)
 
     def body(self):
-        "return postscript as string"
-        return "%g uu %g uu"%tuple(self)
+        """
+        return postscript as string
+        """
+        return "%g uu %g uu" % tuple(self)
 
-    def __div__(self,o):
+    def __div__(self, o):
         # only for numbers!
-        if isinstance(o,(float,int)):
-            n=float(o)
-            return P(self[0]/o,self[1]/o)
+        if isinstance(o, (float, int)):
+            n = float(o)
+            return P(self[0]/o, self[1]/o)
         else:
             raise TypeError, "Only division by numbers implemented"
 
     def _get_x(self):
+        """
+        Get the x coordinate
+        """
         return self[0]
-    x = property(_get_x,None)
+    x = property(_get_x, None)
 
     def _get_y(self):
+        """
+        Get the y coordinate
+        """
         return self[1]
-    y = property(_get_y,None)
+    y = property(_get_y, None)
 
     def _get_length(self):
         '''
@@ -252,29 +271,28 @@ class P(PsObj):
         (distance from origin to point)
         '''
         return sqrt(self*self)
-    length = property(_get_length,None)
+    length = property(_get_length, None)
 
     def _get_U(self):
         '''
         Return unit vector pointing in same direction
         '''
         return self/float(self.length)
-    U = property(_get_U,None)
+    U = property(_get_U, None)
 
 
     def _get_arg(self):
-	return atan2(self.x,self.y)/pi*180
-    arg = property(_get_arg,None)
-	
-    def cross(self,other):
-        if isinstance(o,P):
-            tmp=P()
-            tmp[0]=self[1]*other[2]-self[2]*other[1]
-            tmp[1]=self[2]*other[0]-self[0]*other[2]
+        return atan2(self.x, self.y)/pi*180
+    arg = property(_get_arg, None)
+
+    def cross(self, other):
+        if isinstance(other, P):
+            tmp = P()
+            tmp[0] = self[1]*other[2]-self[2]*other[1]
+            tmp[1] = self[2]*other[0]-self[0]*other[2]
             return tmp
         else:
-            raise TypeError, "non-vector (%s) in cross product"%type(o)
-
+            raise TypeError, "non-vector (%s) in cross product" % type(other)
 
 
 # -------------------------------------------------------------------------
@@ -282,34 +300,37 @@ class P(PsObj):
 # -------------------------------------------------------------------------
 
 class R(P):
+    """
+    Relative point vector
+    """
 
-    def __add__(s,o):
-        if isinstance(o,(float,int)):
-            return R(s[0]+o,s[1]+o)
+    def __add__(self, o):
+        if isinstance(o, (float, int)):
+            return R(self[0]+o, self[1]+o)
         else:
-            return P.__add__(s,o)
+            return P.__add__(self, o)
         
-    def __mul__(s,o):
-        if isinstance(o,(float,int)):
-            return R(s[0]*o,s[1]*o)
+    def __mul__(self, o):
+        if isinstance(o, (float, int)):
+            return R(self[0]*o, self[1]*o)
         else:
-            return P.__mul__(s,o)
+            return P.__mul__(self, o)
         
-    def __rmul__(s,o):
+    def __rmul__(self, o):
         
-        return R(s[0]*o,s[1]*o)
+        return R(self[0]*o, self[1]*o)
 
-    def __div__(self,o):
+    def __div__(self, o):
         # only for numbers!
-        if isinstance(o,(float,int)):
-            n=float(o)
-            return R(self[0]/o,self[1]/o)
+        if isinstance(o, (float, int)):
+            #n = float(o)
+            return R(self[0]/o, self[1]/o)
         else:
             raise TypeError, "Only division by numbers implemented"
-    def __neg__(s):
-        return R(-s[0],-s[1])
+    def __neg__(self):
+        return R(-self[0], -self[1])
 
-#def R(*args,**dict):
+#def R(*args, **dict):
 #    """
 #    Exactly the same as a P() but some functions interpret
 #    this as a relative direction
@@ -320,23 +341,23 @@ class R(P):
 # Unit vector
 # -------------------------------------------------------------------------
 
-def U(angle,r=1):
+def U(angle, r = 1):
     '''
     return a relative vector of length r in the given direction
     '''
-    x=r*sin(angle/180.0*pi)
-    y=r*cos(angle/180.0*pi)
+    x = r*sin(angle/180.0*pi)
+    y = r*cos(angle/180.0*pi)
 
-    return R(x,y)
+    return R(x, y)
 
 # -------------------------------------------------------------------------
 # Unit vector
 # -------------------------------------------------------------------------
-def Cusp(p1,p2):
+def Cusp(p1, p2):
     '''
-    Alignment aid returns P(p1.x,p2.y)
+    Alignment aid returns P(p1.x, p2.y)
     '''
-    return P(p1[0],p2[1])
+    return P(p1[0], p2[1])
     
     
 # -------------------------------------------------------------------------
@@ -346,7 +367,7 @@ def Identity(p):
     function which does nothing
     '''
     # do it this way so we return a copy
-    return P(p[0],p[1])
+    return P(p[0], p[1])
 
 
 # -------------------------------------------------------------------------
@@ -365,55 +386,80 @@ class Bbox(object):
 
     """
 
-    sw=None
-    width=0
-    height=0 
+    sw = None
+    width = 0
+    height = 0 
 
-    def __init__(self,**dict):
+    def __init__(self, **options):
         '''
         can pass a dict of atributes to set
         '''
 
+        object.__init__(self)
         # this will raise an exception if class doesn't have attribute
         # I think this is good.
-        prop=[]
-        for key,value in dict.items():
-            if isinstance(eval('self.__class__.%s'%key),property):
-                prop.append((key,value))
+        prop = []
+        for key, value in options.items():
+            if isinstance(eval('self.__class__.%s'%key), property):
+                prop.append((key, value))
             else:
-                self.__class__.__setattr__(self,key,value)
+                self.__class__.__setattr__(self, key, value)
 
 
-    def _get_n(s):
-        return s.sw+P(s.width/2.,s.height)
+    def _get_n(self):
+        """
+        Get the "north" point
+        """
+        return self.sw+P(self.width/2., self.height)
     n = property(_get_n)
 
-    def _get_ne(s):
-        return s.sw+P(s.width,s.height)
+    def _get_ne(self):
+        """
+        Get the "north-east" point
+        """
+        return self.sw+P(self.width, self.height)
     ne = property(_get_ne)
 
-    def _get_e(s):
-        return s.sw+P(s.width,s.height/2.)
+    def _get_e(self):
+        """
+        Get the "east" point
+        """
+        return self.sw+P(self.width, self.height/2.)
     e = property(_get_e)
 
-    def _get_se(s):
-        return s.sw+P(s.width,0)
+    def _get_se(self):
+        """
+        Get the "south-east" point
+        """
+        return self.sw+P(self.width, 0)
     se = property(_get_se)
 
-    def _get_s(s):
-        return s.sw+P(s.width/2.,0)
+    def _get_s(self):
+        """
+        Get the "south" point
+        """
+        return self.sw+P(self.width/2., 0)
     s = property(_get_s)
 
-    def _get_w(s):
-        return s.sw+P(0,s.height/2.)
+    def _get_w(self):
+        """
+        Get the "west" point
+        """
+        return self.sw+P(0, self.height/2.)
     w = property(_get_w)
 
-    def _get_nw(s):
-        return s.sw+P(0,s.height)
+    def _get_nw(self):
+        """
+        Get the "north-west" point
+        """
+        return self.sw+P(0, self.height)
     nw = property(_get_nw)
 
-    def _get_c(s):
-        return s.sw+P(s.width/2.,s.height/2.)
+    def _get_c(self):
+        """
+        Get the "centre" point
+        """
+        return self.sw+P(self.width/2., self.height/2.)
     c = property(_get_c)
 
     def is_set(self):
@@ -425,7 +471,7 @@ class Bbox(object):
         else:
             return 1
 
-    def union(self,bbox,itoe=Identity):
+    def union(self, bbox, itoe = Identity):
         '''
         Expand this boundingbox to include bbox,
         passing bbox through itoe if supplied
@@ -437,16 +483,16 @@ class Bbox(object):
             return
 
         
-        ne=itoe(bbox.ne)
-        sw=itoe(bbox.sw)
-        nw=itoe(bbox.nw)
-        se=itoe(bbox.se)
+        ne = itoe(bbox.ne)
+        sw = itoe(bbox.sw)
+        nw = itoe(bbox.nw)
+        se = itoe(bbox.se)
         
 
-        xmin=min(ne[0],nw[0],se[0],sw[0])
-        xmax=max(ne[0],nw[0],se[0],sw[0])
-        ymin=min(ne[1],nw[1],se[1],sw[1])
-        ymax=max(ne[1],nw[1],se[1],sw[1])
+        xmin = min(ne[0], nw[0], se[0], sw[0])
+        xmax = max(ne[0], nw[0], se[0], sw[0])
+        ymin = min(ne[1], nw[1], se[1], sw[1])
+        ymax = max(ne[1], nw[1], se[1], sw[1])
         
         #if self.is_set():
 
@@ -466,19 +512,19 @@ class Bbox(object):
 
         if self.is_set():
 
-            x1=min(self.sw[0],xmin)
-            y1=min(self.sw[1],ymin)
-            x2=max(self.ne[0],xmax)
-            y2=max(self.ne[1],ymax)
+            x1 = min(self.sw[0], xmin)
+            y1 = min(self.sw[1], ymin)
+            x2 = max(self.ne[0], xmax)
+            y2 = max(self.ne[1], ymax)
 
-            self.sw=P(x1,y1)
-            self.width=x2-x1
-            self.height=y2-y1
+            self.sw = P(x1, y1)
+            self.width = x2-x1
+            self.height = y2-y1
             
         else:
 
-            self.sw=P(xmin,ymin)
-            self.width=xmax-xmin
-            self.height=ymax-ymin
+            self.sw = P(xmin, ymin)
+            self.width = xmax-xmin
+            self.height = ymax-ymin
             
 # vim: expandtab shiftwidth=4:
