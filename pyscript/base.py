@@ -229,7 +229,7 @@ class Color(PsObj):
         "lightblue":(173,216,230),
         "lightcoral":(240,128,128),
         "lightcyan":(224,255,255),
-        "lightgoldenrodyellow":(250,250,210),
+        "lightgoldenrod":(250,250,210),
         "lightgreen":(144,238,144),
         "lightgray":(211,211,211),
         "lightpink":(255,182,193),
