@@ -26,7 +26,7 @@ def level(x,y,label,**dict):
         label,
         )
 
-from math import atan2
+from math import atan2, pi
 
 def darrow(s,e,label,**dict):
     # don't yet have an arrow object ...
