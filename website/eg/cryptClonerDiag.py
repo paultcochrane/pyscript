@@ -118,7 +118,7 @@ vac1Text = TeX(se=ampBox.c+P(-1.1,0.9),text=r"$\hat{v}_1$")
 vac1.append(vac1Text)
 tipPoint = ampBox.c+P(0.7+sqrt(3.0)/2.0,-0.8)
 vac1Arrow = ArrowHead(tip=tipPoint,dir="e")
-vac1Arrow.rotate(30)
+vac1Arrow.rotate(30,p=vac1Arrow.bbox().sw)
 vac1.append(vac1Arrow)
 
 # output mode from amp
@@ -213,7 +213,7 @@ vac1Text = TeX(se=ampBox.c+P(-1.1,0.9),text=r"$\hat{v}_1$")
 vac1.append(vac1Text)
 tipPoint = ampBox.c+P(0.7+sqrt(3.0)/2.0,-0.8)
 vac1Arrow = ArrowHead(tip=tipPoint,dir="e")
-vac1Arrow.rotate(30)
+vac1Arrow.rotate(30,p=vac1Arrow.bbox().sw)
 vac1.append(vac1Arrow)
 
 # output mode from amp
