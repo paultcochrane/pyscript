@@ -489,7 +489,7 @@ class Path(AffineObj):
         cp = path.pop(0) # current point
 
         while 1:
-            print len(path)
+            #print len(path)
             if len(path) == 0: 
                 break
 
