@@ -118,9 +118,25 @@ def TeXstuff(objects):
     fp.write(defaults.tex_tail)
     fp.close()
 
-    os.system(defaults.tex_command%file+'> pyscript.log 2>&1')
+    #os.system(defaults.tex_command%file+'> pyscript.log 2>&1')
+    (fi,foe) = os.popen4(defaults.tex_command%file)
+    fi.close()
+    fp = open("pyscript.log","a")
+    stdouterr = foe.readlines()
+    fp.write(str(stdouterr))
+    fp.write('\n')
+    fp.close()
+    foe.close()
 
-    os.system("dvips -tunknown -o temp.ps temp.dvi"+'>> pyscript.log 2>&1')
+    #os.system("dvips -tunknown -o temp.ps temp.dvi"+'>> pyscript.log 2>&1')
+    (fi,foe) = os.popen4("dvips -tunknown -o temp.ps temp.dvi")
+    fi.close()
+    fp = open("pyscript.log","a")
+    stdouterr = foe.readlines()
+    fp.write(str(stdouterr))
+    fp.write('\n')
+    fp.close()
+    foe.close()
 
     fp=open("temp.ps","r")
     ps=fp.read(-1)
@@ -129,7 +145,6 @@ def TeXstuff(objects):
     #grab tex
     tt=re.findall('(?s)\%\%Page: \d+ \d+(.*?)(?=\%\%)',ps)
 
-    print tt
     assert len(tt)==len(objects)
 
     for ii in range(len(objects)):
@@ -276,7 +291,6 @@ def render(*objects,**opts):
 
     defs=""
     if len(tex)>0:
-	print tex
         defs=TeXstuff(tex)
 
 
