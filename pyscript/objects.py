@@ -42,12 +42,8 @@ class AffineObj(PsObj):
     on the page.
     '''
 
-    def __init__(self, **options):
-        self.o = P(0, 0)
-        self.T = Matrix(1, 0, 0, 1)
-
-        PsObj.__init__(self, **options)
-        # print "AffineObj(PsObj) options: " + str(options)
+    o = P(0, 0)
+    T = Matrix(1, 0, 0, 1)
 
     def concat(self, t, p = None):
         '''
@@ -253,12 +249,7 @@ class Area(AffineObj):
     isw = P(0, 0)
     width = 0
     height = 0
-    def __init__(self, **options):
-        AffineObj.__init__(self, **options)
-        #print "Area(AffineObj) options: " + str(options)
-        #self.isw = P(0, 0)
-        #self.width = 0
-        #self.height = 0
+
 
     # Dynamic locations
     def _get_n(self):
@@ -401,8 +392,6 @@ class TeX(Area):
     bodyps = ""
 
     def __init__(self, text = "", **options):
-        Area.__init__(self, **options)
-        #print "TeX(Area) options: " + str(options)
 
         self.text = text
 
@@ -451,7 +440,8 @@ class TeX(Area):
         self.width = (bbox[2]-bbox[0])/float(defaults.units)
         self.height = (bbox[3]-bbox[1])/float(defaults.units)
 
-        #Area.__init__(self, **options)
+        # now we have a width and height we can initialise Area
+        Area.__init__(self, **options)
 
         self.offset = -P(bbox[0], bbox[1])/float(defaults.units)
 
@@ -762,9 +752,7 @@ class Circle(AffineObj):
     end = 360
     linewidth = None
     dash = None
-
-    def __init__(self, **options):
-        AffineObj.__init__(self, **options)
+    
 
     def locus(self, angle, target = None):
         '''
