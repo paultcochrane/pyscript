@@ -98,11 +98,14 @@ def detector(**dict):
     '''
     r=0.3
     c=0.65*r
-    path=[P(0,-r),P(0,r),C(c,r,r,c),P(r,0),C(r,-c,c,-r)]
+    path=[P(0,-r),P(0,r),C(P(c,r),P(r,c)),P(r,0),C(P(r,-c),P(c,-r)),P(0,-r)]
     dict['bg']=dict.get('bg',Color(.8))
-
-    return apply(Path,path,dict)
-
+    dict['closed']=1
+    p=apply(Path,path,dict)
+    a=Area(width=r,height=2*r,e=P(0,0))
+    
+    return Group(a,p)
+    
 def classicalpath(*paths):
     '''
     @return: classical path

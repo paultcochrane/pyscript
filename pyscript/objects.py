@@ -29,6 +29,7 @@ from vectors import *
 from base import PsObj,Color,PyScriptError,FontError
 from afm import AFM
 
+
 import warnings
 
 # -------------------------------------------------------------------------
@@ -369,6 +370,7 @@ class TeX(Area):
     def body(self):
         out=cStringIO.StringIO()
 
+        
         out.write("%s translate "%self.offset)
         out.write("%s\n"%self.fg)
         out.write("%s\n"%self.bodyps)
@@ -514,8 +516,8 @@ class Text(Area):
         out=cStringIO.StringIO()
 
         ATTR={'font':self.font,
-              'size':self.size,
               'fg':self.fg,
+              'size':self.size,
               'settext':self.settext,
               'offset':self.offset}
         
@@ -542,8 +544,8 @@ class Rectangle(Area):
     bg=None
     fg=Color(0)
     r=0
-    linewidth=defaults.linewidth
-    dash=defaults.dash
+    linewidth=None
+    dash=None
 
     def __init__(self,obj=None,**dict):
         '''
@@ -567,10 +569,10 @@ class Rectangle(Area):
         
         out=cStringIO.StringIO()
         
-        if self.linewidth!=defaults.linewidth:
+        if self.linewidth:
             out.write("%g setlinewidth "%self.linewidth)
 
-        if self.dash!=defaults.dash:
+        if self.dash:
             out.write("%s setdash "%self.dash)
         
         # make sure we have a sensible radius
@@ -636,8 +638,8 @@ class Circle(AffineObj):
     r=1.0
     start=0
     end=360
-    linewidth=defaults.linewidth
-    dash=defaults.dash
+    linewidth=None
+    dash=None
     
 
     def locus(self,angle,target=None):
@@ -728,10 +730,10 @@ class Circle(AffineObj):
 
         out = cStringIO.StringIO()
 
-        if self.linewidth!=defaults.linewidth:
+        if self.linewidth:
             out.write("%g setlinewidth "%self.linewidth)
 
-        if self.dash!=defaults.dash:
+        if self.dash:
             out.write("%s setdash "%self.dash)
 
         # By default postscript goes anti-clockwise
@@ -797,189 +799,8 @@ class Dot(Circle):
         
         return Bbox()
 
-# -------------------------------------------------------------------------
-# Path elements
-# -------------------------------------------------------------------------
-
-class C:
-    """
-    Defines control points for besier spline
-    """
-
-    def __init__(self,*points):
-
-        self.points=points
-        if len(points)==1:
-            self.c1=points[0]
-            self.c2=points[0]
-        elif len(points)==2:
-            if type(points[0])==type(P()):
-                self.c1=points[0]
-                self.c2=points[1]
-            else:
-                self.c1=P(points[0],points[1])
-                self.c2=P(points[0],points[1])
-        elif len(points)==4:
-            self.c1=P(points[0],points[1])
-            self.c2=P(points[2],points[3])
-            
-        else:
-            raise "Don't inderstand arguments to C()"
-
-    def copy(self):
-        return copy.deepcopy(self)
-
-    def controls(self):
-        # is this necessary?
-        return self.c1,self.c2
-
-class Path(Area):
-    """
-    A Path
-    """
-    
-    fg=Color(0)
-    bg=None
-    linewidth=defaults.linewidth
-    linecap=defaults.linecap
-    linejoin=defaults.linejoin
-    miterlimit=defaults.miterlimit
-    dash=defaults.dash
-    
-    def __init__(self,*path,**dict):
-
-        apply(Area.__init__,(self,),dict)
-
-        if len(path)==0:
-            path=[P(0,0),P(0,0)]
-        else:
-            path=list(path)
-
-#        path=self.make_relative(path)
-        sw,ne=self.extent(path)
-        self.offset=-sw
-
-        self.sw=sw
-        self.width=ne[0]-sw[0]
-        self.height=ne[1]-sw[1]
-        self.path=path
-        
-
-    def closed(self):
-        "Is the path a closed one?"
-        p=self.path
-        if isinstance(p[-1],C) or p[-1] is p[0]:
-            return 1
-        else:
-            return 0
-                
-    def _get_start(self):
-        "return start point"
-        return self.path[0]
-    start = property(_get_start)
-
-    def _get_end(self):
-        "return end point"
-        P=self.path
-        p=P[-1]
-        if isinstance(p,C):
-            p=P[0]
-        return p
-    end = property(_get_end)
-        
-    def body(self):
-
-        out=cStringIO.StringIO()
-
-        path=self.path[:]
-
-        out.write("%s translate "%self.offset)
 
 
-        if self.linewidth!=defaults.linewidth:
-            out.write("%g setlinewidth "%self.linewidth)
-
-        if self.linecap!=defaults.linecap:
-            out.write("%d setlinecap "%self.linecap)
-            
-        if self.linejoin!=defaults.linejoin:
-            out.write("%d setlinejoin "%self.linejoin)
-
-        if self.miterlimit!=defaults.miterlimit:
-            out.write("%f setmiterlimit "%self.miterlimit)
-
-        if self.dash!=defaults.dash:
-            out.write("%s setdash "%self.dash)
-
-        out.write("newpath %s moveto\n"%path[0])
-
-        p=None
-        while len(path)>1:
-            pp=p
-            p=path.pop(1)
-            if isinstance(p,P):
-                out.write("%s lineto\n"%p)
-            elif isinstance(p,C):
-                c1,c2=p.controls()
-                pn=path.pop(1%len(path))
-                out.write("%s %s %s curveto\n"%(c1,c2,pn))
-
-        if self.closed():
-            out.write(' closepath ')
-
-        
-        if self.bg is not None:
-            out.write("gsave %s fill grestore\n"%self.bg)
-        
-        if self.fg is not None:
-            out.write("%s stroke\n"%self.fg)
-
-        return out.getvalue()
-
-
-#    def make_relative(self,path):
-#        "Return a path with all relative elements"
-#        return path
-
-    def extent(self,path):
-        "a boundingbox in internal co-ords"
-
-        # first collect a whole lot of points on the path
-        boundpoints=[]
-        L=len(path)
-        for ii in range(L):
-            p=path[ii]
-            if isinstance(p,P):
-                boundpoints.append(p)
-            elif isinstance(p,C):
-                pn=path[(ii+1)%L]
-                pp=path[(ii-1)%L]
-                assert isinstance(pn,P)
-                c1,c2=p.controls()
-                if c1==None or c2==None: continue
-
-                divisions=10
-                for d in range(1,divisions):
-                    t=d/float(divisions)
-                    p=(1-t)**3*pp+3*(1-t)**2*t*c1+3*(1-t)*t**2*c2+t**3*pn
-                    boundpoints.append(p)
-                    
-
-        SW=boundpoints[0].copy()
-        NE=boundpoints[0].copy()
-        #SW=P(0,0)
-        #NE=P(0,0)
-        #NE[0]=SW[0]=boundpoints[0][0]
-        #NE[1]=SW[1]=boundpoints[0][1]
-
-
-        for p in boundpoints:
-            SW[0]=min(SW[0],p[0])
-            SW[1]=min(SW[1],p[1])
-            NE[0]=max(NE[0],p[0])
-            NE[1]=max(NE[1],p[1])
-
-        return SW,NE
 
 # -------------------------------------------------------------------------
 

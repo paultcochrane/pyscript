@@ -19,6 +19,10 @@ from vectors import *
 from base import PsObj,Color,PyScriptError,FontError
 from objects import *
 
+# -------------------------------------------------------------------------
+# Pathlettes ... components of path, not used by themselves
+# -------------------------------------------------------------------------
+
 class _line(object):
     '''
     A line pathlette
@@ -66,8 +70,7 @@ class _line(object):
         return Bbox(sw=P(x0,y0),width=x1-x0,
                     height=y1-y0)
 
-
-
+# -------------------------------------------------------------------------
 
 class _bezier(object):
     '''
@@ -77,46 +80,74 @@ class _bezier(object):
     e=None
     cs=None
     ce=None
+    length=None
+    
+    TOL=None #tolerance for linearising
 
-    TOL=1e-4 #tolerance for linearising
-
-    def __init__(self,s,cs,ce,e):
+    def __init__(self,s,cs,ce,e,TOL=5e-3,temporary=False):
         self.s=s # start
         self.e=e # end
         self.cs=cs # start control
         self.ce=ce # end control
+        self.TOL=TOL
+        
+        # for efficiency don't do this unless we intend to
+        # keep this pathlette
+        if not temporary:
+            self._points=self.straighten()
+            self.set_length()
 
-        self._cache()
+    def _is_straight(self):
+        '''
+        is this curve straight?
+        '''
+
+        L1=(self.cs-self.s).length+\
+          (self.ce-self.cs).length+\
+          (self.e-self.ce).length
+        L2=(self.e-self.s).length
+        
+        if abs(L1-L2)/float(L1)<=self.TOL:
+            return True
+        else:
+            return False
+
+    def straighten(self):
+        
+        if self._is_straight():
+            return (self.s,self.e)
+        else: 
+            c1,c2=self._bisect(temporary=True)
+            
+            return (c1.straighten()+c2.straighten())
+        
+    def _bisect(self,t=.5,temporary=False):
+        '''
+        Divide this bezier into two
+        '''
+        p01   = self.s * (1-t) + self.cs * t
+        p12   = self.cs * (1-t) + self.ce * t
+        p23   = self.ce * (1-t) + self.e * t
+        p012  = p01  * (1-t) + p12  * t
+        p123  = p12  * (1-t) + p23  * t
+        p0123 = p012 * (1-t) + p123 * t
+
+        return (_bezier(self.s.copy(), p01, p012, p0123,temporary=temporary),
+                _bezier(p0123.copy(), p123, p23, self.e.copy(),temporary=temporary) )       
+
+    
+    def set_length(self):
+        L=0
+        p0=self.s
+        for p in self._points:
+            L+=(p-p0).length
+            p0=p
+        self.length=L
 
     def body(self):
         return '%s %s %s %s curveto\n'%(self.s,self.cs,self.ce,self.e)
 
-    def _cache(self):
-        '''
-        Split curve up into line segments and store length and the points
-        '''
 
-        Lold=(self.e-self.s).length
-
-        pp=1
-        while pp<=100:
-
-            L=0
-            dt=1.0/(pp+1)
-            for ii in xrange(pp+1):
-                L+=(self._t((ii+1)*dt)-self._t(ii*dt)).length 
-            if abs((L-Lold)/float(Lold))<self.TOL: break
-            Lold=L
-            pp=pp+1 
-
-        self.length=L
-        self._points=[self.s]
-        for ii in xrange(pp):
-            self._points.append(self._t((ii+1)*dt))
-        self._points.append(self.e)
-
-        print pp, "points"
-        
     def _t(self,t):
         '''
         Return point on curve parametrised by t [0-1]
@@ -144,6 +175,10 @@ class _bezier(object):
         '''
         assert 0<=f<=1
 
+        #if self.length is None:
+        #    self._cache()
+
+        
         if f==0:
             return self.s
         elif f==1:
@@ -167,6 +202,9 @@ class _bezier(object):
     def bbox(self,itoe=Identity):
         # run through the list of points to get the bounding box
         
+        #if self.length is None:
+        #    self._cache()
+
         p0=itoe(self.s)
         x0,y0=p0
         x1,y1=p0
@@ -183,6 +221,60 @@ class _bezier(object):
         return Bbox(sw=P(x0,y0),width=x1-x0,
                     height=y1-y0)
 
+# -------------------------------------------------------------------------
+# Curve specifier
+# -------------------------------------------------------------------------
+
+class C:
+    """
+    Specifier and generator for curves
+    """
+
+    # The type of the curve
+    # 0 = bezier
+    _type=None
+    
+    def __init__(self,c1=None,c2=None):
+        '''
+        store curve parameters
+        '''
+
+        if c1 is not None and c2 is not None:
+            self.c1=c1
+            self.c2=c2
+            self._type=0
+        elif c1 is not None and c2 is None:
+            self.c1=c1
+            self.c2=c1
+            self._type=0
+        else:
+            raise "Don't inderstand arguments to C()"
+
+    def copy(self):
+        return copy.deepcopy(self)
+
+    #def controls(self):
+    #    # is this necessary?
+    #    return self.c1,self.c2
+    
+    def curve(self,p1,p2):
+        '''
+        return pathlette object corresponding to curve
+        '''
+        if self._type==0:
+            c1=self.c1
+            c2=self.c2
+            if isinstance(c1,R):
+                c1=p1+c1
+            if isinstance(c2,R):
+                c2=p2+c2
+            print p1,c1,c2,p2
+            return _bezier(p1,c1,c2,p2)
+        else:
+            raise "Couldn't contruct curve"
+# -------------------------------------------------------------------------
+# Path object
+# -------------------------------------------------------------------------
 
 class Path(AffineObj):
     """
@@ -191,26 +283,30 @@ class Path(AffineObj):
     
     fg=Color(0)
     bg=None
-    linewidth=defaults.linewidth
-    linecap=defaults.linecap
-    linejoin=defaults.linejoin
-    miterlimit=defaults.miterlimit
-    dash=defaults.dash
+    linewidth=None
+    linecap=None
+    linejoin=None
+    miterlimit=None
+    dash=None
     closed=0
 
-    _pathlettes=[]
+    #_pathlettes=[]
 
     def __init__(self,*path,**dict):
+
+        self._pathlettes=[]
 
         apply(AffineObj.__init__,(self,),dict)
 
         path=list(path) # so we can use pop
-
+        
+        # first point must be, well a point
         assert isinstance(path[0],P)
         cp=path.pop(0) # current point
 
         while 1:
             if len(path)==0: break
+
             p=path.pop(0)
             if isinstance(p,R):
                 p=p+cp
@@ -222,8 +318,8 @@ class Path(AffineObj):
             elif isinstance(p,C):
                 c=p
                 # Get the next point
-                p=path.pop()
-                self._pathlettes.append(_bezier(cp,c.c1,c.c2,p))
+                p=path[0]
+                self._pathlettes.append(c.curve(cp,p))
                 cp=p
             else:
                 raise "Unknown path control"
@@ -274,19 +370,19 @@ class Path(AffineObj):
 
         out=cStringIO.StringIO()
 
-        if self.linewidth!=defaults.linewidth:
+        if self.linewidth is not None:
             out.write("%g setlinewidth "%self.linewidth)
 
-        if self.linecap!=defaults.linecap:
+        if self.linecap is not None:
             out.write("%d setlinecap "%self.linecap)
             
-        if self.linejoin!=defaults.linejoin:
+        if self.linejoin is not None:
             out.write("%d setlinejoin "%self.linejoin)
 
-        if self.miterlimit!=defaults.miterlimit:
+        if self.miterlimit is not None:
             out.write("%f setmiterlimit "%self.miterlimit)
 
-        if self.dash!=defaults.dash:
+        if self.dash is not None:
             out.write("%s setdash "%self.dash)
 
         out.write('newpath %s moveto\n'%self._pathlettes[0].start)

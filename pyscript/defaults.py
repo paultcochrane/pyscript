@@ -18,7 +18,7 @@
 A class to hold default settings
 """
 
-from base import UNITS
+from base import UNITS,Color
 
 class defaults:
 
@@ -52,6 +52,7 @@ class defaults:
     # [ 2 3 ] 11 setdash % 1 on, 3 off, 2 on, 3 off, 2 on
     dash="[ ] 0"
 
-    # fg=Color(0)
-    # bg=None
+    # a 'color' of None is transparent 
+    #fg=Color(0)
+    #bg=None
 

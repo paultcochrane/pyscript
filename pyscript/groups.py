@@ -594,6 +594,7 @@ class Eps(Group):
         fp.write("%%BeginSetup\n")
         fp.write("PyScriptDict begin\n")
         fp.write('/uu {%f mul} def '%defaults.units)
+        #fp.write('%s\n'%defaults.fg)
         fp.write('%g setlinewidth \n'%defaults.linewidth)
         fp.write('%d setlinecap %d setlinejoin %g setmiterlimit %s setdash\n'%\
                  (defaults.linecap,
