@@ -105,13 +105,7 @@ else:
         if not DEBUG:
             print "Removing log file"
             os.remove(logFile)
-            print "Removing temp files"
-	    tempfiles = ("temp.aux", "temp.dvi", "temp.log", "temp.ps",
-			"temp.tex", "temp1.aux", "temp1.dvi", "temp1.eps",
-			"temp1.log", "temp1.tex")
-	    for tmpfile in tempfiles:
-		if os.path.exists(tmpfile):
-		    os.remove(tmpfile)
+
     print "Done!"
     
     
