@@ -1,5 +1,4 @@
-import sys
-sys.path.insert(0,"../")
+#!/usr/bin/env pyscript
 
 from pyscript import *
 
@@ -17,14 +16,9 @@ orig=Group(r1.copy(fg=Color('Red')),
            c2.copy(fg=Color('Red')),
 )
 
-# now align them horiz. with 1cm e-w
-#a=Align(r1,r2,c1,c2, a1="e",a2="w",space=1,angle=90,anchor=2)
 
-a=Group(r1,r2,c1,c2)
-Align(a,a1="e",a2="w",space=1,angle=90,anchor=2)
-
-# this will align them horiz without changing their horiz. dist
-#a=Align(r1,r2,c1,c2, a1="e",a2="w",space=None,angle=90)
+a=Group(r1,r2,c1,c2).apply(linewidth=2)
+Align(a,a1="e",a2="w",space=None,angle=90)
 
 render(
     orig,

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pyscript
 
 from pyscript import *
 import pyscript.lib.quantumcircuits as qc
@@ -68,20 +68,20 @@ render(p1,p2,p3,p4,
        qc.cbox(TeX(r'$U^{2^{q-2}}$'),3.8,0,4),
        qc.cbox(TeX(r'$U^{2^{q-1}}$'),5,0,5),
 
-       det.copy(w=p2.end),
-       det.copy(w=p3.end),
-       det.copy(w=p4.end),
+       det.copy(c=p2.end),
+       det.copy(c=p3.end),
+       det.copy(c=p4.end),
 
        qc.Boxed(TeX(r'$\mathcal{D}$'),c=P(9,0)),
        TeX(r'\renewcommand{\arraycolsep}{1mm}$\left\{\begin{array}{ccc}0&\mathrm{w.p.}&1-p(E_j)\\1&\mathrm{w.p.}&p(E_j)\end{array}\right.$',w=P(9.1,3)),
        qc.Boxed(TeX(r'$\phi_j$'),c=P(7.5,3)),
        qc.Dot(P(9,3)),
 
-       ket0.copy(e=p2.w),
-       ket0.copy(e=p3.w),
-       ket0.copy(e=p4.w),
-       TeX(r'$\rho$',e=p1.w-P(.1,0)),
-       TeX(r'$\mathcal{E}(\rho)$',w=p1.e+P(.1,0)),
+       ket0.copy(e=p2.start),
+       ket0.copy(e=p3.start),
+       ket0.copy(e=p4.start),
+       TeX(r'$\rho$',e=p1.start-P(.1,0)),
+       TeX(r'$\mathcal{E}(\rho)$',w=p1.end+P(.1,0)),
 
        
        TeX(r'\ket{E_j}',s=P(7.5,0.1)),

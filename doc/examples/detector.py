@@ -1,3 +1,5 @@
+#!/usr/bin/env pyscript
+
 from pyscript import *
 
 defaults.units=UNITS['cm']
@@ -51,7 +53,7 @@ def fig():
         TeX('$y$',w=d1.e),
         TeX('$x$',n=d2.e),
         
-        Rectangle(width=h+.6,height=h+1,dash='[ 2] 0',e=d1.e+P(.4,0)),
+        Rectangle(width=h+.6,height=h+1,dash=Dash(2),e=d1.e+P(.4,0)),
         
         
         Dot(P(-.5,h/2.),r=.05),

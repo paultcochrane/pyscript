@@ -1,3 +1,5 @@
+#!/usr/bin/env pyscript
+
 from pyscript import *
 
 defaults.units=UNITS['cm']
@@ -61,7 +63,7 @@ render(
     level(.5,2,TeX("\ket{3}")),
     level(2.5,2.5,TeX("\ket{4}")),
     
-    Path(P(0,1.7),P(1,1.7),dash='[2]0'),
+    Path(P(0,1.7),P(1,1.7),dash=Dash(2)),
     TeX(r'$\Delta\left\{\rule{0cm}{2.75mm}\right.$')(e=P(0,1.85)),
 
     darrow(P(0,0),P(.3,1.7),TeX('\small signal'),fg=Color('green'),bg=Color('green')),
