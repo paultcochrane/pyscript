@@ -728,8 +728,8 @@ class Circle(Area):
 
         setkeys(dict,
                 {"bg": None,
-                 "fg": Color(0)})
-
+                 "fg": Color(0),
+                 "radius": 1.0})
         apply(Area.__init__, (self,), dict)
 
     def body(self):
@@ -740,6 +740,35 @@ class Circle(Area):
             out.write("%(bg)s 0 0 %(radius)s uu 0 360 arc fill\n" % self)
 
         out.write("%(fg)s 0 0 %(radius)s uu 0 360 arc stroke\n" % self)
+
+        return out.getvalue()
+
+
+class Arc(Area):
+    """
+    Draw an arc
+    """
+    type="Arc"
+
+    def __init__(self, **dict):
+
+        setkeys(dict,
+                {"bg": None,
+                 "fg": Color(0),
+                 "radius": 1.0,
+                 "angle1": 0,
+                 "angle2": 90})
+
+        apply(Area.__init__, (self,), dict)
+
+    def body(self):
+
+        out = cStringIO.StringIO()
+
+        if self["bg"] is not None:
+            out.write("%(bg)s 0 0 %(radius)s uu %(angle1)s %(angle2)s arc fill\n" % self)   # hmmm, could there be problems with filling this object???
+
+        out.write("%(fg)s 0 0 %(radius)s uu %(angle1)s %(angle2)s arc stroke\n" % self)
 
         return out.getvalue()
 
