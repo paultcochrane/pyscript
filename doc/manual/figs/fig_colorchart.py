@@ -1,12 +1,13 @@
-from pyscript import *
+#from pyscript import *
 
-defaults.units=UNITS['cm']
+#defaults.units=UNITS['cm']
 
 # first grab all the colors in a list so we can sort them
 # also find the longest name
 cols=[]
 max=0
 max_name=""
+
 for name,rgb in Color.COLORS.items():
     if len(name)>max:
         max=len(name)
@@ -84,6 +85,8 @@ height=t.height+.2
 
 #assume 140 cols: 140=35x4
 H=35*height
+
+print str(len(cols))
 
 chart = Group()
 ii=0

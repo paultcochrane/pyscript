@@ -24,13 +24,14 @@ for ii in ['n','ne','e','se','s','sw','w','nw','c']:
     dots.append(dot(p))
     dots.append(Text(str(ii),c=p-p/8.))
 
-rad=Path(P(0,0),P(0,3)).rotate(60)
+rad=Group(Path(P(0,0),P(0,3))).rotate(60)
 radt=Text('r')
     
 render(
     axis,
     r,
     dots,
-    rad,radt.rotate(-30)(s=rad.c+U(-30,.2)),
+    rad,
+    radt.rotate(-30)(s=rad.c+U(-30,.2)),
     file="fig_circle.eps",
     )

@@ -1,4 +1,5 @@
 from pyscript import *
+from math import sqrt
 
 g=Group(Rectangle(sw=P(0,0),width=2,height=2),
         Circle(r=1,sw=P(0,0)),

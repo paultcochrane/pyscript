@@ -20,17 +20,21 @@ rp = (P(0,0-thick),P(1,0.5-thick),P(2,0-thick),P(3,-0.5-thick),P(4,0-thick))
 tail = P(-0.5,-0.4)
 
 body= Path(tail,
-	lp[0],C(lp[1]),lp[2],C(lp[3]),lp[4],
-	C(lp[4]+P(0.1,0.25)),lp[4]+P(0.55,0.2),
-         rp[4]+P(0.5,0.3),C(rp[4]+P(0.3,-0.1)),
-         rp[4],  C(rp[3]),rp[2],C(rp[1]),rp[0],tail,
+	lp[0],C(lp[1],lp[1]),lp[2],C(lp[3],lp[3]),lp[4],
+	C(lp[4]+P(0.1,0.25),lp[4]+P(0.1,0.25)),lp[4]+P(0.55,0.2),
+         rp[4]+P(0.5,0.3),C(rp[4]+P(0.3,-0.1),rp[4]+P(0.3,-0.1)),
+         rp[4],  C(rp[3],rp[3]),rp[2],C(rp[1],rp[1]),rp[0],tail,
            bg=Color(.91,.82,.63))
          
 
 tpoint = (lp[4]+P(0.55,0.2)+rp[4]+P(0.5,0.3))/2.0
 tongue = Group(
-	Path(tpoint,C(tpoint+P(0.1,0.1)),tpoint+P(0.1,0.2),fg=Color('cyan')),
-	Path(tpoint,C(tpoint+P(0.1,0.1)),tpoint+P(0.2,0.05),fg=Color('cyan')),
+	Path(tpoint,
+	    C(tpoint+P(0.1,0.1),tpoint+P(0.1,0.1)),
+	    tpoint+P(0.1,0.2),fg=Color('cyan')),
+	Path(tpoint,
+	    C(tpoint+P(0.1,0.1),tpoint+P(0.1,0.1)),
+	    tpoint+P(0.2,0.05),fg=Color('cyan')),
 )
 
 el1 = lp[4]+P(0.19,0.03)
@@ -53,24 +57,25 @@ cpoints = (
 	(rp[4]+rp[3])/2.0,
 )
 
-squiggle = Path(tail+P(0.25,0.05),
-	C(cpoints[0]),
+squiggle = Group(
+	Path(tail+P(0.25,0.05),
+	C(cpoints[0],cpoints[0]),
 	(cpoints[0]+cpoints[1])/2.0,
-	C(cpoints[1]),
+	C(cpoints[1],cpoints[1]),
 	(cpoints[1]+cpoints[2])/2.0,
-	C(cpoints[2]),
+	C(cpoints[2],cpoints[2]),
 	(cpoints[2]+cpoints[3])/2.0,
-	C(cpoints[3]),
+	C(cpoints[3],cpoints[3]),
 	(cpoints[3]+cpoints[4])/2.0,
-	C(cpoints[4]),
+	C(cpoints[4],cpoints[4]),
 	(cpoints[4]+cpoints[5])/2.0,
-	C(cpoints[5]),
+	C(cpoints[5],cpoints[5]),
 	(cpoints[5]+cpoints[6])/2.0,
-	C(cpoints[6]),
+	C(cpoints[6],cpoints[6]),
 	(cpoints[6]+cpoints[7])/2.0,
-	C(cpoints[7]),
+	C(cpoints[7],cpoints[7]),
 	lp[4],
-)
+))
 squiggle.fg = Color('red')
 
 dotR = 0.02
