@@ -14,19 +14,23 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+# $Id$
+
 """
 Module for reading and writing AFM files.
 """
+
+__revision__ = '$Revision$'
 
 # It does not implement the full spec (Adobe Technote 5004, Adobe Font Metrics
 # File Format Specification). Still, it should read most "common" AFM files.
 # Taken and adapted from afmLib.py in fonttools by Just van Rossum
 
-import re,os,string,types,cPickle,rexec,sys
-from base import FontError
+import re, os, string, types, cPickle, sys  #, rexec
+from pyscript.base import FontError
 import pyscript
 
-FONTDIR=os.path.join(pyscript.__path__[0],"fonts")
+FONTDIR = os.path.join(pyscript.__path__[0], "fonts")
 
 # every single line starts with a "word"
 identifierRE = re.compile("^([A-Za-z]+).*")
@@ -78,9 +82,17 @@ componentRE = re.compile(
     )
 
 
-class error(Exception): pass
+class AFMError(Exception): 
+    """
+    Class for handling errors
+    """
+    pass
 
 class ConvertAFM:
+    """
+    Convert Adobe Font Metrics
+    """
+
     _keywords = ['StartFontMetrics',
                  'EndFontMetrics',
                  'StartCharMetrics',
@@ -94,6 +106,12 @@ class ConvertAFM:
                  ]
         
     def __init__(self, filename):
+        """
+        Initialisation of object
+
+        @param filename: the name of the font file name
+        @type filename: string
+        """
 
         self._attrs = {}
         self._chars = {}
@@ -103,8 +121,13 @@ class ConvertAFM:
 
         self.parse(filename)
 
+    def parse(self, path):
+        """
+        Parse the afm file
 
-    def parse(self,path):
+        @param path: path to the afm file
+        @type path: string
+        """
 
         f = open(path, 'rb')
         data = f.read()
@@ -112,18 +135,18 @@ class ConvertAFM:
         # read any text file, regardless whether it's
         # formatted for Mac, Unix or Dos
         sep = ""
-        if '\r' in data:
-                sep = sep + '\r'	# mac or dos
-        if '\n' in data:
-                sep = sep + '\n'	# unix or dos
-        lines=string.split(data, sep)
+        if '\r' in data: 
+            sep = sep + '\r'	# mac or dos
+        if '\n' in data: 
+            sep = sep + '\n'	# unix or dos
+        lines = string.split(data, sep)
 
         for line in lines:
             if not string.strip(line):
                 continue
             m = identifierRE.match(line)
             if m is None:
-                raise error, "syntax error in AFM file: " + `line`
+                raise AFMError, "syntax error in AFM file: " + `line`
 
             pos = m.regs[1][1]
             word = line[:pos]
@@ -139,9 +162,15 @@ class ConvertAFM:
             else:
                 self.parseattr(word, rest)
 
-    def write(self,filename):
+    def write(self, filename):
+        """
+        Write the font file
 
-        out=open(filename,"w")
+        @param filename: the name of the font file to write
+        @type filename: string
+        """
+
+        out = open(filename, "w")
 
         out.write("attrs=%s"%repr(self._attrs))
         out.write("\n")
@@ -156,37 +185,55 @@ class ConvertAFM:
 
         out.close()
 
-    def write2(self,filename):
+    def write2(self, filename):
+        """
+        Another version of writing the font file (I think...)
 
-        afm=AFM()
+        @param filename: the name of the font file to write
+        @type filename: string
+        """
 
-        afm._attrs=self._attrs
-        afm._chars=self._chars
-        afm._kerning=self._kerning
-        afm._comments=self._comments
-        afm._composites=self._composites
+        afm = AFM()
 
-        fp=open(filename,"w")
-        cPickle.dump(afm,fp)
+        afm._attrs = self._attrs
+        afm._chars = self._chars
+        afm._kerning = self._kerning
+        afm._comments = self._comments
+        afm._composites = self._composites
+
+        fp = open(filename, "w")
+        cPickle.dump(afm, fp)
         fp.close()
         
     def parsechar(self, rest):
+        """
+        Parse a character
+
+        @param rest: the character to parse
+        @type rest: string
+        """
         m = charRE.match(rest)
         if m is None:
-            raise error, "syntax error in AFM file: " + `rest`
+            raise AFMError, "syntax error in AFM file: " + `rest`
         things = []
         for fr, to in m.regs[1:]:
             things.append(rest[fr:to])
-        charname = things[2]
+        #charname = things[2]
         del things[2]
         charnum, width, l, b, r, t = map(string.atoi, things)
         # width l b r t
-        self._chars[charnum] = width,l, b, r, t
+        self._chars[charnum] = width, l, b, r, t
 
     def parsekernpair(self, rest):
+        """
+        Parse a kerning pair
+
+        @param rest: the kerning pair to parse
+        @type rest: string
+        """
         m = kernRE.match(rest)
         if m is None:
-            raise error, "syntax error in AFM file: " + `rest`
+            raise AFMError, "syntax error in AFM file: " + `rest`
         things = []
         for fr, to in m.regs[1:]:
             things.append(rest[fr:to])
@@ -195,10 +242,19 @@ class ConvertAFM:
         value = string.atoi(value)
         #self._kerning[(leftchar, rightchar)] = value
         # fix for all kernings
-        if len(leftchar)==len(rightchar)==1:
-            self._kerning[(ord(leftchar),ord(rightchar))]=value
+        if len(leftchar) == len(rightchar) == 1:
+            self._kerning[(ord(leftchar), ord(rightchar))]=value
         
     def parseattr(self, word, rest):
+        """
+        Parse an attribute
+
+        @param word: the kind of attribute to be parsed (?)
+        @type word: string
+
+        @param rest: the attribute to parse
+        @type rest: string
+        """
         if word == "FontBBox":
             l, b, r, t = map(string.atoi, string.split(rest))
             self._attrs[word] = l, b, r, t
@@ -213,9 +269,15 @@ class ConvertAFM:
                 self._attrs[word] = value
         
     def parsecomposite(self, rest):
+        """
+        Parse a composite string/expression/thing
+
+        @param rest: the string to parse
+        @type rest: string
+        """
         m = compositeRE.match(rest)
         if m is None:
-            raise error, "syntax error in AFM file: " + `rest`
+            raise AFMError, "syntax error in AFM file: " + `rest`
         charname = m.group(1)
         ncomponents = int(m.group(2))
         rest = rest[m.regs[0][1]:]
@@ -223,7 +285,7 @@ class ConvertAFM:
         while 1:
             m = componentRE.match(rest)
             if m is None:
-                raise error, "syntax error in AFM file: " + `rest`
+                raise AFMError, "syntax error in AFM file: " + `rest`
             basechar = m.group(1)
             xoffset = int(m.group(2))
             yoffset = int(m.group(3))
@@ -237,58 +299,106 @@ class ConvertAFM:
 # -------------------------------------------------------------------
         
 class AFM:
+    """
+    Class for handling Adobe Font Metric objects
+    """
         
-    def __init__(self,fontname):
+    def __init__(self, fontname):
+        """
+        Initialisation of the AFM object
+        
+        @param fontname: the name of the font
+        @type fontname: string
+        """
 
-        fontname=string.lower(fontname)
-        fontname=string.replace(fontname,"-","_")
+        # this should be a better name, but will stop the possible error
+        # from occurring
+        self.FullName = fontname
+
+        fontname = string.lower(fontname)
+        fontname = string.replace(fontname, "-", "_")
 
         # the import statement seem a little bit of a hack
         # but this will work for now.
         try:
-            f=__import__('pyscript.fonts.%s'%fontname,None,None,[fontname])
-        except ImportError,x:
+            f = __import__('pyscript.fonts.%s'%fontname, None, None, [fontname])
+        except ImportError, x:
             # rename the exception
-            raise FontError,x
-        self.f=f
-
+            raise FontError, x
+        self.f = f
         
     def has_kernpair(self, pair):
+        """
+        Determines if the kerning pair exists in the font
+
+        @param pair: the kering pair to look for
+        @type pair: ?
+        """
         return self.f.kerning.has_key(pair)
         
     def kernpairs(self):
+        """
+        Returns the kerning pairs in the font
+        """
         return self.f.kerning.keys()
         
     def has_char(self, char):
+        """
+        Determins if the character exists in the font
+
+        @param char: the character to look for
+        @type char: ?
+        """
         return self.f.chars.has_key(char)
         
     def chars(self):
+        """
+        Returns the characters in the font
+        """
         return self.f.chars.keys()
         
     def comments(self):
+        """
+        Returns the comments in the font
+        """
         return self.f.comments
         
     def __getattr__(self, attr):
+        """
+        Gets an attribute of the font
+
+        @param attr: the attribute to get
+        @type attr: ?
+        """
         if self.f.attrs.has_key(attr):
             return self.f.attrs[attr]
         else:
             raise AttributeError, attr
                 
     def __getitem__(self, key):
+        """
+        Gets an item within the font
+
+        @param key: the item to get
+        @type key: ?
+        """
         if type(key) == types.TupleType:
             # key is a tuple, return the kernpair
-            return self.f.kerning.get(key,0)
+            return self.f.kerning.get(key, 0)
         else:
             # return the metrics instead
             return self.f.chars[key]
         
     def __repr__(self):
+        """
+        Returns the representation of the font object
+        """
         if hasattr(self, "FullName"):
             return '<AFM object for %s>' % self.FullName
         else:
             return '<AFM object at %x>' % id(self)
 
-    def bbox(self,string,size=1,kerning=0):
+    def bbox(self, string, size=1, kerning=0):
         '''
         Return a strings boundingbox in this font
         at the scale provided (relative to 1 point?)
@@ -298,49 +408,55 @@ class AFM:
         @return: xl,yb,xr,yt
         '''
 
-        chars=map(ord,list(string))
+        chars = map(ord, list(string))
 
         # order: width l b r t
 
         # use 'reduce' and 'map' as they're written in C
 
         # add up all the widths
-        width= reduce(lambda x, y: x+self[y][0],chars,0)
+        width = reduce(lambda x, y: x+self[y][0], chars, 0)
 
         # subtract the kerning
-        if kerning==1:
+        if kerning == 1:
             if len(chars)>1:
-                kk=map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:])
-                kern=reduce(lambda x,y:x+y,kk)
+                kk = map(lambda x, y:self[(x, y)], chars[:-1], chars[1:])
+                kern = reduce(lambda x, y:x+y, kk)
                             
-                width+=kern
-        kk=map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:])
+                width += kern
+        kk = map(lambda x, y:self[(x, y)], chars[:-1], chars[1:])
         print kk
 
         # get rid of the end bits
-        start=self[chars[0]][1]
-        f=self[chars[-1]]
+        start = self[chars[0]][1]
+        f = self[chars[-1]]
         width = width-start-(f[0]-f[3])
 
 
         # accumulate maximum height
-        top = reduce(lambda x, y: max(x,self[y][4]),chars,0)
+        top = reduce(lambda x, y: max(x, self[y][4]), chars, 0)
 
         # accumulate lowest point
-        bottom = reduce(lambda x, y: min(x,self[y][2]),chars,self[chars[0]][2])
+        bottom = reduce(lambda x, y: min(x, self[y][2]), chars, self[chars[0]][2])
 
-        sc=size/1000.
-        xl=start*sc
-        yb=bottom*sc
-        xr=xl+width*sc
-        yt=top*sc
+        sc = size/1000.
+        xl = start*sc
+        yb = bottom*sc
+        xr = xl + width*sc
+        yt = top*sc
 
-        return xl,yb,xr,yt
+        return xl, yb, xr, yt
 
 
 def load(fontname):
+    """
+    Loads the font of the given font name
 
-    fontpath=os.path.join(FONTDIR,fontname)
+    @param fontname: the name of the font to load
+    @type fontname: string
+    """
+
+    fontpath = os.path.join(FONTDIR, fontname)
 
     fp = open(fontpath+".font")
     font = cPickle.load(fp)
@@ -352,20 +468,18 @@ if __name__ == "__main__":
     # utility for converting afm files to pyscripts
     # font modules
 
-    import os
-
     for filename in sys.argv[1:]:
 
-        afm=ConvertAFM(filename)
+        afm = ConvertAFM(filename)
 
-        dir,file=os.path.split(filename)
+        dir, file = os.path.split(filename)
 
-        base,ext=os.path.splitext(file)
+        base, ext = os.path.splitext(file)
 
-        base=string.lower(base)
-        base=string.replace(base,"-","_")
+        base = string.lower(base)
+        base = string.replace(base, "-", "_")
         
-        outfile=os.path.join(dir,base+".py")
+        outfile = os.path.join(dir, base+".py")
 
         afm.write(outfile)
 

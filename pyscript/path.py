@@ -14,11 +14,19 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+# $Id$
+
+"""
+The Path module
+"""
+
+__revision__ = '$Revision$'
+
 from defaults import *
 from vectors import *
-from base import PsObj,Color,PyScriptError,FontError
+from base import PsObj, Color, PyScriptError, FontError
 from objects import *
-from math import sqrt,pi
+from math import sqrt, pi
 
 # -------------------------------------------------------------------------
 # Pathlettes ... components of path, not used by themselves

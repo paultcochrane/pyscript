@@ -15,6 +15,14 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
+# $Id$
+
+"""
+Vectors
+"""
+
+__revision__ = '$Revision$'
+
 # Originally written by Mario Chemnitz (ucla@hrz.tu-chemnitz.de)
 # Cut back and reworked to suit pyscript
 
