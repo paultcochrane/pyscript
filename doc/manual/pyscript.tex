@@ -88,7 +88,7 @@ pitfalls to be aware of \ldots
   just like your clock.  Often, key points are labeled by the compass
   points: n, ne, e, se, s, sw, w, nw.
 \item The default units are postscript points,
-  $1\mathrm{pp}=28.346\mathrm{cm}$.????? For a figure, the default can
+  $1\mathrm{cm}=28.346\mathrm{pp}$. For a figure, the default can
   easily be changed with the command
   \Verb|defaults.units=UNITS['cm']|. All of the examples in this manual are
   in \texttt{cm}.
@@ -387,6 +387,40 @@ These points are always returned in external co-ordinates.
 \section{Drawing Objects}
 
 %--------------------------------------------------------------------------
+\subsection{Common Attributes}
+\label{sec:draw-attr}
+
+Most of the objects that actually draw something on the page
+share a common set of attributes to set things like the line thickness
+etc. 
+
+\begin{itemize}
+\item \textbf{fg}: A \Verb|Color()|, the colour for the ink in the
+  foreground.  Some objects allow switching this off with the value
+  \Verb|None| in which case only the fill (if it's used) will be
+  drawn.
+\item \textbf{bg}: A \Verb|Color()|, the fill color if the object
+  supports this. A value of \Verb|None| means no fill (transparent).
+\item \textbf{linewidth}: The linewidth in pp.
+\item \textbf{linecap}: How to finish the ends of lines. 0=butt,
+  1=round, 2=square.
+\item \textbf{linejoin}: How to treat corners. 0=miter, 1=round,
+  2=bevel.
+\item \textbf{miterlimit}: Where to cut off the mitres (if you're
+  using mitres in linejoins). 1.414 cuts off miters at angles less
+  than 90 degrees, 2.0 cuts off miters at angles less than 60 degrees,
+  10.0 cuts off miters at angles less than 11 degrees, 1.0 cuts off
+  miters at all angles, so that bevels are always produced.
+\item \textbf{dash:} The dash pattern to use for the forground lines.
+  Currently this follows the postscript syntax. e.g. \Verb|"[]"| is a
+  solid line, \Verb|"[2 3] 0 "| is a dashed line with ink for 2 pp gap
+  for 3 pp and an initial offset for the ink of 0 pp. At some time in
+  the future there may be a convenience class to set this.
+\end{itemize}
+
+
+
+%--------------------------------------------------------------------------
 \subsection{Rectangle()}
 \label{sec:rectangle}
 %\begin{python}
@@ -525,6 +559,7 @@ render(t1,t2,file=...)
 
 Since \Verb|Text| is a subclass of \Verb|Area| then the usual compass points
 (\Verb|n|, \Verb|ne|, etc) are defined and can be read or set.
+
 %--------------------------------------------------------------------------
 \subsection{TeX()}
 \label{sec:tex}
@@ -569,6 +604,49 @@ render(g,file=...)
 %--------------------------------------------------------------------------
 \section{Groups}
 
+\subsection{Group()}
+\label{sec:group}
+\begin{python}
+class Group(Area):
+
+    def __init__(self,*objects,**dict):
+
+    def append(self,*objs):
+        append object(s) to group
+
+    def apply(self,**dict):
+        apply attributes to all objects
+
+    def recalc_size(self):
+        recalculate internal container size based on objects within
+
+    def __getitem__(self,i):
+    def __setitem__(self,i,other):
+    def __getslice__(self,i,j):
+    def __setslice__(self,i,j,wert):
+\end{python}
+
+This is one of the key classes in \Verb|PyScript|. \Verb|Group()| acts
+like a python list and groups together  \Verb|PyScript| objects. Objects
+can be added to the group when you create it, e.g. \Verb|g=Group(det,b)|,
+or appended afterwards, e.g. \Verb|g.append(head,tail)|. You can access the 
+items in the group as you would a normal python list, e.g. \Verb|head=g[2]|.
+
+When an item is added to the group, the groups bounding box is recalculated
+and this allows the whole group to be positioned using \Verb|n|, \Verb|ne|
+etc. If you modify an object after it's been added to the group you will
+have to call the \Verb|.recalc_size()|| if you want the groups bounding box
+to reflect it's contents, you may not want this under certain applications. 
+
+\Verb|Groups()|'s can be nested without problem. All the items will be
+rendered in the order they where added. 
+
+The properties of the groups contents can be set \emph{en-masse} by
+using the \Verb|.apply()| method. Objects that don't understand a
+particular property will be skipped. e.g. \Verb|g.apply(linewidth=2)|.
+
+
+
 %--------------------------------------------------------------------------
 \section{Vectors and Matrices}
 
@@ -611,8 +689,38 @@ The colours in the named colour model are shown in figure
 \label{fig:colourChart}
 \end{figure}
 
+%--------------------------------------------------------------------------
 
+\subsection{Paper()}
+\label{sec:paper}
+\begin{python}
+class Paper(Area):
+    PAPERSIZES={"a0", ...''letter'', ...}
+\end{python}
 
+This is a convenience class, just an \Verb|Area()| with predefined
+size given by the usual paper sizes such as ``a4'', ``letter'' and
+``legal'' etc. The origin is at the sw corner. It's useful if you want
+an object that will help align things on a printed page. e.g.
+\Verb|page=Paper("a4")|.
+
+%--------------------------------------------------------------------------
+
+\subsection{Epsf()}
+\label{sec:epsf}
+\begin{python}
+class Epsf(Area):
+\end{python}
+
+Include an encapsulated postscript file (eps) in the figure. An eps
+file is a single page postcript file describing a diagram. There are
+many programs, such as graphing programs, that will generate eps files
+as output.  It has to obey certain rules, such as having no page
+brakes, and a bounding box.  \Verb|PyScript| will parse the file and
+extract the bounding box and use that as the basis of the size and
+placement of the figure. \Verb|Epsf()| takes a single argument --- the
+path of the eps file. The resulting object can then be positioned using
+\Verb|n|,\Verb|c| etc, and of cource can be scaled and rotated as desired.
 %==========================================================================
 \chapter{Development}
 
