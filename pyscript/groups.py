@@ -27,10 +27,12 @@ and TeXStuff.
 
 __revision__ = '$Revision$'
 
-import cStringIO, time, os, sys, string
+import cStringIO, time, os, sys
 
-from types import *
-from pyscript.vectors import *
+#from types import *
+from types import TupleType, ListType
+from pyscript.base import PsObj
+from pyscript.vectors import P, Bbox, U
 from pyscript.objects import Area, TeX
 from pyscript.defaults import defaults
 from pyscript.version import version
@@ -42,7 +44,16 @@ class Group(Area):
     Groups together a list of objects
     """
     
-    def __init__(self, *objects, **dict):
+    def __init__(self, *objects, **options):
+        """
+        Initialisation of Group object
+
+        @param objects: list of objects to group together
+        @type objects: list
+
+        @param options: dictionary of options
+        @type options: dict
+        """
 
         self.objects = []
         self.objbox = Bbox()
@@ -52,9 +63,15 @@ class Group(Area):
         else:
             apply(self.append, objects)
 
-        apply(Area.__init__, (self, ), dict)
+        apply(Area.__init__, (self, ), options)
 
     def __getitem__(self, i):
+        """
+        Get an item from the list of objects
+
+        @param i: the index of the item to get
+        @type i: int
+        """
         return self.objects[i]
         
     # these will break alignment
@@ -62,22 +79,40 @@ class Group(Area):
     #    self.objects[i]=other
 
     def __getslice__(self, i, j):
+        """
+        Get a slice of items from the list of objects
+
+        @param i: the first index of the slice of items to get
+        @type i: int
+
+        @param j: the last index of the slice of items to get
+        @type j: int
+        """
         return self.objects[i:j]
 
     #def __setslice__(self,i,j,wert):
     #    self.objects[i:j]=wert
 
     def __len__(self):
+        """
+        Returns the length of the object list
+        """
         return len(self.objects)
 
     def validate(self, obj):
         '''
         make sure this object can be inserted into group
+
+        @param obj: object to test for insertability
+        @type obj: object
         '''
         if isinstance(obj, Page) or isinstance(obj, Pages):
-            raise "Can't add a Page to %s"%str(self.__class__)
+            raise TypeError, "Can't add a Page to %s" % str(self.__class__)
 
     def reverse(self):
+        """
+        Reverse the order of objects in the list of objects in the group
+        """
         self.objects.reverse()
         
         # for convenience return reference to group
@@ -86,8 +121,12 @@ class Group(Area):
     def insert(self, idx, obj):
         '''
         insert object
+
         @param idx: index at which to insert object
+        @type idx: int
+
         @param obj: the object to insert
+        @type obj: object
         '''
 
         self.validate(obj)
@@ -97,9 +136,15 @@ class Group(Area):
         # for convenience return reference to group
         return self
 
-    def append(self, *objs):
+    def append(self, *objs, **options):
         '''
         append object(s) to group
+
+        @param objs: list of objects to append
+        @type objs: list
+
+        @param options: dictionary of options
+        @type options: dict
         '''
         for obj in objs:
             self.validate(obj)
@@ -115,21 +160,25 @@ class Group(Area):
         # for convenience return reference to group
         return self
 
-    def apply(self, **dict):
+    def apply(self, **options):
         '''
         apply attributes to all objects
+
+        @param options: dictionary of attributes
+        @type options: dict
+
         @return: reference to self
         @rtype: self
         '''
         # do this by attributes since they 
         # might not all get accepted
 
-        for key, value in dict.items():
+        for key, value in options.items():
             dict1 = {key:value}
             for obj in self.objects:
                 if isinstance(obj, Group):
                     # recurse
-                    apply(obj.apply, (), dict)
+                    apply(obj.apply, (), options)
                 try:
                     apply(obj, (), dict1)            
                 except AttributeError:
@@ -168,6 +217,9 @@ class Group(Area):
         
         
     def body(self):
+        """
+        Returns the body postscript of the object
+        """
         out = cStringIO.StringIO()
         for obj in self.objects:
             if obj.bbox().sw is not None:
@@ -204,7 +256,8 @@ class Group(Area):
 #     - anchor: The item number of the object that remain fixed
 #     - a1: The first anchor point to align to eg "e", "c"
 #     - a2: The second anchor point for aligning
-#     - space: the amount of space to enforce between the anchor points, if None then only movement perpendicular to angle is possible
+#     - space: the amount of space to enforce between the anchor points, 
+#       if None then only movement perpendicular to angle is possible
 #     - angle: the angle of the line between anchor points
 #    @return: a reference to the group containing the objects
 #    @rtype: Group
@@ -220,7 +273,8 @@ class Group(Area):
 #        if not isinstance(items[0], Group):
 #            # Nothing to do here ...
 #            return apply(Group, items) 
-#        # assume: single item which is a group - user wants to align group members
+#        # assume: single item which is a group 
+#        #  - user wants to align group members
 #        objects = items[0]
 #        if len(objects) <= 1:
 #            # Nothing to do here ...		
@@ -292,24 +346,41 @@ class Align(Group):
     space = None
     angle = 0
 
+    def __init__(self, *objects, **options):
+        """
+        Initialisation of the Align object
 
-    def __init__(self, *objects, **dict):
+        @param objects: list of objects to align
+        @type objects: list
 
-        Group.__init__(self,**dict)
+        @param options: dictionary of attributes
+        @type options: dict
+        """
+
+        Group.__init__(self, **options)
 
         self.aligned=[]
 
         self.append(*objects)
         
 
-    def append(self,*objects,**dict):
+    def append(self, *objects, **options):
+        """
+        Append objects to list of objects for aligning
+
+        @param objects: list of objects to append
+        @type objects: list
+
+        @param options: dictionary of attributes
+        @type options: dict
+        """
 
         # this allows temporary overiding of parameters:
 
-        a1=dict.get('a1',self.a1)
-        a2=dict.get('a2',self.a2)
-        space=dict.get('space',self.space)
-        angle=dict.get('angle',self.angle)
+        a1 = options.get('a1', self.a1)
+        a2 = options.get('a2', self.a2)
+        space = options.get('space', self.space)
+        angle = options.get('angle', self.angle)
 
         assert a1 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
         assert a2 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
@@ -338,10 +409,9 @@ class Align(Group):
             
                     Group.append(self,obj)
                     self.aligned.append(obj)
-
             else:
                 # append but don't align
-                Group.append(self,obj)
+                Group.append(self, obj)
 
         # for convenience
         return self
@@ -351,22 +421,34 @@ class Align(Group):
 # some convenience functions
 
 class VAlign(Align):
-	a1='s'
-	a2='n'
-	space=1
-	angle=180
+    """
+    Vertical align class
+    """
+    a1 = 's'
+    a2 = 'n'
+    space = 1
+    angle = 180
     
 class HAlign(Align):
-	a1='e'
-	a2='w'
-	space=1
-	angle=90
+    """
+    Horizontal align class
+    """
+    a1 = 'e'
+    a2 = 'w'
+    space = 1
+    angle = 90
 
 # -------------------------------------------------------------------------
 
-def Distribute(*items, **dict):
+def Distribute(*items, **options):
     '''
     Function to distribute a group of objects.
+
+    @param items: list of items to distribute
+    @type items: list
+
+    @param options: dictionary of attributes
+    @type options: dict
 
      - p1: first point of the line along which to distribute
      - p2: second point of the line along which to distribute
@@ -378,22 +460,22 @@ def Distribute(*items, **dict):
     @rtype: Group
     '''
 
-    a1 = dict.get('a1', 'c')
-    a2 = dict.get('a2', 'c')
+    a1 = options.get('a1', 'c')
+    a2 = options.get('a2', 'c')
 
     assert a1 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
     assert a2 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
 
     # note the swap:
-    as = dict.get('as', a2)
-    ae = dict.get('ae', a1)
+    as = options.get('as', a2)
+    ae = options.get('ae', a1)
 
     assert as in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
     assert ae in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
 
     # these two have to be present
-    p1 = dict['p1']
-    p2 = dict['p2']
+    p1 = options['p1']
+    p2 = options['p2']
 
     pv = p2-p1
 
@@ -428,7 +510,8 @@ def Distribute(*items, **dict):
         mv = -pv.U*ov*pv.U
         items[0].move(mv)
 
-        space -= abs(( getattr(items[0].bbox(), a1)-getattr(items[0].bbox(), as) )*pv.U)
+        space -= abs(( getattr(items[0].bbox(), a1)
+                         - getattr(items[0].bbox(), as) )*pv.U)
 
         # ---second object---
         ov = getattr(items[-1].bbox(), ae)-p2
@@ -437,14 +520,16 @@ def Distribute(*items, **dict):
         mv = -pv.U*ov*pv.U
         items[-1].move(mv)
 
-        space -= abs(( getattr(items[-1].bbox(), ae)-getattr(items[-1].bbox(), a2) )*pv.U)
+        space -= abs(( getattr(items[-1].bbox(), ae)
+                         - getattr(items[-1].bbox(), a2) )*pv.U)
 
         if len(items)>2:
 
             # take out the length of each item in this dir
             for item in items[1:-1]:
                 # abs? XX
-                space -= abs(( getattr(item.bbox(), a2)-getattr(item.bbox(), a1) )*pv.U)
+                space -= abs(( getattr(item.bbox(), a2)
+                                - getattr(item.bbox(), a1) )*pv.U)
 
             ds = space/float((len(items)-1))
 
@@ -455,7 +540,6 @@ def Distribute(*items, **dict):
                 mv = (ds-(p2-p1)*pv.U)*pv.U
                 items[ii].move(mv)
             
-        
     if isinstance(items, Group):
         items.recalc_size()
 
@@ -507,16 +591,22 @@ end
 def collecttex(objects, tex = []):
     """
     Collect the TeX objects in the order they're rendered
+
+    @param objects: the objects to check for being TeX objects
+    @type objects: object
+
+    @param tex: list of TeX objects
+    @type tex: list
     
     Used by render()
     @return: list of TeX objects
     @rtype: list
     """
-    for object in objects:
-        if isinstance(object, TeX):
-            tex.append(object)
-        elif isinstance(object, Group) and not isinstance(object, Eps):
-            tex = collecttex(object.objects, tex)
+    for obj in objects:
+        if isinstance(obj, TeX):
+            tex.append(obj)
+        elif isinstance(obj, Group) and not isinstance(obj, Eps):
+            tex = collecttex(obj.objects, tex)
     return tex
 
 
@@ -524,7 +614,7 @@ def TeXstuff(objects):
     '''
     Get the actual postscript code and insert it into
     the tex objects. Also grab prolog
-    
+
     used by render()
     @return: TeX objects prolog from dvips
     @rtype: string
@@ -536,8 +626,8 @@ def TeXstuff(objects):
     
     print "Collecting postscript for TeX objects ..."
     
-    file = "temp.tex"
-    fp = open(file, "w")
+    fname = "temp.tex"
+    fp = open(fname, "w")
     fp.write(defaults.tex_head)
     for tex in objects:
         fp.write('\\special{ps:PyScriptStart}\n')
@@ -555,26 +645,27 @@ def TeXstuff(objects):
     #foe.close()
 
     # TeX it twice ... only pay attention to the 2nd one
-    os.popen(defaults.tex_command%file)
-    foe = os.popen(defaults.tex_command%file)
+    os.popen(defaults.tex_command % fname)
+    foe = os.popen(defaults.tex_command % fname)
     sys.stderr.write(foe.read(-1))
     sys.stderr.write('\n')
     # Help the user out by throwing the latex log to stderr
-    if os.path.exists("%s.log"%file):
-        fp = open("%s.log"%file, 'r')
+    if os.path.exists("%s.log" % fname):
+        fp = open("%s.log" % fname, 'r')
         sys.stderr.write(fp.read(-1))
         fp.close()
     if foe.close() is not None:
-        raise "Latex Error"
+        raise RuntimeError, "Latex Error"
     
-    (fi, foe) = os.popen4("dvips -q -tunknown %s -o temp.ps temp.dvi"%defaults.dvips_options)
+    (fi, foe) = os.popen4("dvips -q -tunknown %s -o temp.ps temp.dvi"%\
+            defaults.dvips_options)
     fi.close()
     err = foe.read(-1)
     sys.stderr.write(err)
     sys.stderr.write('\n')
     foe.close()
     if len(err)>0:
-        raise "dvips Error"
+        raise RuntimeError, "dvips Error"
 
     fp = open("temp.ps", "r")
     ps = fp.read(-1)
@@ -584,16 +675,17 @@ def TeXstuff(objects):
     # gets caught on recursion limits
     
     # grab prolog dvips dosn't use %%BeginProlog!
-    start = string.index(ps, "%%EndComments")+14
-    end = string.index(ps, "%%EndProlog")
+    start = ps.index("%%EndComments")+14
+    end = ps.index("%%EndProlog")
     prolog = ps[start:end]
 
     tt = []
     pos1 = end
     while 1:
-        pos1 = string.find(ps, "PyScriptStart", pos1)
-        if pos1 <0:break
-        pos2 = string.find(ps, "PyScriptEnd", pos1)
+        pos1 = ps.find("PyScriptStart", pos1)
+        if pos1 < 0:
+            break
+        pos2 = ps.find("PyScriptEnd", pos1)
         
         tt.append("TeXDict begin 1 0 bop\n%s\neop end"%ps[pos1+14:pos2])
         pos1 = pos2
@@ -628,27 +720,33 @@ class Eps(Group):
     
     pad = 2
     
-    def __init__(self, *objects, **dict):
+    def __init__(self, *objects, **options):
         '''
         Override to allow fixed dimentions to be set
+
+        @param objects: list of Eps objects
+        @type objects: list
+
+        @param options: dictionary of attributes
+        @type options: dict
         '''
         args = (self, )+objects
-        apply(Group.__init__, args, dict)
+        Group.__init__(self)
 
         b = self.bbox()
 
         # width and height have special meaning here
-        if dict.has_key('width') and dict.has_key('height'):
-            sx = dict['width']/float(b.width)
-            sy = dict['height']/float(b.height)
-            del dict['width']
-            del dict['height']
-        elif dict.has_key('width'):
-            sx = sy = dict['width']/float(b.width)
-            del dict['width']
-        elif dict.has_key('height'):
-            sx = sy = dict['height']/float(b.height)
-            del dict['height']
+        if options.has_key('width') and options.has_key('height'):
+            sx = options['width']/float(b.width)
+            sy = options['height']/float(b.height)
+            del options['width']
+            del options['height']
+        elif options.has_key('width'):
+            sx = sy = options['width']/float(b.width)
+            del options['width']
+        elif options.has_key('height'):
+            sx = sy = options['height']/float(b.height)
+            del options['height']
         else:
             sx = sy = 1
             
@@ -656,12 +754,18 @@ class Eps(Group):
 
         # initialise again since scaling must be applied BEFORE
         # any positioning args (width/height will be correct now)
-        apply(Group.__init__, args, dict)
+        apply(Group.__init__, args, options)
         
     
     def write(self, fp, title = "PyScriptEPS"):
         '''
         write a self-contained EPS file
+
+        @param fp: the filehandle to write to
+        @type fp: file object
+
+        @param title: the title of the postscript to write
+        @type title: string
         '''
         # --- Header Comments ---
         
@@ -737,6 +841,9 @@ class Eps(Group):
         return out.getvalue()
 
     def bbox_pp(self):
+        """
+        Get the bounding box of the Eps object (with some padding)
+        """
         # Grab the groups bounding box
         b = self.bbox()
         
@@ -768,8 +875,9 @@ class Page(Group):
     # From gs_statd.ps which defines the paper sizes for gs:
     # Define various paper formats.  The Adobe documentation defines only these:
     # 11x17, a3, a4, a4small, b5, ledger, legal, letter, lettersmall, note.
-    # These procedures are also accessed as data structures during initialization,
-    # so the page dimensions must be the first two elements of the procedure.
+    # These procedures are also accessed as data structures during 
+    # initialization, so the page dimensions must be the first two elements 
+    # of the procedure.
 
     PAPERSIZES = {
         # Page sizes defined by Adobe documentation
@@ -846,22 +954,35 @@ class Page(Group):
         return Area(sw = P(0, 0), width = w, height = h)
         
     def recalc_size(self):
+        """
+        Recalculate the size of the Page object
+        """
         # disable this as we're always the same size
         pass
     
     def bbox(self):
+        """
+        Return the bounding box of the Page object as a Bbox object
+        """
         
         area = self.area()
         return Bbox(sw = area.sw, width = area.width, height = area.height)
 
     def bbox_pp_raw(self):
-        w, h = self.PAPERSIZES[string.lower(self.size)]
+        """
+        Return the raw string of the bounding box of the Page object
+        """
+
+        w, h = self.PAPERSIZES[self.size.lower()]
         return 0, 0, w, h
 
     def bbox_pp(self):
+        """
+        Return the bounding box of the Page object
+        """
         
-        w, h = self.PAPERSIZES[string.lower(self.size)]
-        if string.lower(self.orientation) == "landscape": 
+        w, h = self.PAPERSIZES[self.size.lower()]
+        if self.orientation.lower() == "landscape": 
             h, w = w, h
         
         return 0, 0, w, h
@@ -869,19 +990,26 @@ class Page(Group):
     def write(self, fp, number):
         '''
         write a self-contained PS Page
+
+        @param fp: the filehandle to write the postscript to
+        @type fp: filehandle object
+
+        @param number: the number of the page to write
+        @type number: int
         '''
         
         label = self.label
-        if label is None: label = str(number)
+        if label is None: 
+            label = str(number)
         fp.write("%%%%Page: %s %d\n"%(label, number))
 
-        orientation = string.capitalize(self.orientation)
+        orientation = self.orientation.capitalize()
         if orientation not in ("Portrait", "Landscape"):
-            raise "Don't understand page orientation"
+            raise ValueError, "Don't understand page orientation"
         
-        fp.write("%%%%PageOrientation: %s\n"%orientation)
+        fp.write("%%%%PageOrientation: %s\n" % orientation)
 
-        w, h = self.PAPERSIZES[string.lower(self.size)]
+        w, h = self.PAPERSIZES[self.size.lower()]
         fp.write("%%%%PageBoundingBox: %d %d %d %d\n"%\
                  (0, 0, w, h))
 
@@ -889,7 +1017,8 @@ class Page(Group):
         fp.write("%%BeginPageSetup\n")
         fp.write("%%%%BeginFeature: *PageSize %s\n"%self.size)
         # The orientation of w & h should make no diff here acording to specs
-        fp.write("<</PageSize [%d %d] /ImagingBBox null>> setpagedevice\n"%(w, h))
+        fp.write("<</PageSize [%d %d] /ImagingBBox null>> setpagedevice\n"%\
+                (w, h))
         fp.write("%%EndFeature\n")
         # remember the page graphics state
         fp.write("/pgsave save def\n")
@@ -916,6 +1045,12 @@ class Pages(Group):
     def write(self, fp, title = "PyScriptPS"):
         '''
         write the Pages
+
+        @param fp: filehandle to write the postscript to
+        @type fp: filehandle object
+
+        @param title: the title to use in the postscript
+        @type title: string
         '''
         fp.write("%!PS-Adobe-3.0\n")
         fp.write("%%%%Creator: PyScript %s\n"%version)
@@ -976,9 +1111,15 @@ class Pages(Group):
         fp.write("%%EOF\n") 
 
     def validate(self, obj):
+        """
+        Check that the objects are able to be added to the Page object
+
+        @param obj: object to check validity of
+        @type obj: object
+        """
         
         if not isinstance(obj, Page):
-            raise "Can only add Page to %s"%str(self.__class__)
+            raise TypeError, "Can only add Page to %s" % str(self.__class__)
         
 # vim: expandtab shiftwidth=4:
 
