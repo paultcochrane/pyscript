@@ -2,7 +2,22 @@
 
 \include{pyscript_defs}
 
-\pdfoutput=1
+% this code hacked from that of R Chandrasekhar from UWA
+\newif\ifpdf
+\ifx\pdfoutput\undefined
+        \pdffalse    % we are not running pdfLaTeX
+\else
+        \pdfoutput=1 % we are running pdfLaTeX
+        \pdftrue
+\fi
+
+\ifpdf
+        \DeclareGraphicsExtensions{.pdf}  % this command defined in graphicx
+        \pdfcompresslevel=9  % 0: no compression, 9: highest compression
+                             % or, set compress_level 9 in file pdftex.cfg
+\else
+        \DeclareGraphicsExtensions{.eps}
+\fi
 
 \begin{document}
 
@@ -14,7 +29,7 @@
 \includegraphics{logo}\\[4cm]
 
 {\Huge \emph{Pyscript}}\\[1cm]
-\emph{Postscript scripting in Python}\\[2cm]
+\emph{Postscript drawing in Python}\\[2cm]
 
 v 0.2\\[2cm]
 
@@ -23,8 +38,11 @@ Paul Cochrane
 \end{center}
 \end{titlepage}
 
+\frontmatter
 
 \tableofcontents
+
+\mainmatter
 
 %==========================================================================
 \chapter{Introduction}
@@ -33,41 +51,44 @@ Paul Cochrane
 
 \section{Overview}
 
-\Verb|Pyscript| is a python package for creating high-quality postscript drawings.
-It bagan from the frustration of trying to create some good figures for publication
-that contained some abritrary \LaTeX expressions, and has been largely inspired
-by \Verb|mpost|. What began as some quick-n-dirty hacks has evolved into a really 
-useful tool (after several rewrites). Essentially a figure is scripted using python
-and some pre-defined objects such as rectanglesl, lines, text etc. This approach
-allows for a precise placement of all the components of a figure.
+\Verb|Pyscript| is a python package for creating high-quality postscript
+drawings.  It began from the frustration of trying to create some good figures
+for publication that contained some abritrary \LaTeX{} expressions, and has
+been largely inspired by \Verb|mpost|. What began as some quick-n-dirty hacks
+has evolved into a really useful tool (after several rewrites). Essentially a
+figure is scripted using python and some pre-defined objects such as
+rectangles, lines, text etc. This approach allows for a precise placement of
+all the components of a figure.
 
 Some of the key features are
 \begin{itemize}
-\item All scipting is done in python, which is a high level, easy to
+\item All scripting is done in python, which is a high-level, easy to
   learn, well developed scripting language.
-\item All the objects can be translated, scaled, rotated, ... in fact any affine transformation.
+\item All the objects can be translated, scaled, rotated, \ldots in fact any
+affine transformation.  
 \item The plain text object is automatically kerned.
-\item You can place abritrary latex expressions on your figures.
-\item You can create your own objects, and develop a library of
-  figure primitives. 
+\item You can place abritrary \LaTeX{} expressions on your figures.
+\item You can create your own objects, and develop a library of figure 
+primitives. 
 \item Output is publication quality.
 \end{itemize}
 
 \section{Conventions and Pitfalls}
 \label{sec:conventions}
 
-Just to be clear from the outset, some conventions that are followed, and 
-some common pitfalls to be aware of ...
+Just to be clear from the outset, some conventions follow, and some common
+pitfalls to be aware of \ldots
 
 \begin{itemize}
-\item The co-ordinate system is as you learned at school in maths ...
-  the $x$ axis extends to the right, the $y$ axis extends upwards. I know, this is
-  obvious, but suprising number of graphics libraries invert the $y$ axis.
-\item Angles are in degrees and proceed clockwise from the top ...
-  just like your clock. Often, key points are labeled by the compass
-  points: n,ne,e,se,s,sw,w,nw.
+\item The co-ordinate system is as you learned at school in maths \ldots
+  the $x$-axis extends to the right, the $y$-axis extends upwards. I know, 
+  this is obvious, but a suprising number of graphics libraries invert the 
+  $y$-axis.
+\item Angles are in degrees and proceed clockwise from the top \ldots
+  just like your clock.  Often, key points are labeled by the compass
+  points: n, ne, e, se, s, sw, w, nw.
 \item The default units are postscript points,
-  $1\mathrm{pp}=28.346\mathrm{cm}$. For a figure the default can
+  $1\mathrm{pp}=28.346\mathrm{cm}$.????? For a figure, the default can
   easily be changed with the command
   \Verb|defaults.units=UNITS['cm']|. All of the examples in this manual are
   in \texttt{cm}.
@@ -85,7 +106,7 @@ some common pitfalls to be aware of ...
 \section{Tutorial}
 \label{sec:tutotial}
 
-As a tutorial, we'll look in detail at the script that created the
+As a tutorial, we'll take a detailed look at the script that created the
 following figure:
 \begin{center}
   \includegraphics{tutorial}
@@ -96,15 +117,15 @@ with the other examples and is called \texttt{tutorial.py}.
 
 First import the \Verb|pyscript| libraries, and we'll grab some objects
 from \Verb|pyscript.lib.quantumcircuits| too. Most scripts would have
-something like this at the begining.
+something like this at the beginning.
 \begin{python}
 from pyscript import *
 from pyscript.lib.quantumcircuits import *
 \end{python}
 The default units are in postscript points. I prefer to use
-\texttt{cm} so switch the units here. The dafault units are stored in
+\texttt{cm} so switch the units here. The default units are stored in
 \Verb|defaults.units| which is just a number giving giving the
-multiplying factor compared to posrscript points. \Verb|UNITS| is a
+multiplying factor compared to postscript points. \Verb|UNITS| is a
 dictionary of factors for some common units.
 \begin{python}
 defaults.units=UNITS['cm']
@@ -132,8 +153,8 @@ $\begin{array}{@{}c@{}}{#1}\\{#2}\end{array}{#3}$
 \begin{document}
 """
 \end{python}
-Now, define the colors of some objects here to make it easy to chage
-them everywhere in the figure later if we need to. There's a whole
+Now, define the colors of some objects here to make it easy to change
+them everywhere in the figure later if we need to. There are a whole
 variety of ways to specify a color, we'll use RGB values here.
 \begin{python}
 blue=Color(.65,.65,1)
@@ -168,9 +189,9 @@ in the rest of the figure.
         TeX(r'$\mathcal{B}$',c=D.c)
         )
 \end{python}
-Create the big gray box, here we've tweaked the parameters after
+To create the big gray box, we've tweaked the parameters after
 examining the results so that it looks nice. The dash specification is
-straight from posscript.
+straight from postscript.
 \begin{python}
 offline=Rectangle(height=4,width=5.5,e=P(3.5,1.5),
                   dash='[3 ] 0',bg=Color(.85))
@@ -181,8 +202,9 @@ objects again. \Verb|render| is a function that can take a variable
 number of arguments, we'll create some of the objects in the
 actual function call.
 
-First put on the big gray box, this way
-it'll appear to be behind everything else.
+Objects are rendered in the order that they appear in the \Verb|render()| 
+call.  So, we'll put on the big gray box first, this way it'll appear to be 
+behind everything else.
 \begin{python}
 render(
     offline,
@@ -213,7 +235,7 @@ Use the function we defined earlier to add those large detectors to the figure.
     BellDet(P(3.7,3.5)),
 \end{python}
 Add some boxed equations to the figure. This object is from the
-\Verb|quantumcircuits| library, and will add a box around and
+\Verb|quantumcircuits| library, and will add a box around an
 abritrary object.
 \begin{python}
     Boxed(TeX(r'$D\left(\frac{i\theta}{2\alpha^2}\right)$'),c=P(1,2),bg=green),
@@ -223,7 +245,7 @@ abritrary object.
 \end{python}
 Finally, add some \LaTeX{} expressions (notice some of the macros we
 defined earlier), and give the filename to write the postscript to.
-N.B.  keywords, such as \Verb|file=|, have to go after parameter in a
+N.B.  keywords, such as \Verb|file=|, have to go after parameters in a
 function call.
 \begin{python}
     TeX(r'$\ket{B_{00}}$',e=P(-.7,.5)),
@@ -274,7 +296,7 @@ class PsObj(object):
         return objects bounding box
 \end{python}
 
-Base class which most (all?) \Verb|pyscript| classes are subclass.
+Base class of which most (all?) \Verb|pyscript| classes are subclass.
 
 A list of parameters can be set when an object is created with
 calls like \Verb|t=Text('Hello',font='Helvetica')|
@@ -399,18 +421,18 @@ These points are always returned in external co-ordinates.
                        to object
 
 \end{python}
-Draw a circle. The circle is specified by it's position and it's
+Draw a circle. The circle is specified by its position and its
 radius.  You can also specify part of a circle with the attributes
 \Verb|start| and \Verb|end| which are in degrees clockwise from the
 top. As with the \Verb|Rectangle| there are named points on the
-enclosing square that corrwsponding to the compass points which can be
+enclosing square that corresponds to the compass points which can be
 read or set.
 \begin{center}
   \includegraphics[width=.25\textwidth]{fig_circle}
 \end{center}
-In addition and abtritrary point on the circumference can be read or
+In addition an abtritrary point on the circumference can be read or
 set by using the \Verb|locus()| method --- with one parameter (the
-angle on the locus) the locus point is returned, with an additional
+angle on the locus) the locus point is returned; with an additional
 target point supplied, the locus point is set to the target point.
 \begin{example}
 \begin{python}
@@ -458,7 +480,7 @@ A simple convenience function to draw a dot at the given location
 %\begin{python}
 %\end{python}
 
-an abritrary path (line curve etc).
+An abritrary path (line curve etc).
 
 %--------------------------------------------------------------------------
 \section{Text Objects}
@@ -501,7 +523,7 @@ render(t1,t2,file=...)
 \end{center}
 \end{example}
 
-Since \Verb|Text| is a subclass of \Verb|Area| then the usual compass point
+Since \Verb|Text| is a subclass of \Verb|Area| then the usual compass points
 (\Verb|n|, \Verb|ne|, etc) are defined and can be read or set.
 %--------------------------------------------------------------------------
 \subsection{TeX()}
@@ -519,7 +541,7 @@ positioned on the diagram.  The \LaTeX{} expression is passed to the
 \Verb|latex| program followed by \Verb|dvips|, the resulting
 postscript is parsed and forms the basis of the object. Obviously this
 requires working \Verb|latex| and \Verb|dvips| distributions on your
-system. We recoment setting up your \Verb|latex| distribution to
+system. We recommend setting up your \Verb|latex| distribution to
 use postscript fonts, that way they can be scaled to any size.
 
 One common pitfall is that the backslash ('\Verb|\|') is used in python
@@ -529,7 +551,7 @@ around to this problem is to use python raw-strings --- just prepend an
 ``r'' to the string e.g. \Verb|r"$\alpha$"|.
 
 The object inherits from the \Verb|Area| object, and can also be
-scaled , rotated, etc as will any of the other objects.
+scaled, rotated, etc. as will any of the other objects.
 \begin{example}
 \begin{python}
 tex=TeX(r'$|\psi_t\rangle=e^{itH}|\psi_0\rangle$',w=P(.5,0))
@@ -566,7 +588,7 @@ the color distinguished by the number and type of paprameters that
 are passed when you create the object.
 
 \begin{itemize}
-\item \Verb|Color(C,M,Y,K)| - a postsctipt CMYKColor (Cyan, Magenta, Yellow, blacK) 
+\item \Verb|Color(C,M,Y,K)| - a postscript CMYKColor (Cyan, Magenta, Yellow, blacK) 
 \item \Verb|Color(R,G,B)| - RGBColor (Red, Green, Blue)
 \item \Verb|Color(G)| - Gray
 \item \Verb|Color('yellow')| etc
@@ -592,7 +614,7 @@ It should also help in solving some of the trickier problems.
 \begin{figure}[h]
   \begin{center}
     \begin{sideways}
-      \includegraphics[height=.9\textwidth]{class_structure}
+      %\includegraphics[height=.9\textwidth]{class_structure}
     \end{sideways}
   \end{center}
   \caption{Class structure of pyscript}
@@ -608,7 +630,7 @@ It should also help in solving some of the trickier problems.
 \label{sec:native-vs-dynamic}
 
 Initialisation and setting of the attributes is somewhat complicated.  We
-want to be able to set attributes ala
+want to be able to set attributes \`{a} la
 \Verb|Text('font'='Helvetica',sw=P(0,-1))|, but to give full functionality
 some attributes may need to be set on the fly, depending and affecting
 others.  This is done with two types of attributes, \emph{native} which are
@@ -618,13 +640,13 @@ which are actually functions which return or set the native attibutes.
 All classes that inherit from \Verb|PsDict| are dictionaries. 
 The following functions are special and implement the dynamic attributes:
 \begin{itemize}
-\item \Verb|_get_name(self)|: the returned value of this fuction is what is
+\item \Verb|_get_name(self)|: the returned value of this function is what is
   returned from the call \Verb|obj['name']|
 \item \Verb|_set_name(self,value)|: This function is executed by
   \Verb|obj['name']='bob'|
 
 \end{itemize}
-So to provide some dynamical attribute it is only neccessary to define 
+So, to provide some dynamical attribute, it is only neccessary to define 
 the appropriately named functions. All classes in \Verb|pyscript|
 should use this mechanism to provide a consistent feel to the user.
 
@@ -635,15 +657,15 @@ The class initialisation mechanism is motivated by the following
 requirements:
 
 \begin{itemize}
-\item Each class should set all it's defaults for it's native attributes
+\item Each class should set all its defaults for its native attributes
 \item Dynamic attributes can only be calculated/set after \emph{all} native
-  attributes have been set, including base classes!.
-\item Supplied attributes overide the defaults ... duh.
+  attributes have been set, including base classes!
+\item Supplied attributes override the defaults \ldots duh.
 \end{itemize}
 
-To initialise the attributes correctly classes should first call
+To initialise the attributes correctly, classes should first call
 \Verb|native(defaults,param)| to initialise all default native values, then
-call the initialisation of the parent class eg:
+call the initialisation of the parent class e.g.:
 \begin{python}
 def __init__(self,**dict):
    
@@ -661,7 +683,7 @@ def __init__(self,**dict):
 \section{Co-ordinates and Affine Transformations}
 \label{sec:co-ordinates-affine}
 
-Abritrary affine transformations (eg rotations, scaling, shearing,
+Abritrary affine transformations (e.g. rotations, scaling, shearing,
 reflection) can be applied to any object that is a subclass of 
 \Verb|PsObject|. The way it is implemented in postscript is that the 
 transformation is applied to the co-ordinate system \emph{before}
@@ -671,13 +693,13 @@ is actually a displacement of the \emph{internal} origin.
 There are two co-ordinate systems for each object. An \emph{internal}
 co-ordinate system in which the object is drawn. Usualy the origin (0,0) is
 somewhere convenient on the object. There is also an \emph{external}
-co-ordinate system which takes into account the placement, scaling etc of
+co-ordinate system which takes into account the placement, scaling etc. of
 the object. Co-ordinates can be converted from \emph{internal} to
 \emph{external} using the member function \Verb|itoe(point)| and vice-versa
 with \Verb|etoi(point)|.
 
-Points that are returned from an object (eg \Verb|area.nw|) should
-always be in the \emph{external} co-ordinates. Inparticular the origin,
+Points that are returned from an object (e.g. \Verb|area.nw|) should
+always be in the \emph{external} co-ordinates. In particular the origin,
 \Verb|obj.o| is always in \emph{external} co-ordinates [internally it
 just the point (0,0)]
 
@@ -688,7 +710,7 @@ just the point (0,0)]
 All objects subclassing \Verb|PsObject| must provide a \Verb|boundingbox()|
 function which returns the SW and NE points of a tight bounding box for the
 object (in \emph{external} co-ordinates). The bounding box will be used
-to calculate the boundingbox for the entire drawing as way as allowing
+to calculate the bounding box for the entire drawing as way to allow
 the precise placement of objects.
 
 
