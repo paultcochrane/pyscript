@@ -356,8 +356,12 @@ class C(object):
 	else:
 	    raise "Unknown control type c1"
 
+        print w0,w1
+
 	t=((p1-p0).arg-w0)*pi/180.
-	p=((p1-p0).arg-w1)*pi/180.
+	p=((p0-p1).arg-w1)*pi/180+pi
+
+        print t/pi*180,p/pi*180
 
 	a=self._a
 	b=self._b

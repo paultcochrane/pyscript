@@ -197,7 +197,7 @@ ZZ=CSIGN
 
 # XXX make this a class!
 class ClassicalPath:
-	pass
+    pass
 
 def classicalpath(*paths):
     '''
@@ -242,22 +242,22 @@ class Qasm(Group):
 
         apply(Group.__init__, (self,), dict)
 
-		# create wires ...
-		if len(qubits)==1 and isinstance(qubits[0],Integer):
-			n = qubits[0]
+	# create wires ...
+	if len(qubits)==1 and isinstance(qubits[0],Integer):
+		n = qubits[0]
 
-			wires=[]
-			for w in range(n):
-				wires.append(Qubit())
+		wires=[]
+		for w in range(n):
+			wires.append(Qubit())
 
-		else:
-			wires=qubits
+	else:
+		wires=qubits
 			
 
     def add(self,gate):
-		'''
-		Add gates to the quantum circuit
-		'''
+	'''
+	Add gates to the quantum circuit
+	'''
         pass
 
 
