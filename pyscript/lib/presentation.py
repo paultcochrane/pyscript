@@ -19,7 +19,9 @@ pyscript Presentation library (posters and talks)
 
 from pyscript import *
 
-class Poster1:
+class Poster_paper:
+
+    gutter=.5 # paper margin for A4 in cm
 
     bg=Color('DarkSlateBlue')
     fg=Color('Lavender')
@@ -56,14 +58,20 @@ class Poster1:
     tex_scale=.7
 
     #  (20.9903   ,29.7039),
+
+    col1 = Group()
+    col2 = Group()
+
     
     def __init__(self):
 
         # everything is going to be based around a4 paper
-        self.paper=Paper("a4")
-
-        self.col1 = Align(a1="s",a2="n",angle=180,space=self.pad)
-        self.col2 = Align(a1="s",a2="n",angle=180,space=self.pad)
+        self.paper_true=Paper("a4")
+        self.paper=Area(
+            sw=self.paper_true.sw+P(1,1)*self.gutter,
+            width=self.paper_true.width-2*self.gutter,
+            height=self.paper_true.height-2*self.gutter
+            )
 
 
     def tex(self,text,width=None,fg=None,scale=None,align="w"):
@@ -94,8 +102,10 @@ class Poster1:
 
     def addbox(self,col,*items):
 
-        group=Align(a1="s",a2="n",angle=180,space=self.box_pad)
+        group=Group()
         apply(group.append,items)
+
+        Align(group,a1="s",a2="n",angle=180,space=self.box_pad)
 
         bbox=group.bbox()
 
@@ -117,7 +127,7 @@ class Poster1:
 
     def logos(self,*files):
 
-        self.thelogos=[]
+        self.thelogos=Group()
 
         for file in files:
             self.thelogos.append(Epsf(file,height=self.logo_height))
@@ -126,34 +136,21 @@ class Poster1:
 
         if len(self.thelogos)==0:
             return Area(width=0,height=0)
-        elif len(self.thelogos)==1:
-            return Group(
-                Area(width=self.paper.width,height=0,nw=P(0,0)),
-                self.thelogos[0]
-                )
 
-        # a distribute class would be nice ....
-        width=self.paper.width-\
-             self.thelogos[0].bbox().width-\
-             self.thelogos[-1].bbox().width-\
-             .2
-        
-        for logo in self.thelogos[1:-1]:
-            width-=logo.bbox().width
+        Distribute(self.thelogos,a1="e",a2="w",
+                   p1=self.paper.nw,p2=self.paper.ne)
 
-        space=width/(len(self.thelogos)-1)
-        a=Align(a1="e",a2="w",angle=90,space=space)
-        for logo in self.thelogos:
-            a.append(logo)
+        Align(self.thelogos,a1="e",a2="w",angle=90,space=None)
 
-        return a
+        return self.thelogos
 
 
     def make_title(self):
 
         scale=self.tex_scale*self.title_scale
 
-        return self.tex(self.title,fg=self.title_fg,scale=scale,width=self.paper.width*.8,align="c")
+        return self.tex(self.title,fg=self.title_fg,
+                        scale=scale,width=self.paper.width*.8,align="c")
 
     def make_abstract(self):
         return self.tex(self.abstract,16,fg=self.abstract_fg,align="c")
@@ -162,7 +159,8 @@ class Poster1:
 
         scale=self.tex_scale*self.authors_scale
         
-        return self.tex(self.authors,fg=self.authors_fg,scale=scale,width=self.paper.width*.8,align="c")
+        return self.tex(self.authors,fg=self.authors_fg,
+                        scale=scale,width=self.paper.width*.8,align="c")
 
     def make_references(self):
 
@@ -178,24 +176,26 @@ class Poster1:
         # A0 = 4x A4
         
         self.make_references()
-        
-        self.col2.nw = self.col1.ne+P(self.pad,0)
-        cols=Group(self.col1,self.col2)
 
-        all=Align(a1="s",a2="n",angle=180,space=self.pad)
+        col1=Align(self.col1,a1="s",a2="n",angle=180,space=self.pad)        
+        col2=Align(self.col2,a1="s",a2="n",angle=180,space=self.pad)        
 
-        all.append(
+        col2.nw = col1.ne+P(self.pad,0)
+        cols=Group(col1,col2)
+
+        all=Align(
             self.make_logos(),
             self.make_title(),
             self.make_authors(),
             self.make_abstract(),
             cols,
+            a1="s",a2="n",angle=180,space=self.pad
             )
 
         all.n=self.paper.n-P(0,.1)
 
-        back=Rectangle(sw=self.paper.sw,width=self.paper.width,
-                       height=self.paper.height,
+        back=Rectangle(width=self.paper_true.width,
+                       height=self.paper_true.height,
                        fg=None,
                        bg=self.bg
                        )
@@ -206,8 +206,7 @@ class Poster1:
 
         All=Group(back,all,signature).scale(scale,scale) 
 
-
-        return Group(All)
+        return All
 
 class Talk(Paper):
     """
