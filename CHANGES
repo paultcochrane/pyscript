@@ -1,4 +1,9 @@
 
+- Eps output now conforms to DSC 3.0!
+- Added an Eps object ... produces a self-contained eps, and this
+  object is used to generate the actual eps. You can also nest them
+  if you wanted to.
+- rewrote render to use Eps.
 - Added a shear() method tho AffineObj
 - Added a reflect() method to AffineObj
 - Rectangle can have an Area or Bbox in its contruction

@@ -50,7 +50,7 @@ class defaults:
     # [ 2 1] 0 setdash % 2 on, 1 off, 2 on, 1 off,
     # [ 3 5] 6 setdash % 2 off, 3 on, 5 off, 3 on, 5 off,
     # [ 2 3 ] 11 setdash % 1 on, 3 off, 2 on, 3 off, 2 on
-    dash="[]"
+    dash="[ ] 0"
 
     # fg=Color(0)
     # bg=None

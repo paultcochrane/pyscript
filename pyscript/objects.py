@@ -533,7 +533,7 @@ class Rectangle(Area):
         out=cStringIO.StringIO()
         
         if self.linewidth!=defaults.linewidth:
-            out.write("%f setlinewidth "%self.linewidth)
+            out.write("%g setlinewidth "%self.linewidth)
 
         if self.dash!=defaults.dash:
             out.write("%s setdash "%self.dash)
@@ -701,7 +701,7 @@ class Circle(AffineObj):
         out = cStringIO.StringIO()
 
         if self.linewidth!=defaults.linewidth:
-            out.write("%f setlinewidth "%self.linewidth)
+            out.write("%g setlinewidth "%self.linewidth)
 
         if self.dash!=defaults.dash:
             out.write("%s setdash "%self.dash)
@@ -862,7 +862,7 @@ class Path(Area):
 
 
         if self.linewidth!=defaults.linewidth:
-            out.write("%f setlinewidth "%self.linewidth)
+            out.write("%g setlinewidth "%self.linewidth)
 
         if self.linecap!=defaults.linecap:
             out.write("%d setlinecap "%self.linecap)

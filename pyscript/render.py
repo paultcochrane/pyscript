@@ -198,13 +198,41 @@ class Eps(Group):
     # of line thicknesses etc (in pt)
     pad=2
     
+    def __init__(self,*objects,**dict):
+        '''
+        Override to allow fixed dimentions to be set
+        '''
+        args=(self,)+objects
+        apply(Group.__init__,args,dict)
+
+        b=self.bbox()
+
+        # width and height have special meaning here
+        if dict.has_key('width') and dict.has_key('height'):
+            sx=dict['width']/float(b.width)
+            sy=dict['height']/float(b.height)
+            del dict['width']
+            del dict['height']
+        elif dict.has_key('width'):
+            sx=sy=dict['width']/float(b.width)
+            del dict['width']
+        elif dict.has_key('height'):
+            sx=sy=dict['height']/float(b.height)
+            del dict['height']
+        else:
+            sx=sy=1
+            
+        self.scale(sx,sy)
+
+        # initialise again since scaling must be applied BEFORE
+        # any positioning args (width/height will be correct now)
+        apply(Group.__init__,args,dict)
+        
     
     def write(self,fp,title="PyScriptEPS"):
         '''
         write a self-contained EPS file
         '''
-        # XXX do translation here!
-
         # --- Header Comments ---
         
         # We conform DSC 3.0...
@@ -230,15 +258,22 @@ class Eps(Group):
         fp.write("%%EndProlog\n")
 
         # --- Setup ---
-        #fp.write("%%BeginSetup\n")
-        # XXX set default mitre limits etc
-        #fp.write("%%EndSetup\n")
+        fp.write("%%BeginSetup\n")
+        fp.write("PyScriptDict begin\n")
+        fp.write('/uu {%f mul} def '%defaults.units)
+        fp.write('%g setlinewidth \n'%defaults.linewidth)
+        fp.write('%d setlinecap %d setlinejoin %g setmiterlimit %s setdash\n'%\
+                 (defaults.linecap,
+                  defaults.linejoin,
+                  defaults.miterlimit,
+                  defaults.dash
+                  ))
+        fp.write("end\n")
+        fp.write("%%EndSetup\n")
 
         # --- Code ---
         fp.write("%%Page: 1 1\n")
         fp.write("PyScriptDict begin\n")
-        fp.write('/uu {%f mul} def '%defaults.units)
-        fp.write('%f setlinewidth '%defaults.linewidth)
         fp.write(self.prebody())
         fp.write(Group.body(self))
         fp.write(self.postbody())
@@ -268,23 +303,18 @@ class Eps(Group):
         Return the bbox in pp
         '''
         
-        if len(self)==0:
-            raise "No Objects for boundingbox"
-        
         # Grab the groups bounding box
         b=self.bbox()
         
         p=P(self.pad,self.pad)
 
-        # Make the sw corner (0,0) since some brain-dead previewers 
-        # don't understand bounding-boxes
-        self.move( P(0,0)-b.sw+p/float(defaults.units))
+        x=round(b.sw[0]*defaults.units)
+        y=round(b.sw[1]*defaults.units)
+        SW=P(x,y)-p
 
-        SW=P(0,0)
-        x=round(b.width*defaults.units)
-        y=round(b.height*defaults.units)
-        
-        NE=P(x,y)+2*p
+        x=round(b.ne[0]*defaults.units)
+        y=round(b.ne[1]*defaults.units)
+        NE=P(x,y)+p
         
         return SW,NE
         
@@ -431,6 +461,12 @@ def render(*objects,**opts):
     else:
         obj=apply(Eps,objects)
         
+    if isinstance(obj,Eps):
+        # Make the sw corner (0,0) since some brain-dead previewers 
+        # don't understand bounding-boxes
+        sw,ne=obj.bbox_pp()
+        obj.move( (P(0,0)-sw)/float(defaults.units) )
+
     obj.write(out)
     out.close()
 
