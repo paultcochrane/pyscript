@@ -21,13 +21,18 @@ PyScript - Postscript graphics from python
 """
 
 from pyscript.defaults import defaults
-from pyscript.groups import *
-from pyscript.objects import *
+from pyscript.groups \
+        import Group, Align, VAlign, HAlign, Distribute, \
+        PSMacros, collecttex, TeXstuff, Eps, Page, Pages
+from pyscript.objects \
+        import AffineObj, Area, TeX, Text, Rectangle, Circle, \
+        Dot, Paper, Epsf
 from pyscript.render import render
 from pyscript.path import C, Path, Arrowhead, \
-            Arrowhead1,Arrowhead2,Arrowhead3,Arrowhead4, \
-            Arrow
-from pyscript.base import Dash, UNITS
+            Arrowhead1, Arrowhead2, Arrowhead3, Arrowhead4, Arrow
+from pyscript.base \
+        import PsObj, Dash, UNITS, Color, PyScriptError, FontError, Dash
+from pyscript.vectors import P, Matrix, R, U, Cusp, Identity, Bbox
 
 __revision__ = '$Revision$'
 
