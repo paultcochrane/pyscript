@@ -339,29 +339,26 @@ class C(object):
 
 	# first get the angles ...
 	if type(self.c0) in [type(10),type(10.0)]:
-	    w0 = self.c0
+            # turn this into a unit vector in that dir
+	    w0 = U(self.c0)
 	elif isinstance(self.c0,R):
-	    w0 = self.c0.arg
+	    w0 = self.c0
 	elif isinstance(self.c0,P):
-	    w0 = (self.c0-p0).arg
+	    w0 = (self.c0-p0)
 	else:
 	    raise "Unknown control type c0"
 
 	if type(self.c1) in [type(10),type(10.0)]:
-	    w1 = self.c1
+	    w1 = U(self.c1)
 	elif isinstance(self.c1,R):
-	    w1 = self.c1.arg
+	    w1 = self.c1
 	elif isinstance(self.c1,P):
-	    w1 = (self.c1-p1).arg
+	    w1 = (self.c1-p1)
 	else:
 	    raise "Unknown control type c1"
 
-        print w0,w1
-
-	t=((p1-p0).arg-w0)*pi/180.
-	p=((p0-p1).arg-w1)*pi/180+pi
-
-        print t/pi*180,p/pi*180
+	t=((p1-p0).arg-w0.arg)*pi/180.
+	p=-((-p1+p0).arg-w1.arg)*pi/180.
 
 	a=self._a
 	b=self._b
