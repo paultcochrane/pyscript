@@ -14,6 +14,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+# $Id$
+
 """
 Groupies
 
@@ -23,13 +25,15 @@ module also contains some helper functions such as collecttex
 and TeXStuff.
 """
 
-import cStringIO,time,os,sys,string
+__revision__ = '$Revision$'
+
+import cStringIO, time, os, sys, string
 
 from types import *
-from vectors import *
-from objects import Area,TeX
-from defaults import defaults
-from version import version
+from pyscript.vectors import *
+from pyscript.objects import Area, TeX
+from pyscript.defaults import defaults
+from pyscript.version import version
 
 # -------------------------------------------------------------------------
 
@@ -38,26 +42,26 @@ class Group(Area):
     Groups together a list of objects
     """
     
-    def __init__(self,*objects,**dict):
+    def __init__(self, *objects, **dict):
 
-        self.objects=[]
-        self.objbox=Bbox()
+        self.objects = []
+        self.objbox = Bbox()
         
-        if len(objects)==1 and type(objects[0]) in (TupleType,ListType):
-            apply(self.append,objects[0])
+        if len(objects) == 1 and type(objects[0]) in (TupleType, ListType):
+            apply(self.append, objects[0])
         else:
-            apply(self.append,objects)
+            apply(self.append, objects)
 
-        apply(Area.__init__,(self,),dict)
+        apply(Area.__init__, (self, ), dict)
 
-    def __getitem__(self,i):
+    def __getitem__(self, i):
         return self.objects[i]
         
     # these will break alignment
     #def __setitem__(self,i,other):
     #    self.objects[i]=other
 
-    def __getslice__(self,i,j):
+    def __getslice__(self, i, j):
         return self.objects[i:j]
 
     #def __setslice__(self,i,j,wert):
@@ -66,11 +70,11 @@ class Group(Area):
     def __len__(self):
         return len(self.objects)
 
-    def validate(self,obj):
+    def validate(self, obj):
         '''
         make sure this object can be inserted into group
         '''
-        if isinstance(obj,Page) or isinstance(obj,Pages):
+        if isinstance(obj, Page) or isinstance(obj, Pages):
             raise "Can't add a Page to %s"%str(self.__class__)
 
     def reverse(self):
@@ -79,7 +83,7 @@ class Group(Area):
         # for convenience return reference to group
         return self
 
-    def insert(self,idx,obj):
+    def insert(self, idx, obj):
         '''
         insert object
         @param idx: index at which to insert object
@@ -88,12 +92,12 @@ class Group(Area):
 
         self.validate(obj)
         self.objbox.union(obj.bbox())
-        self.objects.insert(idx,obj)
+        self.objects.insert(idx, obj)
 
         # for convenience return reference to group
         return self
 
-    def append(self,*objs):
+    def append(self, *objs):
         '''
         append object(s) to group
         '''
@@ -104,14 +108,14 @@ class Group(Area):
 
         # update size
         if self.objbox.is_set():
-            self.isw=self.objbox.sw
-            self.width=self.objbox.width
-            self.height=self.objbox.height
+            self.isw = self.objbox.sw
+            self.width = self.objbox.width
+            self.height = self.objbox.height
 
         # for convenience return reference to group
         return self
 
-    def apply(self,**dict):
+    def apply(self, **dict):
         '''
         apply attributes to all objects
         @return: reference to self
@@ -120,14 +124,14 @@ class Group(Area):
         # do this by attributes since they 
         # might not all get accepted
 
-        for key,value in dict.items():
-            dict1={key:value}
+        for key, value in dict.items():
+            dict1 = {key:value}
             for obj in self.objects:
-                if isinstance(obj,Group):
+                if isinstance(obj, Group):
                     # recurse
-                    apply(obj.apply,(),dict)
+                    apply(obj.apply, (), dict)
                 try:
-                    apply(obj,(),dict1)            
+                    apply(obj, (), dict1)            
                 except AttributeError:
                     # skip objects that don't have the attribute
                     pass
@@ -141,14 +145,14 @@ class Group(Area):
         '''
         recalculate internal container size based on objects within
         '''
-        self.objbox=Bbox()
+        self.objbox = Bbox()
         for obj in self.objects:
             self.objbox.union(obj.bbox())
 
         if self.objbox.is_set():
-            self.isw=self.objbox.sw
-            self.width=self.objbox.width
-            self.height=self.objbox.height
+            self.isw = self.objbox.sw
+            self.width = self.objbox.width
+            self.height = self.objbox.height
 
     def clear(self):
         '''
@@ -156,15 +160,15 @@ class Group(Area):
         an empty group
         '''
 
-        self.isw=Area.isw
-        self.width=Area.width
-        self.height=Area.height
-        self.objbox=Bbox()
-        self.objects=[]
+        self.isw = Area.isw
+        self.width = Area.width
+        self.height = Area.height
+        self.objbox = Bbox()
+        self.objects = []
         
         
     def body(self):
-        out=cStringIO.StringIO()
+        out = cStringIO.StringIO()
         for obj in self.objects:
             if obj.bbox().sw is not None:
                 out.write(str(obj))
@@ -185,16 +189,16 @@ class Group(Area):
         # bounding box will be used)
 
         # first a null Bbox
-        bbox=Bbox()
+        bbox = Bbox()
         
         for obj in self.objects:
-            bbox.union(obj.bbox(),self.itoe)
+            bbox.union(obj.bbox(), self.itoe)
 
         return bbox
 
 # -------------------------------------------------------------------------
     
-def Align(*items,**dict):
+def Align(*items, **dict):
     '''
     Function to align a group of objects.
 
@@ -207,28 +211,27 @@ def Align(*items,**dict):
     @rtype: Group
     '''
 
-    anchor=dict.get('anchor',0)
-    a1=dict.get('a1','c')
-    a2=dict.get('a2','c')
-    space=dict.get('space',None)
-    angle=dict.get('angle',0)
+    anchor = dict.get('anchor', 0)
+    a1 = dict.get('a1', 'c')
+    a2 = dict.get('a2', 'c')
+    space = dict.get('space', None)
+    angle = dict.get('angle', 0)
     
-    if len(items)==1:
-        if not isinstance(items[0],Group):
+    if len(items) == 1:
+        if not isinstance(items[0], Group):
             # Nothing to do here ...
-            return apply(Group,items) 
+            return apply(Group, items) 
         # assume: single item which is a group - user wants to align group members
-        objects=items[0]
+        objects = items[0]
         if len(objects) <= 1:
             # Nothing to do here ...		
             return objects
     else:
         # create a group around the objects
-        objects=Group(items)
+        objects = Group(items)
 
-    
-    assert a1 in ["n","ne","e","se","s","sw","w","nw","c"]
-    assert a2 in ["n","ne","e","se","s","sw","w","nw","c"]
+    assert a1 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
+    assert a2 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
 
     # filter out non-alignable objects
     alignable=[]
@@ -243,12 +246,12 @@ def Align(*items,**dict):
     # need to implement a length for group
     for ii in range(1,len(alignable)):
 
-        obj=alignable[ii]
-        p1=getattr(alignable[ii-1].bbox(),a1)
-        p2=getattr(obj.bbox(),a2)
+        obj = alignable[ii]
+        p1 = getattr(alignable[ii-1].bbox(), a1)
+        p2 = getattr(obj.bbox(), a2)
 
         if space is not None:
-            obj.move(U(angle,space)-(p2-p1))
+            obj.move(U(angle, space)-(p2-p1))
 
         else:
             # Don't touch the spacing in the angle direction
@@ -257,9 +260,9 @@ def Align(*items,**dict):
             obj.move((U(angle+90)*(p2-p1))*U(angle-90))
 
         
-        p1=p2
+        p1 = p2
 
-    offset=anchor_bbox_sw-alignable[anchor].bbox().sw
+    offset = anchor_bbox_sw-alignable[anchor].bbox().sw
 
     # Can't really move group since it might be fake
     # and not actually processed during write (hence no move)
@@ -288,11 +291,11 @@ def HAlign(*items,**dict):
 	dict['space']=dict.get('space',1)
 	dict['angle']=dict.get('angle',90)
 
-	return Align(*items,**dict)
+	return Align(*items, **dict)
 
 # -------------------------------------------------------------------------
 
-def Distribute(*items,**dict):
+def Distribute(*items, **dict):
     '''
     Function to distribute a group of objects.
 
@@ -306,85 +309,85 @@ def Distribute(*items,**dict):
     @rtype: Group
     '''
 
-    a1=dict.get('a1','c')
-    a2=dict.get('a2','c')
+    a1 = dict.get('a1', 'c')
+    a2 = dict.get('a2', 'c')
 
-    assert a1 in ["n","ne","e","se","s","sw","w","nw","c"]
-    assert a2 in ["n","ne","e","se","s","sw","w","nw","c"]
+    assert a1 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
+    assert a2 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
 
     # note the swap:
-    as=dict.get('as',a2)
-    ae=dict.get('ae',a1)
+    as = dict.get('as', a2)
+    ae = dict.get('ae', a1)
 
-    assert as in ["n","ne","e","se","s","sw","w","nw","c"]
-    assert ae in ["n","ne","e","se","s","sw","w","nw","c"]
+    assert as in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
+    assert ae in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
 
     # these two have to be present
-    p1=dict['p1']
-    p2=dict['p2']
+    p1 = dict['p1']
+    p2 = dict['p2']
 
-    pv=p2-p1
+    pv = p2-p1
 
-    if len(items)==1:
-        if isinstance(items[0],Group):
-            items=items[0]
+    if len(items) == 1:
+        if isinstance(items[0], Group):
+            items = items[0]
 
     # A vector giving the direction to distribute things
-    pv=p2-p1
+    pv = p2-p1
 
 
-    if len(items)==1:
+    if len(items) == 1:
         # place item in the centre
         
-        ov=( getattr(items[0].bbox(),a1)+getattr(items[0].bbox(),a2) )/2. -p1
+        ov = ( getattr(items[0].bbox(), a1)+getattr(items[0].bbox(), a2) )/2. -p1
 
         # how much we need to move by
-        mv=(pv.length/2.-pv.U*ov)*pv.U
+        mv = (pv.length/2.-pv.U*ov)*pv.U
 
         items[0].move(mv)
 
     else:
 
         # work out the amount of space we have to play with
-        space=pv.length
+        space = pv.length
 
         # place items at the edges
         # ---first object----
-        ov=getattr(items[0].bbox(),as)-p1
+        ov = getattr(items[0].bbox(), as)-p1
 
         # how much we need to move by
-        mv=-pv.U*ov*pv.U
+        mv = -pv.U*ov*pv.U
         items[0].move(mv)
 
-        space -= abs(( getattr(items[0].bbox(),a1)-getattr(items[0].bbox(),as) )*pv.U)
+        space -= abs(( getattr(items[0].bbox(), a1)-getattr(items[0].bbox(), as) )*pv.U)
 
         # ---second object---
-        ov=getattr(items[-1].bbox(),ae)-p2
+        ov = getattr(items[-1].bbox(), ae)-p2
 
         # how much we need to move by
-        mv=-pv.U*ov*pv.U
+        mv = -pv.U*ov*pv.U
         items[-1].move(mv)
 
-        space -= abs(( getattr(items[-1].bbox(),ae)-getattr(items[-1].bbox(),a2) )*pv.U)
+        space -= abs(( getattr(items[-1].bbox(), ae)-getattr(items[-1].bbox(), a2) )*pv.U)
 
         if len(items)>2:
 
             # take out the length of each item in this dir
             for item in items[1:-1]:
-                # abs? XXX
-                space -= abs(( getattr(item.bbox(),a2)-getattr(item.bbox(),a1) )*pv.U)
+                # abs? XX
+                space -= abs(( getattr(item.bbox(), a2)-getattr(item.bbox(), a1) )*pv.U)
 
-            ds=space/float((len(items)-1))
+            ds = space/float((len(items)-1))
 
-            for ii in range(1,len(items)-1):
-                p1=getattr(items[ii-1].bbox(),a1)
-                p2=getattr(items[ii].bbox(),a2)
+            for ii in range(1, len(items)-1):
+                p1 = getattr(items[ii-1].bbox(), a1)
+                p2 = getattr(items[ii].bbox(), a2)
 
-                mv=(ds-(p2-p1)*pv.U)*pv.U
+                mv = (ds-(p2-p1)*pv.U)*pv.U
                 items[ii].move(mv)
             
         
-    if isinstance(items,Group):
+    if isinstance(items, Group):
         items.recalc_size()
 
         # for convenience ..
@@ -392,12 +395,12 @@ def Distribute(*items,**dict):
     else:
         # create a group (though it may not be used)
         # for convenience
-        return apply(Group,items) 
+        return apply(Group, items) 
 
 
 # -------------------------------------------------------------------------
 
-PSMacros="""%%BeginResource: procset pyscript
+PSMacros = """%%BeginResource: procset pyscript
 /PyScriptDict 10 dict def PyScriptDict begin
 %show text with kerning if supplied
 /kernshow { 0 2 2 counttomark 2 sub { -2 roll } for
@@ -432,7 +435,7 @@ end
 """
 
 
-def collecttex(objects,tex=[]):
+def collecttex(objects, tex = []):
     """
     Collect the TeX objects in the order they're rendered
     
@@ -441,10 +444,10 @@ def collecttex(objects,tex=[]):
     @rtype: list
     """
     for object in objects:
-        if isinstance(object,TeX):
+        if isinstance(object, TeX):
             tex.append(object)
-        elif isinstance(object,Group) and not isinstance(object,Eps):
-            tex=collecttex(object.objects,tex)
+        elif isinstance(object, Group) and not isinstance(object, Eps):
+            tex = collecttex(object.objects, tex)
     return tex
 
 
@@ -458,14 +461,14 @@ def TeXstuff(objects):
     @rtype: string
     '''
 
-    objects=collecttex(objects)
-    if len(objects)==0:
+    objects = collecttex(objects)
+    if len(objects) == 0:
         return ""
     
     print "Collecting postscript for TeX objects ..."
     
-    file="temp.tex"
-    fp=open(file,"w")
+    file = "temp.tex"
+    fp = open(file, "w")
     fp.write(defaults.tex_head)
     for tex in objects:
         fp.write('\\special{ps:PyScriptStart}\n')
@@ -489,47 +492,47 @@ def TeXstuff(objects):
     sys.stderr.write('\n')
     # Help the user out by throwing the latex log to stderr
     if os.path.exists("%s.log"%file):
-        fp=open("%s.log"%file,'r')
+        fp = open("%s.log"%file, 'r')
         sys.stderr.write(fp.read(-1))
         fp.close()
     if foe.close() is not None:
         raise "Latex Error"
     
-    (fi,foe) = os.popen4("dvips -q -tunknown %s -o temp.ps temp.dvi"%defaults.dvips_options)
+    (fi, foe) = os.popen4("dvips -q -tunknown %s -o temp.ps temp.dvi"%defaults.dvips_options)
     fi.close()
-    err=foe.read(-1)
+    err = foe.read(-1)
     sys.stderr.write(err)
     sys.stderr.write('\n')
     foe.close()
     if len(err)>0:
         raise "dvips Error"
 
-    fp=open("temp.ps","r")
-    ps=fp.read(-1)
+    fp = open("temp.ps", "r")
+    ps = fp.read(-1)
     fp.close()
 
     # Now rip it appart .. use string rather than re which
     # gets caught on recursion limits
     
     # grab prolog dvips dosn't use %%BeginProlog!
-    start=string.index(ps,"%%EndComments")+14
-    end=string.index(ps,"%%EndProlog")
-    prolog=ps[start:end]
+    start = string.index(ps, "%%EndComments")+14
+    end = string.index(ps, "%%EndProlog")
+    prolog = ps[start:end]
 
-    tt=[]
-    pos1=end
+    tt = []
+    pos1 = end
     while 1:
-        pos1=string.find(ps,"PyScriptStart",pos1)
+        pos1 = string.find(ps, "PyScriptStart", pos1)
         if pos1 <0:break
-        pos2=string.find(ps,"PyScriptEnd",pos1)
+        pos2 = string.find(ps, "PyScriptEnd", pos1)
         
         tt.append("TeXDict begin 1 0 bop\n%s\neop end"%ps[pos1+14:pos2])
-        pos1=pos2
+        pos1 = pos2
     
-    assert len(tt)==len(objects)
+    assert len(tt) == len(objects)
 
     for ii in range(len(objects)):
-        objects[ii].bodyps=tt[ii]
+        objects[ii].bodyps = tt[ii]
 
 
     # remove showpage
@@ -554,40 +557,40 @@ class Eps(Group):
       of line thicknesses etc (in pt)
     '''
     
-    pad=2
+    pad = 2
     
-    def __init__(self,*objects,**dict):
+    def __init__(self, *objects, **dict):
         '''
         Override to allow fixed dimentions to be set
         '''
-        args=(self,)+objects
-        apply(Group.__init__,args,dict)
+        args = (self, )+objects
+        apply(Group.__init__, args, dict)
 
-        b=self.bbox()
+        b = self.bbox()
 
         # width and height have special meaning here
         if dict.has_key('width') and dict.has_key('height'):
-            sx=dict['width']/float(b.width)
-            sy=dict['height']/float(b.height)
+            sx = dict['width']/float(b.width)
+            sy = dict['height']/float(b.height)
             del dict['width']
             del dict['height']
         elif dict.has_key('width'):
-            sx=sy=dict['width']/float(b.width)
+            sx = sy = dict['width']/float(b.width)
             del dict['width']
         elif dict.has_key('height'):
-            sx=sy=dict['height']/float(b.height)
+            sx = sy = dict['height']/float(b.height)
             del dict['height']
         else:
-            sx=sy=1
+            sx = sy = 1
             
-        self.scale(sx,sy)
+        self.scale(sx, sy)
 
         # initialise again since scaling must be applied BEFORE
         # any positioning args (width/height will be correct now)
-        apply(Group.__init__,args,dict)
+        apply(Group.__init__, args, dict)
         
     
-    def write(self,fp,title="PyScriptEPS"):
+    def write(self, fp, title = "PyScriptEPS"):
         '''
         write a self-contained EPS file
         '''
@@ -648,7 +651,7 @@ class Eps(Group):
         Eps file with correct pre- and post- code for embeding
         @rtype: string
         '''
-        out=cStringIO.StringIO()
+        out = cStringIO.StringIO()
 
         # NB this is slightly different to Epsf 
         # transformations are done in write() here.
@@ -666,17 +669,17 @@ class Eps(Group):
 
     def bbox_pp(self):
         # Grab the groups bounding box
-        b=self.bbox()
+        b = self.bbox()
         
-        p=self.pad
+        p = self.pad
 
-        x1=round(b.sw[0]*defaults.units)-p
-        y1=round(b.sw[1]*defaults.units)-p
+        x1 = round(b.sw[0]*defaults.units)-p
+        y1 = round(b.sw[1]*defaults.units)-p
 
-        x2=round(b.ne[0]*defaults.units)+p
-        y2=round(b.ne[1]*defaults.units)+p
+        x2 = round(b.ne[0]*defaults.units)+p
+        y2 = round(b.ne[1]*defaults.units)+p
          
-        return x1,y1,x2,y2
+        return x1, y1, x2, y2
         
 # -------------------------------------------------------------------------
 
@@ -689,9 +692,9 @@ class Page(Group):
     @cvar label: page number label
     '''
 
-    size='a4'
-    orientation="Portrait"
-    label=None
+    size = 'a4'
+    orientation = "Portrait"
+    label = None
     
     # From gs_statd.ps which defines the paper sizes for gs:
     # Define various paper formats.  The Adobe documentation defines only these:
@@ -699,28 +702,28 @@ class Page(Group):
     # These procedures are also accessed as data structures during initialization,
     # so the page dimensions must be the first two elements of the procedure.
 
-    PAPERSIZES={
+    PAPERSIZES = {
         # Page sizes defined by Adobe documentation
-        "11x17":(792,1224),
+        "11x17":(792, 1224),
         # a3 see below
         # a4 see below
         # a4small should be a4 with an ImagingBBox of [25 25 570 817].
         # b5 see below
-        "ledger":(1224,792), # 11x17 landscape
-        "legal":(612,1008),
-        "letter":(612,792),
+        "ledger":(1224, 792), # 11x17 landscape
+        "legal":(612, 1008),
+        "letter":(612, 792),
         # lettersmall should be letter with an ImagingBBox of [25 25 587 767].
         # note should be letter (or some other size) with the ImagingBBox
         # shrunk by 25 units on all 4 sides.
 
         # ISO standard paper sizes
-        "a0":(2380,3368),
-        "a1":(1684,2380),
-        "a2":(1190,1684),
-        "a3":(842,1190),
-        "a4":(595,842),
-        "a5":(421,595),
-        "a6":(297,421),
+        "a0":(2380, 3368),
+        "a1":(1684, 2380),
+        "a2":(1190, 1684),
+        "a3":(842, 1190),
+        "a4":(595, 842),
+        "a5":(421, 595),
+        "a6":(297, 421),
         "a7":(210, 297),
         "a8":(148, 210),
         "a9":(105, 148),
@@ -767,11 +770,11 @@ class Page(Group):
         return an area object same size as page in default units
         @rtype: Area
         '''
-        d1,d2,w,h=self.bbox_pp()
+        d1, d2, w, h = self.bbox_pp()
         
-        w,h=w/float(defaults.units),h/float(defaults.units)
+        w, h = w/float(defaults.units), h/float(defaults.units)
         
-        return Area(sw=P(0,0),width=w,height=h)
+        return Area(sw = P(0, 0), width = w, height = h)
         
     def recalc_size(self):
         # disable this as we're always the same size
@@ -779,50 +782,50 @@ class Page(Group):
     
     def bbox(self):
         
-        area=self.area()
-        return Bbox(sw=area.sw,width=area.width,height=area.height)
+        area = self.area()
+        return Bbox(sw = area.sw, width = area.width, height = area.height)
 
     def bbox_pp_raw(self):
-        w,h=self.PAPERSIZES[string.lower(self.size)]
-        return 0,0,w,h
+        w, h = self.PAPERSIZES[string.lower(self.size)]
+        return 0, 0, w, h
 
     def bbox_pp(self):
         
-        w,h=self.PAPERSIZES[string.lower(self.size)]
-        if string.lower(self.orientation)=="landscape": 
-            h,w=w,h
+        w, h = self.PAPERSIZES[string.lower(self.size)]
+        if string.lower(self.orientation) == "landscape": 
+            h, w = w, h
         
-        return 0,0,w,h
+        return 0, 0, w, h
     
-    def write(self,fp,number):
+    def write(self, fp, number):
         '''
         write a self-contained PS Page
         '''
         
-        label=self.label
-        if label is None: label=str(number)
-        fp.write("%%%%Page: %s %d\n"%(label,number))
+        label = self.label
+        if label is None: label = str(number)
+        fp.write("%%%%Page: %s %d\n"%(label, number))
 
-        orientation=string.capitalize(self.orientation)
-        if orientation not in ("Portrait","Landscape"):
+        orientation = string.capitalize(self.orientation)
+        if orientation not in ("Portrait", "Landscape"):
             raise "Don't understand page orientation"
         
         fp.write("%%%%PageOrientation: %s\n"%orientation)
 
-        w,h=self.PAPERSIZES[string.lower(self.size)]
+        w, h = self.PAPERSIZES[string.lower(self.size)]
         fp.write("%%%%PageBoundingBox: %d %d %d %d\n"%\
-                 (0,0,w,h))
+                 (0, 0, w, h))
 
         # --- Setup ---
         fp.write("%%BeginPageSetup\n")
         fp.write("%%%%BeginFeature: *PageSize %s\n"%self.size)
         # The orientation of w & h should make no diff here acording to specs
-        fp.write("<</PageSize [%d %d] /ImagingBBox null>> setpagedevice\n"%(w,h))
+        fp.write("<</PageSize [%d %d] /ImagingBBox null>> setpagedevice\n"%(w, h))
         fp.write("%%EndFeature\n")
         # remember the page graphics state
         fp.write("/pgsave save def\n")
         # rotate if we're landscape 
-        if orientation=="Landscape":
+        if orientation == "Landscape":
             fp.write("90 rotate 0 -%d translate\n"%w)
         fp.write("%%EndPageSetup\n")
     
@@ -841,7 +844,7 @@ class Pages(Group):
     Class to hold pages and write out a multi-page postsript document
     '''
     
-    def write(self,fp,title="PyScriptPS"):
+    def write(self, fp, title = "PyScriptPS"):
         '''
         write the Pages
         '''
@@ -856,18 +859,18 @@ class Pages(Group):
 
         # If all the pages are orientated the same, give a global orientation
         # Combine boundingboxes to a highwater-mark global boundingbox
-        orientation=self[0].orientation
-        orient=True
-        x1,y1,x2,y2=self[0].bbox_pp_raw()
+        orientation = self[0].orientation
+        orient = True
+        x1, y1, x2, y2 = self[0].bbox_pp_raw()
         for page in self:
-            orient = orient and (page.orientation==orientation)
-            x1t,y1t,x2t,y2t=page.bbox_pp_raw()
-            x1=min(x1,x1t)
-            y1=min(y1,y1t)
-            x2=max(x2,x2t)
-            y2=max(y2,y2t)
+            orient = orient and (page.orientation == orientation)
+            x1t, y1t, x2t, y2t = page.bbox_pp_raw()
+            x1 = min(x1, x1t)
+            y1 = min(y1, y1t)
+            x2 = max(x2, x2t)
+            y2 = max(y2, y2t)
         
-        fp.write("%%%%BoundingBox: %d %d %d %d\n"%(x1,y1,x2,y2))            
+        fp.write("%%%%BoundingBox: %d %d %d %d\n"%(x1, y1, x2, y2))            
         if orient:
             fp.write("%%%%Orientation: %s\n"%orientation)
         # Say it's a single page:
@@ -897,15 +900,15 @@ class Pages(Group):
         fp.write("%%EndSetup\n")
 
         for pp in range(len(self)):
-            self[pp].write(fp,pp+1)
+            self[pp].write(fp, pp+1)
         
         # --- Trailer ---
         fp.write("%%Trailer\n") 
         fp.write("%%EOF\n") 
 
-    def validate(self,obj):
+    def validate(self, obj):
         
-        if not isinstance(obj,Page):
+        if not isinstance(obj, Page):
             raise "Can only add Page to %s"%str(self.__class__)
         
 # vim: expandtab shiftwidth=4:
