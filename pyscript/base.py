@@ -29,6 +29,14 @@ class FontError(Exception):
     pass
 
 # -------------------------------------------------------------------------
+UNITS={
+    "inch":72,
+    "points":1,
+    "cm":28.346,
+    "mm":2.8346
+    }
+
+# -------------------------------------------------------------------------
 
 class PsObj(object):
     """
@@ -89,6 +97,10 @@ class PsObj(object):
         return obj
     
     def __repr__(self):
+        '''
+        Return a representation of this object
+        @rtype: string
+        '''
         return str(self.__class__)
 
     def __str__(self):

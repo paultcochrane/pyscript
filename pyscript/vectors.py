@@ -19,7 +19,6 @@
 # Cut back and reworked to suit pyscript
 
 from math import sqrt,acos,sin,cos,pi
-from util import *
 from base import PsObj
 
 
@@ -42,7 +41,7 @@ class Matrix:
         return "[%g %g %g %g]"%(d[0],d[2],d[1],d[3])
 
     def __add__(s,o):
-        if pstype(o) == MatrixType:
+        if isinstance(o,Matrix):
             return Matrix(s[0]+o[0],s[1]+o[1],s[2]+o[2],s[3]+o[3])
         else:
             raise TypeError,"non-matrix in matrix addition"
@@ -50,13 +49,13 @@ class Matrix:
     __radd__=__add__
   
     def __sub__(s,o):
-        if pstype(o) == MatrixType:
+        if isinstance(o,Matrix):
             return Matrix(s[0]-o[0],s[1]-o[1],s[2]-o[2],s[3]-o[3])
         else:
             raise TypeError,"non-matrix in matrix subtraction"
 
     def __rsub__(s,o):
-        if pstype(o) == MatrixType:
+        if isinstance(o,Matrix):
             return Matrix(o[0]-s[0],o[1]-s[1],o[2]-s[2],o[3]-s[3])
         else:
             raise TypeError,"non-matrix in right matrix subtraction"

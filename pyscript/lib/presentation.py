@@ -15,6 +15,9 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '''
 pyscript Presentation library (posters and talks)
+
+There are some common useful component classes such as TeXBox and Box_1, 
+followed by poster and talk classes
 '''
 
 from pyscript import *
@@ -102,7 +105,6 @@ class Poster_1(Page):
     @cvar bg: poster background
     
     @cvar gutter: nonprintable margin around entire poster
-    @cvar logo_height: height to scale any logos across top
     
     @cvar title: TeX of title
     @cvar title_fg: fg color of title

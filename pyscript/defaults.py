@@ -18,7 +18,7 @@
 A class to hold default settings
 """
 
-from util import UNITS
+from base import UNITS
 
 class defaults:
 

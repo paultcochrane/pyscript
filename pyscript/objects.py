@@ -15,24 +15,18 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 """
-Base objects
+Some of the key drawing objects
 """
 import os,string,re,sys
-import cStringIO,commands
+import cStringIO
 
-from types import *
+#from types import *
 
 from math import cos,sin,pi
 
 from defaults import *
-from util import *
 from vectors import *
-
 from base import PsObj,Color,PyScriptError,FontError
-
-
-from functions import *
-
 from afm import AFM
 
 import warnings

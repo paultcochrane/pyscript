@@ -6,11 +6,11 @@
   to set size and position eg r=Rectangle(g.bbox())
 - Added a reflect() method to AffineObj
 - Added a shear() method tho AffineObj
-- rewrote render to use Eps.
 - Added an Eps object ... produces a self-contained eps, and this
   object is used to generate the actual eps. You can also nest them
   if you wanted to.
 - Eps output now conforms to DSC 3.0!
+- rewrote render to use Eps.
 - Added Page() and Pages() objects .. pyscript can now do multi-page
   postscript (or A0 posters etc), which also conforms to DSC 3.0.
 - Fixed some bugs with Text() handling of fonts and attributes changes

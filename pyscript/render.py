@@ -23,7 +23,6 @@ import cStringIO
 import os,re
 
 from defaults import *
-from util import *
 from objects import *
 from groups import Eps,Page,Pages
 

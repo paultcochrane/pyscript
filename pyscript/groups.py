@@ -16,6 +16,11 @@
 
 """
 Groupies
+
+Here are collected all the classes and functions to do with groups.
+Since much of the rendering is done by Eps, Page and Pages this
+module also contains some helper functions such as collecttex
+and TeXStuff.
 """
 
 import cStringIO,time,os,sys,string
@@ -144,7 +149,7 @@ class Group(Area):
         Don't use Area's bbox as transformations may
         mean a tighter bbox (eg a circle)
         @return: a Bbox()
-        @rtype:Bbox
+        @rtype: Bbox
         """
 
         # We need to do the calculation in the 
@@ -247,6 +252,7 @@ def Distribute(*items,**dict):
      - as: anchor point for first item (overides a2 if present)
      - ae: anchor point for last item (overides a1 if present)
     @return: a reference to a group containing the objects
+    @rtype: Group
     '''
 
     a1=dict.get('a1','c')
@@ -380,6 +386,8 @@ def collecttex(objects,tex=[]):
     Collect the TeX objects in the order they're rendered
     
     Used by render()
+    @return: list of TeX objects
+    @rtype: list
     """
     for object in objects:
         if isinstance(object,TeX):
@@ -394,7 +402,9 @@ def TeXstuff(objects):
     Get the actual postscript code and insert it into
     the tex objects. Also grab prolog
     
-    used bu render()
+    used by render()
+    @return: TeX objects prolog from dvips
+    @rtype: string
     '''
 
     objects=collecttex(objects)
@@ -695,6 +705,8 @@ class Page(Group):
         "flsa":(612, 936), # U.S. foolscap
         "flse":(612, 936), # European foolscap
         "halfletter":(396, 612),
+        # Screen size (NB this is 2mm too wide for A4):
+        "screen":(600, 800),
         }
     
     def area(self):
