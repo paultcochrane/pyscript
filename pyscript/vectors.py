@@ -180,7 +180,7 @@ class P(PsObj):
 
         self.point = [x, y]
 
-        PsObj.__init__(self)
+        PsObj.__init__(self, **options)
         
     def __len__(self):
         return 2
