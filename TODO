@@ -1,0 +1,6 @@
+- change Area so that everything is relative to o not sw
+  (added Sat Dec 28 09:19:25 2002, incomplete, priority high)
+
+- change origin for text and tex to baseline
+  (added Fri Dec 27 20:28:09 2002, incomplete, priority medium)
+
