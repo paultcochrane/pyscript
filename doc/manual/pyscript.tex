@@ -26,12 +26,12 @@
 \vspace*{3cm}
 \LARGE
 
-\includegraphics{logo}\\[4cm]
+\includegraphics{figs/logo}\\[4cm]
 
 {\Huge \emph{Pyscript}}\\[1cm]
 \emph{Postscript drawing in Python}\\[2cm]
 
-v 0.2\\[2cm]
+v 0.3\\[2cm]
 
 Alexei Gilchrist\\
 Paul Cochrane
@@ -109,7 +109,7 @@ pitfalls to be aware of \ldots
 As a tutorial, we'll take a detailed look at the script that created the
 following figure:
 \begin{center}
-  \includegraphics{tutorial}
+  \includegraphics{figs/tutorial}
 \end{center}
 In the following script, we've interdispersed 
 comments explaining what we're doing, the full script is available
@@ -496,7 +496,7 @@ This object mainly adds the ability to align to named compass points on the
 circumference see figure below.
 
 \begin{center}
-  \includegraphics[width=.25\textwidth]{fig_area}
+  \includegraphics[width=.25\textwidth]{figs/fig_area}
 \end{center}
 
 These points are always returned in external co-ordinates.
@@ -545,7 +545,7 @@ etc.
 %\end{python}
 
 \begin{center}
-  \includegraphics[width=.25\textwidth]{fig_rectangle}
+  \includegraphics[width=.25\textwidth]{figs/fig_rectangle}
 \end{center}
 
 %--------------------------------------------------------------------------
@@ -580,7 +580,7 @@ top. As with the \Verb|Rectangle| there are named points on the
 enclosing square that corresponds to the compass points which can be
 read or set.
 \begin{center}
-  \includegraphics[width=.25\textwidth]{fig_circle}
+  \includegraphics[width=.25\textwidth]{figs/fig_circle}
 \end{center}
 In addition an abtritrary point on the circumference can be read or
 set by using the \Verb|locus()| method --- with one parameter (the
@@ -597,7 +597,7 @@ for ii in range(0,360,30):
 render(c,g,file=...)
 \end{python}
 \begin{center}
-  \includegraphics{fig_circle_eg1}
+  \includegraphics{figs/fig_circle_eg1}
 \end{center}
 \end{example}
 \begin{example}
@@ -610,7 +610,7 @@ g.scale(1.5,.5)
 render(g,file=...)
 \end{python}
 \begin{center}
-  \includegraphics{fig_circle_eg2}
+  \includegraphics{figs/fig_circle_eg2}
 \end{center}
 \end{example}
 
@@ -671,7 +671,7 @@ t2=Text('SWEPT AWAY',kerning=1,size=20,nw=t1.sw)
 render(t1,t2,file=...)
 \end{python}
 \begin{center}
-  \includegraphics{text_kerning}
+  \includegraphics{figs/fig_text_kerning}
 \end{center}
 \end{example}
 
@@ -716,7 +716,7 @@ for ii in range(0,360,60):
 render(g,file=...)
 \end{python}
 \begin{center}
-  \includegraphics{tex_example}
+  \includegraphics{figs/fig_tex_eg}
 \end{center}
 \end{example}
 %--------------------------------------------------------------------------
@@ -805,7 +805,7 @@ cadidate named colours for HTML documents, but in the end where
 never adopted. They have however, aquired an unofficial permanence.
 \begin{figure}[h]
 \centerline{
-  \includegraphics[height=0.8\textwidth]{fig_colorchart}
+  \includegraphics[height=0.8\textwidth]{figs/fig_colorchart}
 }
 \caption{Named colors}
 \label{fig:colourchart}

@@ -10,8 +10,9 @@ view: $(FIGS) $(MAIN).pdf
 acro: $(FIGS) $(MAIN).pdf
 	acroread $(MAIN).pdf
 
-$(FIGS) : %.eps : %.py
+$(FIGS) : %.pdf : %.py
 	./$<
+	epstopdf $*.eps
 
 %.pdf:  %.tex $(FIGS) pyscript_defs.tex pyscriptPlot.tex pyscriptElectronics.tex pyscriptOptics.tex
 	pdflatex $<
