@@ -1,0 +1,35 @@
+# main html files
+# $Id$
+
+Files = 
+    tutorial.html
+    tex.html
+    detector.html
+    sarah.html
+    atom.html
+    sphere.html
+    cryptClonerDiag.html
+    twoqubitQST.html
+    coherentQST.html
+
+examplesDir = ../../doc/examples/
+
+PyFiles =
+    $(examplesDir)tutorial.py
+    $(examplesDir)tex.py
+    $(examplesDir)detector.py
+    $(examplesDir)sarah.py
+    $(examplesDir)atom.py
+    $(examplesDir)sphere.py
+    $(examplesDir)cryptClonerDiag.py
+    $(examplesDir)twoqubitQST.py
+    $(examplesDir)coherentQST.py
+
+# generating the source
+:print Executing the examples aap file
+
+all: $Files $PyFiles
+    :sys cp $PyFiles .
+
+:rule %.html : %.py
+    :sys enscript -Epython --lang=html --color -o $target --title=$source $source
