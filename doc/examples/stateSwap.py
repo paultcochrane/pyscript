@@ -2,15 +2,10 @@
 
 # State swapping quantum computing circuit diagram
 
-import sys
-sys.path.append('../')
-sys.path.append('../pyscript')
-
 from pyscript import *
-from pyscriptQuantInfo import *
+from pyscript.lib.quantumcircuits import *
 
 #----------------------------------------------------------------------------------------------
-defaults.units=UNITS['cm']
 
 defaults.tex_head=r"""
 \documentclass{article}
@@ -33,5 +28,5 @@ cnot2 = Cnot(c=P(1.5,1), targetDist=1.0, direction="down")
 cnot3 = Cnot(c=P(2.5,0), targetDist=1.0, direction="up")
 
 # draw it!
-render("stateSwap.eps",rail1,rail2,cnot1,cnot2,cnot3)
+render(rail1,rail2,cnot1,cnot2,cnot3,file="stateSwap.eps")
 
