@@ -294,171 +294,6 @@ class Area(AffineObj):
 
         return Bbox(sw=P(x1,y1),width=x2-x1,height=y2-y1)
 
-
-##class Area_old(AffineObj):
-##    """
-##    A Rectangular area defined by sw corner and width and height.
-    
-##    defines the following compass points that can be set and retrived::
-
-##          nw--n--ne
-##          |       |
-##          w   c   e
-##          |       |
-##          sw--s--se
-
-##    The origin is the sw corner and the others are calculated from the
-##    width and height attributes.
-
-##    If a subclass should have the origin somewhere other than sw then
-##    overide the sw attribute to make it a function
-##    """
-
-##    #XXX allow the changing of sw corner away from origin eg Text
-
-##    sw=P(0,0)
-##    width=0
-##    height=0
-
-
-##    # Dynamic locations
-##    def _get_n(s):
-##        return s.itoe(P(s.width/2.,s.height))
-##    def _set_n(s,pe):
-##        s.move(pe-s.n)
-##    n = property(_get_n,_set_n)
-
-##    def _get_ne(s):
-##        return s.itoe(P(s.width,s.height))
-##    def _set_ne(s,pe):
-##        s.move(pe-s.ne)
-##    ne = property(_get_ne,_set_ne)
-
-##    def _get_e(s):
-##        return s.itoe(P(s.width,s.height/2.))
-##    def _set_e(s,pe):
-##        s.move(pe-s.e)
-##    e = property(_get_e,_set_e)
-
-##    def _get_se(s):
-##        return s.itoe(P(s.width,0))
-##    def _set_se(s,pe):
-##        s.move(pe-s.se)
-##    se = property(_get_se,_set_se)
-
-##    def _get_s(s):
-##        return s.itoe(P(s.width/2.,0))
-##    def _set_s(s,pe):
-##        s.move(pe-s.s)
-##    s = property(_get_s,_set_s)
-
-##    def _get_sw(s):
-##        return s.itoe(P(0,0))
-##    def _set_sw(s,pe):
-##        s.move(pe-s.sw)
-##    sw = property(_get_sw,_set_sw)
-
-##    def _get_w(s):
-##        return s.itoe(P(0,s.height/2.))
-##    def _set_w(s,pe):
-##        s.move(pe-s.w)
-##    w = property(_get_w,_set_w)
-
-##    def _get_nw(s):
-##        return s.itoe(P(0,s.height))
-##    def _set_nw(s,pe):
-##        s.move(pe-s.nw)
-##    nw = property(_get_nw,_set_nw)
-
-##    def _get_c(s):
-##        return s.itoe(P(s.width/2.,s.height/2.))
-##    def _set_c(s,pe):
-##        s.move(pe-s.c)
-##    c = property(_get_c,_set_c)
-
-##    def bbox(self):
-
-##        x1,y1=self.sw
-##        x2,y2=self.ne
-
-##        for p in [self.sw,self.nw,self.ne,self.se]:
-##            x1=min(x1,p[0])
-##            y1=min(y1,p[1])
-##            x2=max(x2,p[0])
-##            y2=max(y2,p[1])
-
-##        return Bbox(sw=P(x1,y1),width=x2-x1,height=y2-y1)
-
-### -------------------------------------------------------------------------
-### A TeX expression
-### parses the output of dvips
-### -------------------------------------------------------------------------
-##class TeX(Area):
-##    '''
-##    an Area object with a TeX expression within
-
-##    requires working latex and dvips systems
-    
-##    '''
-
-##    text=""
-##    fg=Color(0)
-
-##    def __init__(self,text="",**dict):
-
-##        self.text=text
-
-
-##        TMP="temp1"
-##        fp=open("%s.tex"%TMP,"w")
-##        fp.write(defaults.tex_head)
-##        fp.write(text)
-##        fp.write(defaults.tex_tail)
-##        fp.close()
-
-##        os.system(defaults.tex_command%TMP)
-
-##        os.system("dvips -h - -E -o %s.eps %s.dvi"%(TMP,TMP))
-    
-##        fp=open("%s.eps"%TMP,"r")
-##        eps=fp.read(-1)
-##        fp.close()
-    
-##        # grab boundingbox
-##        bbox_so=re.search("\%\%boundingbox:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)",
-##                          eps,re.I)
-##        bbox=[]
-##        for ii in bbox_so.groups():
-##            bbox.append(int(ii))
-
-##        self.width=(bbox[2]-bbox[0])/float(defaults.units)
-##        self.height=(bbox[3]-bbox[1])/float(defaults.units)
-
-##        apply(Area.__init__,(self,),dict)
-
-##        self.offset=-P(bbox[0],bbox[1])/float(defaults.units)
-##        # grab font encoding
-##        so=re.search("^(TeXDict begin \d.*?)\s*end",eps,re.S|re.M)
-##        fonts=so.group(1)
-        
-##        # grab body (ignoring procsets and fonts)
-##        so=re.search("\%\%EndSetup\s*(.*?)\s*\%\%Trailer",eps,re.S)
-##        body=so.group(1)
-##        # clean it up a bit and add fonts
-##        body="%s\nTeXDict begin\n%s\nend\n"%(fonts,string.strip(body))
-
-##        self.bodyps=body
-
-
-##    def body(self):
-##        out=cStringIO.StringIO()
-
-##        out.write("%s translate "%self.offset)
-##        out.write("%s\n"%self.fg)
-##        out.write("%s\n"%self.bodyps)
-##        return out.getvalue()
-
-
 # -------------------------------------------------------------------------
 class TeX(Area):
     '''
@@ -1183,13 +1018,6 @@ class Paper(Area):
 
 class Epsf(Area):
 
-    bbox_so=re.compile("\%\%boundingbox:\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)",re.I|re.S)
-
-    #linewidth=defaults.linewidth
-    #dash=defaults.dash
-    #fg=Color(0)
-
-
     def __init__(self,file,**dict):
         '''
         @param file: path to epsf file
@@ -1204,7 +1032,9 @@ class Epsf(Area):
         self.all=fp.read(-1)
         fp.close()
 
-        so=self.bbox_so.search(self.all)
+        bbox_so=re.compile("\%\%boundingbox:\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)",re.I|re.S)
+        
+        so=bbox_so.search(self.all)
         x1s,y1s,x2s,y2s=so.groups()
 
         d=float(defaults.units)
@@ -1243,24 +1073,12 @@ class Epsf(Area):
         
         out=cStringIO.StringIO()
 
-        # These don't make sense for an eps!
-        # eps may have it's own internal style settings
-
-        #if self.linewidth!=defaults.linewidth:
-        #    out.write("%f setlinewidth "%self.linewidth)
-
-        #if self.dash!=defaults.dash:
-        #    out.write("%s setdash "%self.dash)
-        
-        #if self.fg is not None:
-        #    out.write("%s\n"%self.fg)
-
         out.write("BeginEPSF\n")
         out.write("%s translate \n"%self.offset)
 
         out.write("%%%%BeginDocument: %s\n"%self.file)
         out.write(self.all)
-        out.write("%%%%EndDocument\n")
+        out.write("%%EndDocument\n")
         out.write("EndEPSF\n")
         
         return out.getvalue()

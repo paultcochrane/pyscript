@@ -1,4 +1,10 @@
 
+- Added a shear() method tho AffineObj
+- Added a reflect() method to AffineObj
+- Rectangle can have an Area or Bbox in its contruction
+  to set size and position eg r=Rectangle(g.bbox())
+- Rectangle now can have rounded corners (r=...)
+
 0.3
 ~~~
 
@@ -16,7 +22,7 @@
 - Epsf() now complies with spec, takes an initial width/height
   argument for scaling
 - added Align() and Distribute() functions
-- added a presentatation library for posters and talks
+- added a presentation library for posters and talks
 - munched some bugs
 
 0.2
