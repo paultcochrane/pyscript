@@ -18,6 +18,7 @@ from defaults import *
 from vectors import *
 from base import PsObj,Color,PyScriptError,FontError
 from objects import *
+from math import sqrt,pi
 
 # -------------------------------------------------------------------------
 # Pathlettes ... components of path, not used by themselves
@@ -225,52 +226,177 @@ class _bezier(object):
 # Curve specifier
 # -------------------------------------------------------------------------
 
-class C:
+class C(object):
     """
     Specifier and generator for curves
     """
 
-    # The type of the curve
-    # 0 = bezier
-    _type=None
+    # these params control the natural bezier
+    # (they are set to the MetaPost defaults)
+    _a=sqrt(2)
+    _b=1/16.
+    _c=(3-sqrt(5))/2.
     
-    def __init__(self,c1=None,c2=None):
+    # user parameters for curve:
+    c0=None
+    c1=None
+    t0=1
+    t1=1
+    curl=1
+
+    # this for specifing an arc
+    arc=None
+    
+    def __init__(self,*args,**dict):
         '''
         store curve parameters
         '''
 
-        if c1 is not None and c2 is not None:
-            self.c1=c1
-            self.c2=c2
-            self._type=0
-        elif c1 is not None and c2 is None:
-            self.c1=c1
-            self.c2=c1
-            self._type=0
-        else:
-            raise "Don't inderstand arguments to C()"
+        apply(self,(),dict)
+
+	if len(args)==1:
+	    # XXX what if C(P(0,0),c2=45) ??
+	    self.c0=args[0]
+	    self.c1=args[0]
+	    
+        elif len(args)==2: 
+            self.c0=args[0]
+            self.c1=args[1]
+	    
+
+    def __call__(self,**dict):
+        '''
+        Set a whole lot of attributes in one go
+        
+        eg::
+          obj.set(bg=Color(.3),linewidth=2)
+
+        @return: self 
+        @rtype: self
+        '''
+
+        # first do non-property ones
+        # this will raise an exception if class doesn't have attribute
+        # I think this is good.
+        prop=[]
+        for key,value in dict.items():
+            if isinstance(eval('self.__class__.%s'%key),property):
+                prop.append((key,value))
+            else:
+                self.__class__.__setattr__(self,key,value)
+
+        # now the property ones
+        # (which are functions of the non-property ones)
+        for key,value in prop:
+            self.__class__.__setattr__(self,key,value)
+                
+
+        # for convenience return a reference to us
+        return self
 
     def copy(self):
         return copy.deepcopy(self)
 
-    #def controls(self):
-    #    # is this necessary?
-    #    return self.c1,self.c2
-    
-    def curve(self,p1,p2):
+
+    def _get_fullyspecified(self):
+	'''
+	Is this curve fully specified (all control points)
+	'''
+	if self.arc is not None:
+	    # an arc is already fully specified
+	    return 1
+	    
+	elif isinstance(self.c0,P) and isinstance(self.c1,P):
+	    # both points set
+	    return 1
+
+	else:
+	    return 0
+
+    fullyspecified = property(_get_fullyspecified,None)
+	    
+    def curve(self,p0,p1=None):
         '''
         return pathlette object corresponding to curve
         '''
-        if self._type==0:
-            c1=self.c1
-            c2=self.c2
-            if isinstance(c1,R):
-                c1=p1+c1
-            if isinstance(c2,R):
-                c2=p2+c2
-            return _bezier(p1,c1,c2,p2)
-        else:
-            raise "Couldn't contruct curve"
+
+        if self.arc is not None:
+	    # an arc
+	    return self.create_arc(p0)
+
+	else:
+	    # a bezier
+	    if not self.fullyspecified:
+		# fit natural curve...
+		self.fit_curve(p0,p1)
+
+	    return self.create_bezier(p0,p1)
+        
+    def fit_curve(self,p0,p1):
+	'''
+	fit a natural looking spline to end slopes
+	'''
+
+	# first get the angles ...
+	if type(self.c0) in [type(10),type(10.0)]:
+	    w0 = self.c0
+	elif isinstance(self.c0,R):
+	    w0 = self.c0.arg
+	elif isinstance(self.c0,P):
+	    w0 = (self.c0-p0).arg
+	else:
+	    raise "Unknown control type c0"
+
+	if type(self.c1) in [type(10),type(10.0)]:
+	    w1 = self.c1
+	elif isinstance(self.c1,R):
+	    w1 = self.c1.arg
+	elif isinstance(self.c1,P):
+	    w1 = (self.c1-p1).arg
+	else:
+	    raise "Unknown control type c1"
+
+	t=((p1-p0).arg-w0)*pi/180.
+	p=((p1-p0).arg-w1)*pi/180.
+
+	a=self._a
+	b=self._b
+	c=self._c
+
+	alpha=a*(sin(t)-b*sin(p))*(sin(p)-b*sin(t))*(cos(t)-cos(p))
+
+	rho   = (2+alpha)/(1+(1-c)*cos(t)+c*cos(p))
+	sigma = (2-alpha)/(1+(1-c)*cos(p)+c*cos(t))
+
+	c0 = P( p0.x + rho*( (p1.x-p0.x)*cos(t)-(p1.y-p0.y)*sin(t))/(3*self.t0) ,
+		p0.y + rho*( (p1.y-p0.y)*cos(t)+(p1.x-p0.x)*sin(t))/(3*self.t0) )
+		
+	c1 = P( p0.x + (p1.x-p0.x)*(1-sigma*cos(p)/(3*self.t1))-(p1.y-p0.y)*sigma*sin(p)/(3*self.t1) ,
+	 	p0.y + (p1.y-p0.y)*(1-sigma*cos(p)/(3*self.t1))+(p1.x-p0.x)*sigma*sin(p)/(3*self.t1) )
+
+	# only change if control point not given
+	if type(self.c0) in [type(10),type(10.0)]:
+	    self.c0 = c0
+	if type(self.c1) in [type(10),type(10.0)]:
+	    self.c1 = c1
+
+    def create_arc(self,centre):
+
+	return None
+
+    def create_bezier(self,p0,p1):
+    
+	c0=self.c0
+	c1=self.c1
+	    
+	# fix up relative points:
+	if isinstance(c0,R):
+	    c0=p0+c0
+	if isinstance(c1,R):
+	    c1=p1+c1
+	    
+        return _bezier(p0,c0,c1,p1)
+
 # -------------------------------------------------------------------------
 # Path object
 # -------------------------------------------------------------------------
@@ -301,6 +427,13 @@ class Path(AffineObj):
         
         # first point must be, well a point
         assert isinstance(path[0],P)
+
+	# if the last point of a closed path has been
+	# skipped, add it now
+	if not isinstance(path[-1],P) and self.closed:
+	    path.append(path[0])
+
+	
         cp=path.pop(0) # current point
 
         while 1:

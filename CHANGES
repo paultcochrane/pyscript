@@ -1,3 +1,11 @@
+
+- curves can now be given just a direction at the end points (eg C(45,90)), 
+  a "natural" curve will be chosen automatically. This is the first half 
+  of the algorithm that Metapost uses which is really nice. 
+  (next part is to choose curvature automatically in unspecified curves)
+- last point of a closed path can be skipped (added automatically)
+- P now has arg instance (in degrees), return angle of P relative to origin
+
 0.5
 ~~~
 

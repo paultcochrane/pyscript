@@ -18,7 +18,7 @@
 # Originally written by Mario Chemnitz (ucla@hrz.tu-chemnitz.de)
 # Cut back and reworked to suit pyscript
 
-from math import sqrt,acos,sin,cos,pi
+from math import sqrt,acos,sin,cos,pi,atan2
 from base import PsObj
 
 
@@ -254,6 +254,10 @@ class P(PsObj):
     U = property(_get_U,None)
 
 
+    def _get_arg(self):
+	return atan2(self.x,self.y)/pi*180
+    arg = property(_get_arg,None)
+	
     def cross(self,other):
         if isinstance(o,P):
             tmp=P()
