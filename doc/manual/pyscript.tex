@@ -258,6 +258,61 @@ function call.
 
 We're done. Sit back and admire the figure.
 %==========================================================================
+\chapter{How Do I ...?}
+\label{cha:howto}
+
+%--------------------------------------------------------------------------
+\section{Aligning things}
+
+\Verb|pyscript| has a rich structure for aligning objects. This ranges
+from objects which have attributes which specify a particular point
+such as the nw corner of the object to functions such as
+\Verb|Align()| and \Verb|Distribute()| which will align and distribute a 
+group of objects.
+
+%--------------------------------------------------------------------------
+\subsection{Using attributes}
+
+Certain objects (mostly those subclassed from \Verb|Area|) have named points
+on the object that can be read or set. \Verb|Area| defines the
+following compass points located on a rectangle: ``n'', ``ne'',
+``e'', ``se'', ``s'', ``sw'', ``w'', ``nw''. Also the center of the
+area is given by ``c''. Reading one of these attributes will return
+the value of that point, and setting one of
+these attributes will move the object so that the named point lies
+on the supplied one. For example, \Verb|obj1.c=obj2.c| will align the
+centres of the two objects. The points returned are vectors from the origin 
+and can be manipulated in the usual ways.
+\begin{example}
+  This will align the centre of \Verb|obj3| so that it lies half way
+  between the centres of \Verb|obj1| and \Verb|obj2|:
+  \Verb|obj3.c=(obj1.c+obj1.c)/2.|.
+\end{example}
+
+The main thing to keep in mind is that the named point is for the
+\emph{objects} coordinate system. If a transformation is applied to
+the object, it will also be applied to all the named points.
+\begin{example}
+  As the following example shows, the named point always stays the same 
+  in the objects coordinate system.
+\end{example}
+
+%--------------------------------------------------------------------------
+\subsection{Understanding boundingboxes}
+
+An objects boundingbox is a rectangle in the \emph{current} coordinate
+system that completely contains the object. The bounding box for an object
+can be obtained with the \Verb|bbox()| method.
+
+%--------------------------------------------------------------------------
+\subsection{Using Align()}
+
+%--------------------------------------------------------------------------
+\subsection{Using Distribute()}
+
+
+
+%==========================================================================
 \chapter{Pyscript Objects}
 \label{cha:base-objects}
 
@@ -267,6 +322,7 @@ of the class showing the relevant methods and members. See also
 figure~\ref{fig:classes} on page~\pageref{fig:classes} for an
 indication of how the classes fit together.
 
+%--------------------------------------------------------------------------
 \section{Base Objects}
 
 These are classes which add layers of functionality to pyscript objects.

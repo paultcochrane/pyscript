@@ -91,6 +91,9 @@ class Group(Area):
         # we don't know if the sizes where changes so recalculate them
         self.recalc_size()
 
+        # for convenience return reference to group
+        return self
+
     def recalc_size(self):
         '''
         recalculate internal container size based on objects within
@@ -230,10 +233,6 @@ def Align(*items,**dict):
     assert a1 in ["n","ne","e","se","s","sw","w","nw","c"]
     assert a2 in ["n","ne","e","se","s","sw","w","nw","c"]
 
-    for obj in objects:
-        print obj.c
-    print
-
     # need to implement a length for group
     for ii in range(1,len(objects)):
 
@@ -256,10 +255,6 @@ def Align(*items,**dict):
 
     offset=anchor_bbox_sw-objects[anchor].bbox().sw
 
-    for obj in objects:
-        print obj.c
-
-
     # Can't really move group since it might be fake
     for obj in objects:
         obj.move(offset)
@@ -273,5 +268,110 @@ def Align(*items,**dict):
         # create a group (though it may not be used)
         # for convenience
         return apply(Group,objects) 
+
+# -------------------------------------------------------------------------
+
+def Distribute(*items,**dict):
+    '''
+    Function to distribute a group of objects.
+
+    @param p1: first point of the line along which to distribute
+    @param p2: second point of the line along which to distribute
+    @param a1: The first anchor point to use for spacing to eg "e", "c"
+    @param a2: The second anchor point for spacing
+    @param as: anchor point for first item (overides a2 if present)
+    @param ae: anchor point for last item (overides a1 if present)
+    @return: a reference to a group containing the objects
+    '''
+
+    a1=dict.get('a1','c')
+    a2=dict.get('a2','c')
+
+    assert a1 in ["n","ne","e","se","s","sw","w","nw","c"]
+    assert a2 in ["n","ne","e","se","s","sw","w","nw","c"]
+
+    # note the swap:
+    as=dict.get('as',a2)
+    ae=dict.get('ae',a1)
+
+    assert as in ["n","ne","e","se","s","sw","w","nw","c"]
+    assert ae in ["n","ne","e","se","s","sw","w","nw","c"]
+
+    # these two have to be present
+    p1=dict['p1']
+    p2=dict['p2']
+
+    pv=p2-p1
+
+    if len(items)==1:
+        if isinstance(items[0],Group):
+            items=items[0]
+
+    # A vector giving the direction to distribute things
+    pv=p2-p1
+
+
+    if len(items)==1:
+        # place item in the centre
+        
+        ov=( getattr(items[0].bbox(),a1)+getattr(items[0].bbox(),a2) )/2. -p1
+
+	# how much we need to move by
+        mv=(pv.length/2.-pv.E*ov)*pv.E
+
+        items[0].move(mv)
+
+    else:
+
+        # work out the amount of space we have to play with
+        space=pv.length
+
+        # place items at the edges
+        # ---first object----
+        ov=getattr(items[0].bbox(),as)-p1
+
+        # how much we need to move by
+        mv=-pv.E*ov*pv.E
+        items[0].move(mv)
+
+        space -= abs(( getattr(items[0].bbox(),a1)-getattr(items[0].bbox(),as) )*pv.E)
+
+        # ---second object---
+        ov=getattr(items[-1].bbox(),ae)-p2
+
+        # how much we need to move by
+        mv=-pv.E*ov*pv.E
+        items[-1].move(mv)
+
+        space -= abs(( getattr(items[-1].bbox(),ae)-getattr(items[-1].bbox(),a2) )*pv.E)
+
+        if len(items)>2:
+
+            # take out the length of each item in this dir
+            for item in items[1:-1]:
+                # abs? XXX
+                space -= abs(( getattr(item.bbox(),a2)-getattr(item.bbox(),a1) )*pv.E)
+
+            ds=space/float((len(items)-1))
+
+            for ii in range(1,len(items)-1):
+                p1=getattr(items[ii-1].bbox(),a1)
+                p2=getattr(items[ii].bbox(),a2)
+
+                mv=(ds-(p2-p1)*pv.E)*pv.E
+                items[ii].move(mv)
+            
+        
+    if isinstance(items,Group):
+        items.recalc_size()
+
+        # for convenience ..
+        return items
+    else:
+        # create a group (though it may not be used)
+        # for convenience
+        return apply(Group,items) 
+
+
 
 # -------------------------------------------------------------------------

@@ -166,8 +166,6 @@ class P(PsObj):
 
         self.point=[x,y]
 
-        #apply(list.__init__,(self,(x,y)))
-
         apply(PsObj.__init__,(self,),dict)
         
     def __len__(self):
@@ -234,8 +232,22 @@ class P(PsObj):
         else:
             raise TypeError, "Only division by numbers implemented"
 
-    def length(self):
+
+    def _get_length(self):
+        '''
+        Return length of this vector
+        (distance from origin to point)
+        '''
         return sqrt(self*self)
+    length = property(_get_length,None)
+
+    def _get_E(self):
+        '''
+        Return unit vector pointing in same direction
+        '''
+        return self/float(self.length)
+    E = property(_get_E,None)
+
 
     def cross(self,other):
         if isinstance(o,P):
