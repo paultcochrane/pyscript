@@ -13,11 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-'''
+"""
 pyscript Electronics objects library
 
 thanks to Adrian Jonstone's lcircuit macros from CTAN for the ideas and names
-'''
+"""
 
 from pyscript import *
 
@@ -55,7 +55,7 @@ def AndGate(
         return Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
 
 # NAND gate
-def NandGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, label=None, labelPinIn1=None, labelPinIn1=None, labelPinOut=None):
+def NandGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, label=None, labelPinIn1=None, labelPinIn2=None, labelPinOut=None):
     """
     NAND gate
     """
@@ -81,7 +81,7 @@ def NandGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, lab
         return Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
 
 # OR gate
-def OrGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, label=None, labelPinIn1=None, labelPinIn1=None, labelPinOut=None):
+def OrGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, label=None, labelPinIn1=None, labelPinIn2=None, labelPinOut=None):
     """
     OR gate
     """
@@ -102,7 +102,7 @@ def OrGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, label
         return Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
 
 # NOR gate
-def NorGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, label=None, labelPinIn1=None, labelPinIn1=None, labelPinOut=None):
+def NorGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, label=None, labelPinIn1=None, labelPinIn2=None, labelPinOut=None):
     """
     NOR gate
     """
@@ -123,7 +123,7 @@ def NorGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, labe
         return Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
 
 # XOR gate
-def XorGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, label=None, labelPinIn1=None, labelPinIn1=None, labelPinOut=None):
+def XorGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, label=None, labelPinIn1=None, labelPinIn2=None, labelPinOut=None):
     """
     XOR gate
     """
@@ -144,7 +144,7 @@ def XorGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, labe
         return Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
 
 # NXOR gate
-def NxorGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, label=None, labelPinIn1=None, labelPinIn1=None, labelPinOut=None):
+def NxorGate(sw=P(0,0), direction='e', height=2.0, width=3.0, pinLength=0.5, label=None, labelPinIn1=None, labelPinIn2=None, labelPinOut=None):
     """
     NXOR gate
     """

@@ -75,7 +75,6 @@ class PsDict(UserDict.UserDict):
 
     def __getitem__(self, key):
         '''extended getitem to allow dynamic attributes
-        
              1. first check internal dict for key
              2. second, return ._get_key() if method exists
              3. else raise KeyError
@@ -90,7 +89,6 @@ class PsDict(UserDict.UserDict):
 
     def __setitem__(self, key, item):
         '''extended setitem to allow dynamic attributes
-
              1. call ._set_key(item) if method exists
              2. else return data[key]
           
