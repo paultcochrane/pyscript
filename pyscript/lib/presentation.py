@@ -31,7 +31,7 @@ class  TeXBox(Group):
     @cvar align: alignment of the LaTeX to box if its smaller
     '''
 
-    fixed_width=9.2
+    fixed_width=9.4
     
     tex_scale=.7
 
@@ -117,6 +117,11 @@ class Poster_1(Page):
     @cvar authors_scale: scale of authors TeX
     @cvar authors_width: proportion of total width for authors
     
+    @cvar address: TeX of address
+    @cvar address_fg: fg color of address
+    @cvar address_scale: scale of address TeX
+    @cvar address_width: proportion of total width for address
+    
     @cvar abstract: TeX of abstract
     @cvar abstract_fg: fg color of abstract
     @cvar abstract_scale: scale of abstract TeX
@@ -140,6 +145,11 @@ class Poster_1(Page):
     title_fg=Color('Yellow')
     title_scale=1.4
     title_width=.7
+
+    address=""
+    address_fg=Color(0)
+    address_scale=1
+    address_width=.8
 
     authors=""
     authors_fg=Color(0)
@@ -196,6 +206,16 @@ class Poster_1(Page):
                       fixed_width=self.printing_area.width*self.title_width,
                       tex_scale=self.title_scale,
                       align="c")
+
+    def make_address(self):
+	"""
+	Return an address object
+	"""
+	return TeXBox(self.address,
+		    fg=self.address_fg,
+		    fixed_width=self.printing_area.width*self.address_width,
+		    tex_scale=self.address_scale,
+		    align="c")
 
     def make_abstract(self):
         '''
@@ -265,6 +285,7 @@ class Poster_1(Page):
             self.make_logos(),
             self.make_title(),
             self.make_authors(),
+            self.make_address(),
             self.make_abstract(),
             cols,
             a1="s",a2="n",angle=180,space=pad
@@ -275,7 +296,7 @@ class Poster_1(Page):
         back=self.make_background()
 
         p=self.printing_area.se+P(0,1.2)
-        signature=Text('Created with PyScript',size=6,
+        signature=Text('Created with PyScript.  http://pyscript.sourceforge.net',size=6,
                        sw=p,fg=self.bg*.8).rotate(-90,p)
 
         self.append(back,all,signature)
@@ -344,8 +365,8 @@ class Talk(Pages):
 	    "space" : 3,
             }
     headings_bullets = {
-           # 1 : Epsf(file="redbullet.eps").scale(0.15,0.15),#TeX(r"$\bullet$"), 
-           # 2 : Epsf(file="greenbullet.eps").scale(0.1,0.1),#TeX(r"--"), 
+            1 : TeX(r"$\bullet$"),#Epsf(file="redbullet.eps").scale(0.15,0.15),#TeX(r"$\bullet$"), 
+            2 : TeX(r"--"),#Epsf(file="greenbullet.eps").scale(0.1,0.1),#TeX(r"--"), 
             3 : TeX(r"$\gg$"),
             "default" : TeX(r"$\cdot$"),
 	    "space" : Rectangle(height=1,fg=bg,bg=bg),
@@ -771,7 +792,7 @@ class Slide(Page,Talk):
         back = self.make_background(talk)
 
         p = self.area.se + P(-0.1,0.1)
-        signature = Text('Created with PyScript',
+        signature = Text('Created with PyScript.  http://pyscript.sourceforge.net',
                             size=15,
                             sw=p,
                             fg=self.bg*0.8
