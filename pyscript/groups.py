@@ -56,6 +56,9 @@ class Group(Area):
     def __setslice__(self,i,j,wert):
         self.objects[i:j]=wert
 
+    def __len__(self):
+        return len(self.objects)
+
     def append(self,*objs):
         '''
         append object(s) to group
@@ -130,62 +133,143 @@ class Group(Area):
 
 # -------------------------------------------------------------------------
     
-class Align(Group):
+##class AlignO(Group):
 
-    anchor=None
+##    anchor=None
 
-    space=None
-    angle=0
+##    space=None
+##    angle=0
 
-    a1="c"
-    a2="c"
+##    a1="c"
+##    a2="c"
 
-    def __init__(self,*objs,**dict):
+##    def __init__(self,*objs,**dict):
 
-        # first grap the keys that define the alignment
-        self.space=dict.get("space",None)
-        self.a1=dict.get("a1","c")
-        self.a2=dict.get("a2","c")
-        self.angle=dict.get("angle",0)
+##        # first grap the keys that define the alignment
+##        self.space=dict.get("space",None)
+##        self.a1=dict.get("a1","c")
+##        self.a2=dict.get("a2","c")
+##        self.angle=dict.get("angle",0)
         
-        apply(Group.__init__,(self,objs),dict)
+##        apply(Group.__init__,(self,objs),dict)
 
-        assert self.a1 in ["n","ne","e","se","s","sw","w","nw","c"]
-        assert self.a2 in ["n","ne","e","se","s","sw","w","nw","c"]
+##        assert self.a1 in ["n","ne","e","se","s","sw","w","nw","c"]
+##        assert self.a2 in ["n","ne","e","se","s","sw","w","nw","c"]
         
-    def append(self,*objs):
-        '''
-        append object(s) to group
-        '''
+##    def append(self,*objs):
+##        '''
+##        append object(s) to group
+##        '''
 
-        for obj in objs:
+##        for obj in objs:
 
-            if self.anchor is None:
-                self.objbox.union(obj.bbox())
-                self.objects.append(obj)
-                self.anchor=obj
-                continue
+##            if self.anchor is None:
+##                self.objbox.union(obj.bbox())
+##                self.objects.append(obj)
+##                self.anchor=obj
+##                continue
 
-            # if we're appending, the obj is p2
-            p2=getattr(obj.bbox(),self.a2)
-            p1=getattr(self.objects[-1].bbox(),self.a1)
+##            # if we're appending, the obj is p2
+##            p2=getattr(obj.bbox(),self.a2)
+##            p1=getattr(self.objects[-1].bbox(),self.a1)
 
-            if self.space is not None:
-                obj.move(E(self.angle,self.space)-(p2-p1))
+##            if self.space is not None:
+##                obj.move(E(self.angle,self.space)-(p2-p1))
 
-            else:
-                # Don't touch the spacing in the angle direction
-                # adjust in othogonal direction instead
+##            else:
+##                # Don't touch the spacing in the angle direction
+##                # adjust in othogonal direction instead
 
-                obj.move((E(self.angle+90)*(p2-p1))*E(self.angle-90))
+##                obj.move((E(self.angle+90)*(p2-p1))*E(self.angle-90))
 
 
-            self.objbox.union(obj.bbox())
-            self.objects.append(obj)
+##            self.objbox.union(obj.bbox())
+##            self.objects.append(obj)
 
-        # update size
-        if self.objbox.is_set():
-            self.isw=self.objbox.sw
-            self.width=self.objbox.width
-            self.height=self.objbox.height
+##        # update size
+##        if self.objbox.is_set():
+##            self.isw=self.objbox.sw
+##            self.width=self.objbox.width
+##            self.height=self.objbox.height
 
+# -------------------------------------------------------------------------
+
+def Align(*items,**dict):
+    '''
+    Function to align a group of objects.
+
+    @param anchor: The item number of the object that remain fixed
+    @param a1: The first anchor point to align to eg "e", "c"
+    @param a2: The second anchor point for aligning
+    @param space: the amount of space to enforce between the anchor points, if None then only movement perpendicular to angle is possible
+    @param angle: the angle of the line between anchor points
+    @return: a reference to the group containing the objects
+    '''
+
+    anchor=dict.get('anchor',0)
+    a1=dict.get('a1','c')
+    a2=dict.get('a2','c')
+    space=dict.get('space',None)
+    angle=dict.get('angle',0)
+    
+    if len(items)==1:
+        if not isinstance(items[0],Group):
+            # Nothing to do here ...
+            return
+        objects=items[0]
+    else:
+        # create a group around the objects
+        objects=items
+
+    # keep a reference to the anchor ... we'll
+    # move it back later
+    anchor_bbox_sw=objects[anchor].bbox().sw
+    
+    assert a1 in ["n","ne","e","se","s","sw","w","nw","c"]
+    assert a2 in ["n","ne","e","se","s","sw","w","nw","c"]
+
+    for obj in objects:
+        print obj.c
+    print
+
+    # need to implement a length for group
+    for ii in range(1,len(objects)):
+
+        obj=objects[ii]
+        p1=getattr(objects[ii-1].bbox(),a1)
+        p2=getattr(obj.bbox(),a2)
+        
+
+        if space is not None:
+            obj.move(E(angle,space)-(p2-p1))
+
+        else:
+            # Don't touch the spacing in the angle direction
+            # adjust in othogonal direction instead
+
+            obj.move((E(angle+90)*(p2-p1))*E(angle-90))
+
+        
+        p1=p2
+
+    offset=anchor_bbox_sw-objects[anchor].bbox().sw
+
+    for obj in objects:
+        print obj.c
+
+
+    # Can't really move group since it might be fake
+    for obj in objects:
+        obj.move(offset)
+
+    if isinstance(objects,Group):
+        objects.recalc_size()
+
+        # for convenience ..
+        return objects
+    else:
+        # create a group (though it may not be used)
+        # for convenience
+        return apply(Group,objects) 
+
+# -------------------------------------------------------------------------
