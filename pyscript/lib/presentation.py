@@ -343,8 +343,8 @@ class Talk(Pages):
 	    "space" : 3,
             }
     headings_bullets = {
-            1 : Epsf(file="redbullet.eps").scale(0.15,0.15),#TeX(r"$\bullet$"), 
-            2 : Epsf(file="greenbullet.eps").scale(0.1,0.1),#TeX(r"--"), 
+           # 1 : Epsf(file="redbullet.eps").scale(0.15,0.15),#TeX(r"$\bullet$"), 
+           # 2 : Epsf(file="greenbullet.eps").scale(0.1,0.1),#TeX(r"--"), 
             3 : TeX(r"$\gg$"),
             "default" : TeX(r"$\cdot$"),
 	    "space" : Rectangle(height=1,fg=bg,bg=bg),

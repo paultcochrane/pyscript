@@ -37,7 +37,7 @@ class Group(Area):
     """
     Groups together a list of objects
     """
-
+    
     def __init__(self,*objects,**dict):
 
         self.objects=[]
@@ -729,6 +729,10 @@ class Page(Group):
         area=self.area()
         return Bbox(sw=area.sw,width=area.width,height=area.height)
 
+    def bbox_pp_raw(self):
+        w,h=self.PAPERSIZES[string.lower(self.size)]
+        return 0,0,w,h
+
     def bbox_pp(self):
         
         w,h=self.PAPERSIZES[string.lower(self.size)]
@@ -796,6 +800,23 @@ class Pages(Group):
         # we've used some level 2 ops:
         fp.write("%%LanguageLevel: 2\n")
         fp.write("%%%%Title: %s\n"%title)
+
+        # If all the pages are orientated the same, give a global orientation
+        # Combine boundingboxes to a highwater-mark global boundingbox
+        orientation=self[0].orientation
+        orient=True
+        x1,y1,x2,y2=self[0].bbox_pp_raw()
+        for page in self:
+            orient = orient and (page.orientation==orientation)
+            x1t,y1t,x2t,y2t=page.bbox_pp_raw()
+            x1=min(x1,x1t)
+            y1=min(y1,y1t)
+            x2=max(x2,x2t)
+            y2=max(y2,y2t)
+        
+        fp.write("%%%%BoundingBox: %d %d %d %d\n"%(x1,y1,x2,y2))            
+        if orient:
+            fp.write("%%%%Orientation: %s\n"%orientation)
         # Say it's a single page:
         fp.write("%%%%Pages: %d\n"%len(self)) 
         fp.write("%%EndComments\n")
