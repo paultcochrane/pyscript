@@ -1,4 +1,4 @@
-# Copyright (C) 2002  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2002-2005  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -882,4 +882,5 @@ class Pages(Group):
         if not isinstance(obj,Page):
             raise "Can only add Page to %s"%str(self.__class__)
         
-        
+# vim: expandtab shiftwidth=4:
+

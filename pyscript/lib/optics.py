@@ -1,4 +1,4 @@
-# Copyright (C) 2002  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2002-2005  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -118,3 +118,4 @@ def Mirror(c=P(0,0), label=None, length=1.0, thickness=0.1, angle=0, anchor=None
     else:
         return mirror
 
+# vim: expandtab shiftwidth=4:

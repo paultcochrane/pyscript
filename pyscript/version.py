@@ -1,4 +1,4 @@
-# Copyright (C) 2003  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2003-2005  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -15,3 +15,5 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 version = "0.5.0"
+
+# vim: expandtab shiftwidth=4:

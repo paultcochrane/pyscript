@@ -1,4 +1,4 @@
-# Copyright (C) 2002  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2002-2005  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -158,7 +158,7 @@ class AffineObj(PsObj):
     def itoe(self,p_i):
         '''
         convert internal to external co-ords
-        @param p_i: intrnal co-ordinate
+        @param p_i: internal co-ordinate
         @return: external co-ordinate
         @rtype: P
         '''
@@ -948,14 +948,4 @@ class Epsf(Area):
         return out.getvalue()
 
 
-
-
-
-
-
-
-
-
-
-
-
+# vim: expandtab shiftwidth=4:

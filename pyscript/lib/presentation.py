@@ -1,4 +1,4 @@
-# Copyright (C) 2003  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2003-2005  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
 '''
 pyscript Presentation library (posters and talks)
 
@@ -489,7 +490,7 @@ class Slide(Page,Talk):
 	"""
 	Put the logos on the page
 	"""
-        
+
         if len(self.thelogos) == 0:
             return Area(width=0, height=0)
         elif len(self.thelogos) == 1:
@@ -826,3 +827,4 @@ class Slide(Page,Talk):
 
         return Page(All,orientation="Landscape")
 
+# vim: expandtab shiftwidth=4:
