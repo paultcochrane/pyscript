@@ -1,4 +1,10 @@
-
+- Added a Dash() object to describe postscript dashes
+- fixed up examples and added a few others
+- Dot() now returns a bounding box
+- objects that return null BBox()'s are ignored in Alignment operations
+  This was chiefly to accomodate a Pause() object in talks
+- Fixed bug with move and rotations commuting (thanks Adrian)
+- Added HAlign and VAlign convenience functions
 - curves can now be given just a direction at the end points (eg C(45,90)), 
   a "natural" curve will be chosen automatically. This is the first half 
   of the algorithm that Metapost uses which is really nice. 
