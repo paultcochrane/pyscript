@@ -1,0 +1,119 @@
+\usepackage{graphicx,color}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{makeidx}
+\usepackage{alltt}
+\usepackage{verbatim}
+\usepackage{shortvrb}
+\usepackage{verbatimfiles}
+\usepackage{html}
+\usepackage{xspace}
+\usepackage{colortbl}
+
+\usepackage{hyperref}
+\usepackage{fancyvrb}
+
+%
+% Make the sectioning a bit more fancy
+%
+\usepackage{titlesec}
+
+\titleformat{\chapter}[display]
+{\normalfont\LARGE\filcenter\sffamily}
+{}{1pc}
+{\titlerule[1pt]%
+\vspace{1pt}%
+\titlerule
+\vspace{2ex}\thechapter: }
+[\vspace{2ex}\titlerule]
+
+% sundry shite
+
+\newcommand {\tbf}[1] {\textbf{#1}}
+\newcommand {\tit}[1] {\textit{#1}}
+\newcommand {\tmd}[1] {\textmd{#1}}
+\newcommand {\trm}[1] {\textrm{#1}}
+\newcommand {\tsc}[1] {\textsc{#1}}
+\newcommand {\tsf}[1] {\textsf{#1}}
+\newcommand {\tsl}[1] {\textsl{#1}}
+\newcommand {\ttt}[1] {\texttt{#1}}
+\newcommand {\tup}[1] {\textup{#1}}
+
+\newcommand {\mbf}[1] {\mathbf{#1}}
+\newcommand {\mmd}[1] {\mathmd{#1}}
+\newcommand {\mrm}[1] {\mathrm{#1}}
+\newcommand {\msc}[1] {\mathsc{#1}}
+\newcommand {\msf}[1] {\mathsf{#1}}
+\newcommand {\msl}[1] {\mathsl{#1}}
+\newcommand {\mtt}[1] {\mathtt{#1}}
+\newcommand {\mup}[1] {\mathup{#1}}
+
+% spell things correctly
+\newenvironment{centre}{\begin{center}}{\end{center}}
+\newenvironment{itemise}{\begin{itemize}}{\end{itemize}}
+
+% define commands for describing functions, arguments and stuff
+\newenvironment{funcDesc}{\vspace*{2mm}\begin{description}}{\end{description}\vspace*{2mm}}
+\newenvironment{funcOpts}{\begin{description}}{\end{description}}
+\newenvironment{funcExCode}{The code:\begin{alltt}\MakeShortVerb{\|}}{\DeleteShortVerb{\|}\end{alltt}}
+\newenvironment{funcExOut}{Gives the output:\\}{}
+
+\newcommand {\funcName}[1] {\ttt{#1}} % function name
+\newcommand {\funcArg}[1] {\tit{#1}} % function argument
+\newcommand {\reqArg}[1] {\tit{#1}} % required function argument
+\newcommand {\optArg}[1] {\tit{#1}} % optional function argument
+\newcommand {\defVal}[1] {\ttt{#1}} % default value of argument
+\newcommand {\class} {\tbf{class\xspace}}
+% option: first argument is option name, second argument is default
+% value if any
+\newcommand {\option}[1] {\item[\optArg{#1}: ]}  
+
+\newcommand {\progName}[1] {\ttt{#1}} % external program name
+\newcommand {\fileName}[1] {\tbf{\tit{#1}}} % file name
+
+
+
+\usepackage[nottoc]{tocbibind}  
+                                % allows the table of contents, bibliography
+                                % and index to be added to the table of
+                                % contents if desired, the option used
+                                % here specifies that the table of
+                                % contents is not to be added.
+                                % tocbibind needs to be after natbib
+                                % otherwise bits of it get trampled.
+
+
+\definecolor{pycolor}{rgb}{0,0.4,0}
+
+\DefineVerbatimEnvironment{python}{Verbatim}
+{frame=leftline,framerule=.5mm,rulecolor=\color{pycolor},
+formatcom=\color{pycolor}\small,fontshape=sl}
+
+%\DefineShortVerb[formatcom=\color{dgreen}\small,fontshape=sl]{\|}
+
+\RecustomVerbatimCommand{\Verb}{Verb}{formatcom=\color{pycolor}\small,fontshape=sl}
+
+%\newenvironment{example}{\begin{description}}{\end{description}}
+\newenvironment{example}{\begin{center}\begin{tabular}{|>{\columncolor[gray]{.9}}c|}\hline\\\begin{minipage}{.75\textwidth}}%
+{\end{minipage}\\\hline\end{tabular}\end{center}}
+
+
+%%%%% Fancyhdr stuff
+% Page layout ... set for A4
+% we're allowed 1cm margins (TeX defaults to 1 in!)
+\setlength{\topmargin}{-1.0 cm}
+\setlength{\oddsidemargin}{0 cm}
+\setlength{\evensidemargin}{0 cm}
+\setlength{\textwidth}{18.5 cm}
+\addtolength{\textwidth}{-\marginparsep}
+\addtolength{\textwidth}{-\marginparwidth}
+\setlength{\textheight}{26.5 cm}
+\addtolength{\textheight}{-\footskip}
+
+\pagestyle{fancyplain}
+\renewcommand{\chaptermark}[1]{\markboth{Chapter \thechapter: #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
+\rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
+\rfoot{}
+\cfoot{}

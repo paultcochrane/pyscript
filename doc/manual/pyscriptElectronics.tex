@@ -1,0 +1,57 @@
+\chapter{PyScript Electronics Object Package}
+
+\section{Introduction}
+
+Thanks to Adrian Jonstone's lcircuit macros from CTAN for the ideas
+and names.
+
+\section{Objects}
+
+%%% AND gate
+\label{func:pyscriptElectronicsAnd}
+\begin{funcDesc}
+\item[] \funcName{AndGate}(%
+	\optArg{sw}=\defVal{P(0,0)},\\
+	\optArg{direction}=\defVal{e},\\
+	\optArg{height}=\defVal{2.0},\\
+	\optArg{width}=\defVal{3.0},\\
+	\optArg{pinLength}=\defVal{0.5},\\
+	\optArg{label}=\defVal{None},\\
+	\optArg{labelPinIn1}=\defVal{None},\\
+	\optArg{labelPinIn2}=\defVal{None},\\
+	\optArg{labelPinOut}=\defVal{None})
+
+\begin{funcExCode}
+\verbatiminput{andGate.py}
+\end{funcExCode}
+
+\begin{funcExOut}
+\includegraphics[width=30mm]{andGate.eps}
+\end{funcExOut}
+
+\end{funcDesc}
+
+%%% NAND gate
+\label{func:pyscriptElectronicsNand}
+\begin{funcDesc}
+\item[] \funcName{NandGate}(%
+	\optArg{sw}=\defVal{P(0,0)},\\
+	\optArg{direction}=\defVal{e},\\
+	\optArg{height}=\defVal{2.0},\\
+	\optArg{width}=\defVal{3.0},\\
+	\optArg{pinLength}=\defVal{0.5},\\
+	\optArg{label}=\defVal{None},\\
+	\optArg{labelPinIn1}=\defVal{None},\\
+	\optArg{labelPinIn2}=\defVal{None},\\
+	\optArg{labelPinOut}=\defVal{None})
+
+\begin{funcExCode}
+\verbatiminput{nandGate.py}
+\end{funcExCode}
+
+\begin{funcExOut}
+\includegraphics[width=30mm]{nandGate.eps}
+\end{funcExOut}
+
+\end{funcDesc}
+
