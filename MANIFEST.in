@@ -10,6 +10,7 @@ include bin/pyscript
 # add pyscript base level files
 include pyscript/__init__.py
 include pyscript/afm.py
+include pyscript/arrowheads.py
 include pyscript/base.py
 include pyscript/defaults.py
 include pyscript/groups.py
