@@ -39,13 +39,15 @@ class  TeXBox(Group):
 
     align="w"
     
+    text_style=""
+
     def __init__(self,text,**dict):
 
         apply(Group.__init__,(self,),dict)
 
         width_pp=int(self.fixed_width/float(self.tex_scale)*defaults.units)
 
-        t=TeX(r'\begin{minipage}{%dpt}%s\end{minipage}'%(width_pp,text),
+        t=TeX(r'\begin{minipage}{%dpt}%s %s\end{minipage}'%(width_pp,self.text_style,text),
               fg=self.fg)
 
         t.scale(self.tex_scale,self.tex_scale)
@@ -147,7 +149,7 @@ class Poster_1(Page):
     title=""
     title_fg=Color('Yellow')
     title_scale=1.4
-    title_width=.7
+    title_width=.8
 
     address=""
     address_fg=Color(0)
@@ -169,6 +171,8 @@ class Poster_1(Page):
 
     col1 = Group()
     col2 = Group()
+
+    signature_fg = bg*0.8
     
     printing_area=None
 
@@ -300,7 +304,7 @@ class Poster_1(Page):
 
         p=self.printing_area.se+P(0,1.2)
         signature=Text('Created with PyScript.  http://pyscript.sourceforge.net',size=6,
-                       sw=p,fg=self.bg*.8).rotate(-90,p)
+                       sw=p,fg=self.signature_fg).rotate(-90,p)
 
         self.append(back,all,signature)
         
@@ -338,9 +342,9 @@ class Talk(Pages):
     authors_scale = 3
     authors_textstyle = ""
 
-    talkAuthor = ""
-    talkAuthor_fg = Color(0)
-    talkAuthor_textstyle = ""
+    speaker = ""   # i.e. who's actually giving the talk
+    speaker_fg = Color(0)
+    speaker_textstyle = ""
 
     address = ""
     address_fg = Color('white')
@@ -357,6 +361,7 @@ class Talk(Pages):
             1 : Color('white'), 
             2 : Color('white'), 
             3 : Color('white'),
+            "equation" : Color('white'),
             "default" : Color('white'),
 	    "space" : fg,
             }
@@ -364,6 +369,7 @@ class Talk(Pages):
             1 : 3, 
             2 : 2.5, 
             3 : 2.2,
+            "equation" : 2.5,
             "default" : 1.5,
 	    "space" : 3,
             }
@@ -371,6 +377,7 @@ class Talk(Pages):
             1 : TeX(r"$\bullet$"),#Epsf(file="redbullet.eps").scale(0.15,0.15),#TeX(r"$\bullet$"), 
             2 : TeX(r"--"),#Epsf(file="greenbullet.eps").scale(0.1,0.1),#TeX(r"--"), 
             3 : TeX(r"$\gg$"),
+	    "equation" : Rectangle(height=1,fg=bg,bg=bg),
             "default" : TeX(r"$\cdot$"),
 	    "space" : Rectangle(height=1,fg=bg,bg=bg),
             }
@@ -378,6 +385,7 @@ class Talk(Pages):
             1 : 0,
             2 : 0.5,
             3 : 1,
+            "equation" : 2,
             "default" : 2,
 	    "space" : 0,
             }
@@ -385,6 +393,7 @@ class Talk(Pages):
 	    1 : "",
 	    2 : "",
 	    3 : "",
+	    "equation" : "",
 	    "default" : "",
 	    "space" : "",
 	    }
@@ -437,7 +446,8 @@ class Slide(Page,Talk):
     pageNumber = None
     authors = None
     titlepage = False
-    size = "screen"
+    # size = "screen"
+    size = "a4"   # need to work out why "screen" gives extra white box on right
     orientation = "Landscape"   
 
     def __init__(self,talk):
@@ -451,7 +461,7 @@ class Slide(Page,Talk):
 	self.title_textstyle = talk.slide_title_textstyle
         # self.paper = talk.paper
         # self.footerScale = talk.footerScale
-        # self.talkAuthor = talk.talkAuthor
+        # self.speaker = talk.speaker
         # self.waitbar_fg = talk.waitbar_fg
         # self.waitbar_bg = talk.waitbar_bg
 	self.headings_bullets = talk.headings_bullets
@@ -624,16 +634,16 @@ class Slide(Page,Talk):
 	pageOf = False
 	if pageOf:
 	    footerText = " - %s; page %i of %i" %  \
-                        (talk.talkAuthor,self.pageNumber,self.pages)
+                        (talk.speaker,self.pageNumber,self.pages)
 	else:
-	    footerText = " - %s" % (talk.talkAuthor,)
+	    footerText = " - %s" % (talk.speaker,)
         
         footerTeX = Group(
                     TeX(text="%s %s"%(talk.title_textstyle,talk.title),
                         fg=self.title_fg,
                         ).scale(self.footerScale,self.footerScale),
                     TeX(
-                        text="%s %s"%(talk.talkAuthor_textstyle,footerText),
+                        text="%s %s"%(talk.speaker_textstyle,footerText),
                         fg=self.title_fg
                         ).scale(self.footerScale,self.footerScale),
                     )
