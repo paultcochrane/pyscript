@@ -43,13 +43,11 @@ class AffineObj(PsObj):
     '''
 
     def __init__(self, **options):
-        """
-        Initialisation of AffineObj object
-        """
-        
-        PsObj.__init__(self)
         self.o = P(0, 0)
         self.T = Matrix(1, 0, 0, 1)
+
+        PsObj.__init__(self, **options)
+        # print "AffineObj(PsObj) options: " + str(options)
 
     def concat(self, t, p = None):
         '''
@@ -256,7 +254,8 @@ class Area(AffineObj):
     width = 0
     height = 0
     def __init__(self, **options):
-        AffineObj.__init__(self)
+        AffineObj.__init__(self, **options)
+        #print "Area(AffineObj) options: " + str(options)
         #self.isw = P(0, 0)
         #self.width = 0
         #self.height = 0
@@ -397,11 +396,13 @@ class TeX(Area):
     '''
 
     text = ""
-    iscale=1
+    iscale = 1
     fg = Color(0)
     bodyps = ""
 
     def __init__(self, text = "", **options):
+        Area.__init__(self, **options)
+        #print "TeX(Area) options: " + str(options)
 
         self.text = text
 
@@ -450,7 +451,7 @@ class TeX(Area):
         self.width = (bbox[2]-bbox[0])/float(defaults.units)
         self.height = (bbox[3]-bbox[1])/float(defaults.units)
 
-        Area.__init__(self,**options)
+        #Area.__init__(self, **options)
 
         self.offset = -P(bbox[0], bbox[1])/float(defaults.units)
 
@@ -502,7 +503,7 @@ class Text(Area):
         # Now calc sizes from AFM
         self._typeset()
 
-        Area.__init__(self)
+        Area.__init__(self, **options)
         
     def _get_font(self):
         """
@@ -680,7 +681,7 @@ class Rectangle(Area):
             options['width'] = obj.width
             options['height'] = obj.height
             
-        Area.__init__(self)
+        Area.__init__(self, **options)
     
     def body(self):
         """
@@ -763,7 +764,7 @@ class Circle(AffineObj):
     dash = None
 
     def __init__(self, **options):
-        AffineObj.__init__(self)
+        AffineObj.__init__(self, **options)
 
     def locus(self, angle, target = None):
         '''
@@ -974,7 +975,7 @@ class Dot(Circle):
             c = p1
         else:
             c = P(p1, p2)
-        Circle.__init__(self)
+        Circle.__init__(self, **options)
         self.c = c
 
     def bbox(self):
@@ -1054,7 +1055,7 @@ class Paper(Area):
         self.width = w*UNITS['cm']/float(defaults.units)
         self.height = h*UNITS['cm']/float(defaults.units)
 
-        Area.__init__(self)
+        Area.__init__(self, **options)
 
         
         
@@ -1116,7 +1117,7 @@ class Epsf(Area):
             
         self.scale(sx, sy)
 
-        Area.__init__(self)
+        Area.__init__(self, **options)
 
     def body(self):
         """
