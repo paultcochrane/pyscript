@@ -1,3 +1,11 @@
+#!/usr/bin/env pyscript
+
+# $Id$
+
+"""
+A tutorial script showing how to create a quantum circuit.
+"""
+
 from pyscript import *
 from pyscript.lib.quantumcircuits import *
 
@@ -30,9 +38,9 @@ def BellDet(c=P(0,0)):
     W=P(.5,0)
 
     D=Group(Path(c+H,
-           C(c+H+W),
+           C(c+H+W,c+H+W),
            c+W,
-           C(c-H+W),
+           C(c-H+W,c-H+W),
            c-H,bg=blue,
            ))
 
@@ -76,4 +84,4 @@ render(
     file="tutorial.eps",
     )
 
-
+# vim: expandtab shiftwidth=4:
