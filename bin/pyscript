@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import sys,getopt,os,traceback
+import sys, getopt, os, traceback
 import tempfile
+from pyscript.version import version as versionNum
 
 def usage():
     print """Usage:
@@ -15,7 +16,7 @@ def usage():
     """
 
 def version():
-    print "This is pyscript version 0.5"
+    print "This is pyscript version %s" % (versionNum,)
     print "For more information see http://pyscript.sourceforge.net\n"
 
 #---------------------------------------------------------------------
