@@ -107,16 +107,16 @@ input = Group(inMode,arrow)
 
 # amplifier
 ampBox = Rectangle(w=inHeadPoint+P(0.2,0),height=1.0,width=1.0,bg=Color("white"))
-ampText = TeX(c=ampBox["c"],text=r"\large $G$")
+ampText = TeX(c=ampBox.c,text=r"\large $G$")
 amp = Group(ampBox,ampText)
 
 # vac 1
 vac1 = Group()
-vac1.append(Line(start=ampBox["c"]+P(-0.7,0.4),length=1.0,angle=150,dash="[ 3] 0"))
-vac1.append(Line(start=ampBox["c"]+P(0.7,-0.4),length=1.0,angle=-30,dash="[ 3] 0"))
-vac1Text = TeX(se=ampBox["c"]+P(-1.1,0.9),text=r"$\hat{v}_1$")
+vac1.append(Line(start=ampBox.c+P(-0.7,0.4),length=1.0,angle=150,dash="[ 3] 0"))
+vac1.append(Line(start=ampBox.c+P(0.7,-0.4),length=1.0,angle=-30,dash="[ 3] 0"))
+vac1Text = TeX(se=ampBox.c+P(-1.1,0.9),text=r"$\hat{v}_1$")
 vac1.append(vac1Text)
-tipPoint = ampBox["c"]+P(0.7+sqrt(3.0)/2.0,-0.8)
+tipPoint = ampBox.c+P(0.7+sqrt(3.0)/2.0,-0.8)
 vac1Arrow = ArrowHead(tip=tipPoint,dir="e")
 vac1Arrow.rotate(30)
 vac1.append(vac1Arrow)
@@ -202,16 +202,16 @@ input = Group(inMode,arrow)
 
 # amplifier
 ampBox = Rectangle(w=inHeadPoint+P(0.2,0),height=1.0,width=1.0,bg=Color("white"))
-ampText = TeX(c=ampBox["c"],text=r"\large $G$")
+ampText = TeX(c=ampBox.c,text=r"\large $G$")
 amp = Group(ampBox,ampText)
 
 # vac 1
 vac1 = Group()
-vac1.append(Line(start=ampBox["c"]+P(-0.7,0.4),length=1.0,angle=150,dash="[ 3] 0"))
-vac1.append(Line(start=ampBox["c"]+P(0.7,-0.4),length=1.0,angle=-30,dash="[ 3] 0"))
-vac1Text = TeX(se=ampBox["c"]+P(-1.1,0.9),text=r"$\hat{v}_1$")
+vac1.append(Line(start=ampBox.c+P(-0.7,0.4),length=1.0,angle=150,dash="[ 3] 0"))
+vac1.append(Line(start=ampBox.c+P(0.7,-0.4),length=1.0,angle=-30,dash="[ 3] 0"))
+vac1Text = TeX(se=ampBox.c+P(-1.1,0.9),text=r"$\hat{v}_1$")
 vac1.append(vac1Text)
-tipPoint = ampBox["c"]+P(0.7+sqrt(3.0)/2.0,-0.8)
+tipPoint = ampBox.c+P(0.7+sqrt(3.0)/2.0,-0.8)
 vac1Arrow = ArrowHead(tip=tipPoint,dir="e")
 vac1Arrow.rotate(30)
 vac1.append(vac1Arrow)
@@ -306,9 +306,9 @@ pbsOutBot = Group(pbsBox,pbsLine,pbsArrow)
 ### put a "hop" on the downward big b1 mode line
 hopBoxHeight = 0.3
 hopBox = Rectangle(c=b1Head+P(0.2+pbsHeight/2.0,1.3), height=hopBoxHeight, width=hopBoxHeight, bg=Color("white"), fg=Color("white"))
-hopCurve = Path(hopBox["n"],
-               C(hopBox["n"],hopBox["e"]), #hopBox["se"],hopBox["s"]),
-               hopBox["s"])
+hopCurve = Path(hopBox.n,
+               C(hopBox.n,hopBox.e), #hopBox.se,hopBox.s),
+               hopBox.s)
 hop = Group(hopBox,hopCurve)
 
 ### background shading
