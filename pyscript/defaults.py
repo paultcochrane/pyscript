@@ -14,35 +14,42 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+# $Id$
+
 """
-A class to hold default settings
+Default settings for TeX and PyScript
 """
 
-from base import UNITS,Color
+__revision__ = '$Revision$'
+
+from pyscript.base import UNITS  # , Color
 
 class defaults:
+    """
+    A class to hold default settings
+    """
 
-    tex_head=r"""\documentclass{article}
+    tex_head = r"""\documentclass{article}
     \pagestyle{empty}
     \begin{document}
     """
-    tex_tail=r"\end{document}"
-    tex_command="latex -interaction=batchmode %s"
+    tex_tail = r"\end{document}"
+    tex_command = "latex -interaction=batchmode %s"
 
-    dvips_options="-Ppdf"
+    dvips_options = "-Ppdf"
   
-    units=UNITS['cm']
+    units = UNITS['cm']
 
-    linewidth=0.5
-    linecap=1  #0=butt, 1=round, 2=square
-    linejoin=0 #0=miter, 1=round, 2=bevel
+    linewidth = 0.5
+    linecap = 1  #0=butt, 1=round, 2=square
+    linejoin = 0 #0=miter, 1=round, 2=bevel
 
     # miterlimit:
     # 1.414 cuts off miters at angles less than 90 degrees.
     # 2.0 cuts off miters at angles less than 60 degrees.
     # 10.0 cuts off miters at angles less than 11 degrees.
     # 1.0 cuts off miters at all angles, so that bevels are always produced
-    miterlimit=10  
+    miterlimit = 10  
 
     # [ ] 0 setdash % Solid, unbroken lines
     # [ 3] 0 setdash % 3 units on, 3 units off,
@@ -50,7 +57,7 @@ class defaults:
     # [ 2 1] 0 setdash % 2 on, 1 off, 2 on, 1 off,
     # [ 3 5] 6 setdash % 2 off, 3 on, 5 off, 3 on, 5 off,
     # [ 2 3 ] 11 setdash % 1 on, 3 off, 2 on, 3 off, 2 on
-    dash=None
+    dash = None
 
     # a 'color' of None is transparent 
     #fg=Color(0)
