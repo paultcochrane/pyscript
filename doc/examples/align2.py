@@ -1,5 +1,12 @@
 #!/usr/bin/env pyscript
 
+# $Id$
+
+"""
+Another example of aligning objects.  This time aligning boxes with numbers
+inside around a circle.
+"""
+
 from pyscript import *
 
 all=Align(angle=90,space=2)
@@ -15,3 +22,4 @@ render(
     file='align2.eps',
     )
 
+# vim: expandtab shiftwidth=4:

@@ -1,5 +1,11 @@
 #!/usr/bin/env pyscript
 
+# $Id$
+
+"""
+A quantum circuit example usingt the qi (quantum information) library.
+"""
+
 from pyscript import *
 from pyscript.lib.qi import *
 
@@ -57,4 +63,6 @@ render(
 
 	file="qcirc.eps",
 )
+
+# vim: expandtab shiftwidth=4:
 

@@ -1,5 +1,12 @@
 #!/usr/bin/env pyscript
 
+# $Id$
+
+"""
+Quite a complex example of using the quantumcircuits library.  This shows
+the quantum circuit of the flower algorithm.
+"""
+
 from pyscript import *
 import pyscript.lib.quantumcircuits as qc
 
@@ -90,3 +97,6 @@ render(p1,p2,p3,p4,
 
        qft,
        file="flower_algorithm.eps")
+
+
+# vim: expandtab shiftwidth=4:

@@ -1,5 +1,12 @@
 #!/usr/bin/env pyscript
 
+# $Id$
+
+"""
+A Poincare sphere.  The example shows a sphere with axes labeled and a
+vector pointing to a point on the surface of the sphere.
+"""
+
 from pyscript import *
 
 #----------------------------------------------------------------------------------------------
@@ -72,3 +79,5 @@ fig = Group(circ1,circ2,circ3,
 	    radThing,radLabel)
 
 render(fig,file="sphere.eps")
+
+# vim: expandtab shiftwidth=4:

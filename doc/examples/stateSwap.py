@@ -1,6 +1,11 @@
 #!/usr/bin/env pyscript
 
-# State swapping quantum computing circuit diagram
+# $Id$
+
+"""
+State swapping quantum computing circuit diagram.  Uses the
+quantumcircuits library.
+"""
 
 from pyscript import *
 from pyscript.lib.quantumcircuits import *
@@ -29,4 +34,6 @@ cnot3 = Cnot(c=P(2.5,0), targetDist=1.0, direction="up")
 
 # draw it!
 render(rail1,rail2,cnot1,cnot2,cnot3,file="stateSwap.eps")
+
+# vim: expandtab shiftwidth=4:
 

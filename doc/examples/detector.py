@@ -1,5 +1,12 @@
 #!/usr/bin/env pyscript
 
+# $Id$
+
+"""
+Another quantum circuit diagram.  This time of a detection setup in optical
+quantum computing.
+"""
+
 from pyscript import *
 
 defaults.units=UNITS['cm']
@@ -62,3 +69,5 @@ def fig():
         )
 
 fig()
+
+# vim: expandtab shiftwidth=4:

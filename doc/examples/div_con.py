@@ -1,5 +1,12 @@
 #!/usr/bin/env pyscript
 
+# $Id$
+
+"""
+Example usage of the qi (quantum information) library.  Output is of a
+divide-and-conquer scheme of quantum gates.
+"""
+
 from pyscript import *
 from pyscript.lib.qi import *
 
@@ -59,3 +66,4 @@ render(
         file="div_con.eps"
         )
 
+# vim: expandtab shiftwidth=4:

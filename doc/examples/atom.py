@@ -1,5 +1,12 @@
 #!/usr/bin/env pyscript
 
+# $Id$
+
+"""
+Diagram of an energy level diagram for quantum readout of an electronic
+state of an atom.  (Helpful for quantum computing.)
+"""
+
 from pyscript import *
 
 defaults.units=UNITS['cm']
@@ -75,3 +82,4 @@ render(
     file="atom.eps",
     )
 
+# vim: expandtab shiftwidth=4:
