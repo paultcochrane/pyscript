@@ -14,21 +14,25 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+# $Id$
+
 """
 Some of the key drawing objects
 """
-import os,string,re,sys
+
+__revision__ = '$Revision$'
+
+import os, string, re, sys
 import cStringIO
 
 #from types import *
 
-from math import cos,sin,pi
+from math import cos, sin, pi
 
-from defaults import *
-from vectors import *
-from base import PsObj,Color,Dash,PyScriptError,FontError
-from afm import AFM
-
+from pyscript.defaults import *
+from pyscript.vectors import *
+from pyscript.base import PsObj, Color, Dash, PyScriptError, FontError
+from pyscript.afm import AFM
 
 import warnings
 
@@ -40,10 +44,10 @@ class AffineObj(PsObj):
     on the page.
     '''
 
-    o=P(0,0)
-    T=Matrix(1,0,0,1)
+    o = P(0, 0)
+    T = Matrix(1, 0, 0, 1)
 
-    def concat(self,t,p=None):
+    def concat(self, t, p = None):
         '''
         concat matrix t to tranformation matrix
         @param t: a 2x2 Matrix dectribing Affine transformation
@@ -53,8 +57,7 @@ class AffineObj(PsObj):
         '''
 
         # update transformation matrix
-        self.T=t*self.T
-
+        self.T = t*self.T
         
         #if p is not None:
         #    o=self.o # o is in external co-ords
@@ -77,7 +80,7 @@ class AffineObj(PsObj):
        
         return self
 
-    def move(self,*args):
+    def move(self, *args):
         '''
         translate object by a certain amount
         @param args: amount to move by, can be given as
@@ -86,16 +89,16 @@ class AffineObj(PsObj):
         @return: reference to self
         @rtype: self
         '''
-        if len(args)==1:
+        if len(args) == 1:
             # assume we have a point
-            self.o+=args[0]
+            self.o += args[0]
         else:
             # assume we have dx,dy
-            self.o+=P(args[0],args[1])
+            self.o += P(args[0], args[1])
 
             return self
             
-    def rotate(self,angle,p=None):
+    def rotate(self, angle, p = None):
         """
         rotate object, 
         the rotation is around p when supplied otherwise
@@ -106,13 +109,13 @@ class AffineObj(PsObj):
         @return: reference to self
         @rtype: self
         """ 
-        angle=angle/180.0*pi # convert angle to radians
-        t=Matrix(cos(angle),sin(angle),-sin(angle),cos(angle))
-        self.concat(t,p)
+        angle = angle/180.0*pi # convert angle to radians
+        t = Matrix(cos(angle), sin(angle), -sin(angle), cos(angle))
+        self.concat(t, p)
 
         return self
 
-    def scale(self,sx,sy=None,p=None):
+    def scale(self, sx, sy = None, p = None):
         '''
         scale object size (towards objects origin or p)
         @param sx: x scale factor, or total scale factor if sy=None
@@ -121,14 +124,14 @@ class AffineObj(PsObj):
         @return: reference to self
         @rtype: self
         '''
-        if sy is None: sy=sx
+        if sy is None: sy = sx
         
-        t=Matrix(sx,0,0,sy)
-        self.concat(t,p)
+        t = Matrix(sx, 0, 0, sy)
+        self.concat(t, p)
         
         return self
 
-    def reflect(self,angle,p=None):
+    def reflect(self, angle, p = None):
         '''
         reflect object in mirror
         @param angle: angle of mirror (deg clockwise from top)
@@ -137,21 +140,21 @@ class AffineObj(PsObj):
         @rtype: self
         '''
         # convert angle to radians, clockwise from top
-        angle=angle/180.0*pi-pi/2 
+        angle = angle/180.0*pi-pi/2 
 
-        t=Matrix(
+        t = Matrix(
             cos(angle)**2-sin(angle)**2,
             -2*sin(angle)*cos(angle),
             -2*sin(angle)*cos(angle),
             sin(angle)**2-cos(angle)**2
             )
         
-        self.concat(t,p)
+        self.concat(t, p)
         
         return self
 
 
-    def shear(self,s,angle,p=None):
+    def shear(self, s, angle, p = None):
         '''
         shear object
         @param s: amount of shear
@@ -161,35 +164,35 @@ class AffineObj(PsObj):
         @rtype: self
         '''
 
-        self.rotate(angle,p)
+        self.rotate(angle, p)
         
-        t=Matrix(1,0,-s,1)
-        self.concat(t,p)
+        t = Matrix(1, 0, -s, 1)
+        self.concat(t, p)
         
-        self.rotate(-angle,p)
+        self.rotate(-angle, p)
         
         return self
     
         
-    def itoe(self,p_i):
+    def itoe(self, p_i):
         '''
         convert internal to external co-ords
         @param p_i: internal co-ordinate
         @return: external co-ordinate
         @rtype: P
         '''
-        assert isinstance(p_i,P), "object not a P()"
+        assert isinstance(p_i, P), "object not a P()"
 
         return self.T*p_i+self.o
         
-    def etoi(self,p_e):
+    def etoi(self, p_e):
         '''
         convert external to internal co-ords
         @param p_e: external co-ordinate
         @return: internal co-ordinate
         @rtype: P
         '''
-        assert isinstance(p_e,P), "object not a P()"
+        assert isinstance(p_e, P), "object not a P()"
 
         return self.T.inverse()*(p_e-self.o)
 
@@ -199,14 +202,14 @@ class AffineObj(PsObj):
         set up transformation of coordinate system
         @rtype: string
         '''
-        T=self.T
-        o=self.o
-        S="gsave "
-        if T==Matrix(1,0,0,1):
-            S=S+"%s translate\n"%o
+        T = self.T
+        o = self.o
+        S = "gsave "
+        if T == Matrix(1, 0, 0, 1):
+            S = S+"%s translate\n"%o
         else:
             # NB postscript matrix is the transpose of what you'd expect!
-            S=S+"[%g %g %g %g %s] concat\n"%(T[0],T[2],T[1],T[3],o())
+            S = S+"[%g %g %g %g %s] concat\n"%(T[0], T[2], T[1], T[3], o())
         return S
 
     def postbody(self):
@@ -242,80 +245,80 @@ class Area(AffineObj):
     @cvar c: centre point (simillarly for n,ne etc)
     """
 
-    #XXX allow the changing of sw corner away from origin eg Text
+    #XX allow the changing of sw corner away from origin eg Text
 
-    isw=P(0,0)
-    width=0
-    height=0
+    isw = P(0, 0)
+    width = 0
+    height = 0
 
 
     # Dynamic locations
     def _get_n(s):
-        return s.itoe(P(s.width/2.,s.height)+s.isw)
-    def _set_n(s,pe):
+        return s.itoe(P(s.width/2., s.height)+s.isw)
+    def _set_n(s, pe):
         s.move(pe-s.n)
-    n = property(_get_n,_set_n)
+    n = property(_get_n, _set_n)
 
     def _get_ne(s):
-        return s.itoe(P(s.width,s.height)+s.isw)
-    def _set_ne(s,pe):
+        return s.itoe(P(s.width, s.height)+s.isw)
+    def _set_ne(s, pe):
         s.move(pe-s.ne)
-    ne = property(_get_ne,_set_ne)
+    ne = property(_get_ne, _set_ne)
 
     def _get_e(s):
-        return s.itoe(P(s.width,s.height/2.)+s.isw)
-    def _set_e(s,pe):
+        return s.itoe(P(s.width, s.height/2.)+s.isw)
+    def _set_e(s, pe):
         s.move(pe-s.e)
-    e = property(_get_e,_set_e)
+    e = property(_get_e, _set_e)
 
     def _get_se(s):
-        return s.itoe(P(s.width,0)+s.isw)
-    def _set_se(s,pe):
+        return s.itoe(P(s.width, 0)+s.isw)
+    def _set_se(s, pe):
         s.move(pe-s.se)
-    se = property(_get_se,_set_se)
+    se = property(_get_se, _set_se)
 
     def _get_s(s):
-        return s.itoe(P(s.width/2.,0)+s.isw)
-    def _set_s(s,pe):
+        return s.itoe(P(s.width/2., 0)+s.isw)
+    def _set_s(s, pe):
         s.move(pe-s.s)
-    s = property(_get_s,_set_s)
+    s = property(_get_s, _set_s)
 
     def _get_sw(s):
         return s.itoe(s.isw)
-    def _set_sw(s,pe):
+    def _set_sw(s, pe):
         s.move(pe-s.sw)
-    sw = property(_get_sw,_set_sw)
+    sw = property(_get_sw, _set_sw)
 
     def _get_w(s):
-        return s.itoe(P(0,s.height/2.)+s.isw)
-    def _set_w(s,pe):
+        return s.itoe(P(0, s.height/2.)+s.isw)
+    def _set_w(s, pe):
         s.move(pe-s.w)
-    w = property(_get_w,_set_w)
+    w = property(_get_w, _set_w)
 
     def _get_nw(s):
-        return s.itoe(P(0,s.height)+s.isw)
-    def _set_nw(s,pe):
+        return s.itoe(P(0, s.height)+s.isw)
+    def _set_nw(s, pe):
         s.move(pe-s.nw)
-    nw = property(_get_nw,_set_nw)
+    nw = property(_get_nw, _set_nw)
 
     def _get_c(s):
-        return s.itoe(P(s.width/2.,s.height/2.)+s.isw)
-    def _set_c(s,pe):
+        return s.itoe(P(s.width/2., s.height/2.)+s.isw)
+    def _set_c(s, pe):
         s.move(pe-s.c)
-    c = property(_get_c,_set_c)
+    c = property(_get_c, _set_c)
 
     def bbox(self):
 
-        x1,y1=self.sw
-        x2,y2=self.ne
+        x1, y1 = self.sw
+        x2, y2 = self.ne
 
-        for p in [self.sw,self.nw,self.ne,self.se]:
-            x1=min(x1,p[0])
-            y1=min(y1,p[1])
-            x2=max(x2,p[0])
-            y2=max(y2,p[1])
+        for p in [self.sw, self.nw, self.ne, self.se]:
+            x1 = min(x1, p[0])
+            y1 = min(y1, p[1])
+            x2 = max(x2, p[0])
+            y2 = max(y2, p[1])
 
-        return Bbox(sw=P(x1,y1),width=x2-x1,height=y2-y1)
+        return Bbox(sw = P(x1, y1), width = x2-x1, height = y2-y1)
 
 # -------------------------------------------------------------------------
 class TeX(Area):
@@ -326,19 +329,19 @@ class TeX(Area):
     @cvar fg: TeX color
     '''
 
-    text=""
-    fg=Color(0)
-    bodyps=""
+    text = ""
+    fg = Color(0)
+    bodyps = ""
 
-    def __init__(self,text="",**dict):
+    def __init__(self, text = "", **dict):
 
-        self.text=text
+        self.text = text
 
         print "Obtaining TeX object's boundingbox ..."
         
         # this should be a tempfile ?
-        TMP="temp1"
-        fp=open("%s.tex"%TMP,"w")
+        TMP = "temp1"
+        fp = open("%s.tex"%TMP, "w")
         fp.write(defaults.tex_head)
         fp.write(text)
         fp.write(defaults.tex_tail)
@@ -349,42 +352,42 @@ class TeX(Area):
         sys.stderr.write('\n')
         # Help the user out by throwing the latex log to stderr
         if os.path.exists("%s.log"%TMP):
-            fp=open("%s.log"%TMP,'r')
+            fp = open("%s.log"%TMP, 'r')
             sys.stderr.write(fp.read(-1))
             fp.close()
         if foe.close() is not None:
             raise "Latex Error"
 
 
-        fi,foe = os.popen4("dvips -q -E -o %s.eps %s.dvi"%(TMP,TMP))
-        err=foe.read(-1)
+        fi, foe = os.popen4("dvips -q -E -o %s.eps %s.dvi"%(TMP, TMP))
+        err = foe.read(-1)
         sys.stderr.write(err)
         sys.stderr.write('\n')
         fi.close()
         if len(err)>0:
             raise "dvips Error"
     
-        fp=open("%s.eps"%TMP,"r")
-        eps=fp.read(-1)
+        fp = open("%s.eps"%TMP, "r")
+        eps = fp.read(-1)
         fp.close()
     
         # grab boundingbox
-        bbox_so=re.search("\%\%boundingbox:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)",
-                          eps,re.I)
-        bbox=[]
+        bbox_so = re.search("\%\%boundingbox:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)",
+                          eps, re.I)
+        bbox = []
         for ii in bbox_so.groups():
             bbox.append(int(ii))
 
-        self.width=(bbox[2]-bbox[0])/float(defaults.units)
-        self.height=(bbox[3]-bbox[1])/float(defaults.units)
+        self.width = (bbox[2]-bbox[0])/float(defaults.units)
+        self.height = (bbox[3]-bbox[1])/float(defaults.units)
 
-        apply(Area.__init__,(self,),dict)
+        apply(Area.__init__, (self, ), dict)
 
-        self.offset=-P(bbox[0],bbox[1])/float(defaults.units)
+        self.offset = -P(bbox[0], bbox[1])/float(defaults.units)
 
 
     def body(self):
-        out=cStringIO.StringIO()
+        out = cStringIO.StringIO()
 
         
         out.write("%s translate "%self.offset)
@@ -406,132 +409,132 @@ class Text(Area):
     '''
     
     # these all affect the size so should be dynamic
-    _text=''
-    _font="Times-Roman"
-    _size=12
-    _kerning=1
+    _text = ''
+    _font = "Times-Roman"
+    _size = 12
+    _kerning = 1
     
-    fg=Color(0)
+    fg = Color(0)
 
-    def __init__(self,text="",**dict):
+    def __init__(self, text = "", **dict):
 
         # get the bbox
         # first need font and scale BEFORE positioning
         # for efficiency don't use dynamic attributes
-        self._text=text
-        self._font=dict.get('font',self._font)
-        self._size=dict.get('size',self._size)
-        self._kerning=dict.get('kerning',self._kerning)
+        self._text = text
+        self._font = dict.get('font', self._font)
+        self._size = dict.get('size', self._size)
+        self._kerning = dict.get('kerning', self._kerning)
         
         # Now calc sizes from AFM
         self._typeset()
 
 
-        apply(Area.__init__,(self,),dict)
+        apply(Area.__init__, (self, ), dict)
 
         
     def _get_font(self):
         return self._font
-    def _set_font(self,fontname):
-        self._font=fontname
+    def _set_font(self, fontname):
+        self._font = fontname
         self._typeset()
-    font = property(_get_font,_set_font)
+    font = property(_get_font, _set_font)
         
     def _get_size(self):
         return self._size
-    def _set_size(self,size):
-        self._size=size
+    def _set_size(self, size):
+        self._size = size
         self._typeset()
-    size = property(_get_size,_set_size)
+    size = property(_get_size, _set_size)
 
     def _get_kerning(self):
         return self._kerning
-    def _set_kerning(self,kerning):
-        self._kerning=kerning
+    def _set_kerning(self, kerning):
+        self._kerning = kerning
         self._typeset()
-    kerning = property(_get_kerning,_set_kerning)
+    kerning = property(_get_kerning, _set_kerning)
 
     def _get_text(self):
         return self._text
-    def _set_text(self,text):
-        self._text=text
+    def _set_text(self, text):
+        self._text = text
         self._typeset()
-    text = property(_get_text,_set_text)
+    text = property(_get_text, _set_text)
     
     def _typeset(self):
         
-        string=self.text
-        afm=AFM(self._font)
+        string = self.text
+        afm = AFM(self._font)
         
         # set the correct postscript font name
-        self._font=afm.FontName
+        self._font = afm.FontName
         
-        size=self.size
-        sc=size/1000.
+        size = self.size
+        sc = size/1000.
 
 
-        chars=map(ord,list(string))
+        chars = map(ord, list(string))
 
         # order: width l b r t
 
         # use 'reduce' and 'map' as they're written in C
 
         # add up all the widths
-        width= reduce(lambda x, y: x+afm[y][0],chars,0)
+        width = reduce(lambda x, y: x+afm[y][0], chars, 0)
 
         # subtract the kerning
-        if self.kerning==1:
+        if self.kerning == 1:
             if len(chars)>1:
-                kerns=map(lambda x,y:afm[(x,y)] ,chars[:-1],chars[1:])
+                kerns = map(lambda x, y:afm[(x, y)] , chars[:-1], chars[1:])
                 
-                charlist=list(string)
+                charlist = list(string)
 
-                out="("
+                out = "("
                 for ii in kerns:
-                    if ii!=0:
-                        out+=charlist.pop(0)+") %s ("%str(ii*sc)
+                    if ii != 0:
+                        out += charlist.pop(0)+") %s ("%str(ii*sc)
                     else:
-                        out+=charlist.pop(0)
-                out+=charlist.pop(0)+")"
+                        out += charlist.pop(0)
+                out += charlist.pop(0)+")"
                 
-                settext=out
+                settext = out
 
-                kern=reduce(lambda x,y:x+y,kerns)
+                kern = reduce(lambda x, y:x+y, kerns)
                             
-                width+=kern
+                width += kern
             else:
                 # this is to catch the case when there are no characters
                 # in the string, but self.kerning==1
-                settext="("+string+")"
+                settext = "("+string+")"
 
         else:
-            settext="("+string+")"
+            settext = "("+string+")"
 
         # get rid of the end bits
-        start=afm[chars[0]][1]
-        f=afm[chars[-1]]
+        start = afm[chars[0]][1]
+        f = afm[chars[-1]]
         width = width-start-(f[0]-f[3])
 
         # accumulate maximum height
-        top = reduce(lambda x, y: max(x,afm[y][4]),chars,0)
+        top = reduce(lambda x, y: max(x, afm[y][4]), chars, 0)
 
         # accumulate lowest point
-        bottom = reduce(lambda x, y: min(x,afm[y][2]),chars,afm[chars[0]][2])
+        bottom = reduce(lambda x, y: min(x, afm[y][2]), chars, afm[chars[0]][2])
 
-        x1=start*sc
-        y1=bottom*sc
-        x2=x1+width*sc
-        y2=top*sc
+        x1 = start*sc
+        y1 = bottom*sc
+        x2 = x1+width*sc
+        y2 = top*sc
 
-        self.settext=settext
-        self.offset=-P(x1,y1)/float(defaults.units)
-        self.width=(x2-x1)/float(defaults.units)
-        self.height=(y2-y1)/float(defaults.units)
+        self.settext = settext
+        self.offset = -P(x1, y1)/float(defaults.units)
+        self.width = (x2-x1)/float(defaults.units)
+        self.height = (y2-y1)/float(defaults.units)
 
     def body(self):
-        out=cStringIO.StringIO()
+        out = cStringIO.StringIO()
 
-        ATTR={'font':self.font,
+        ATTR = {'font':self.font,
               'fg':self.fg,
               'size':self.size,
               'settext':self.settext,
@@ -557,13 +560,13 @@ class Rectangle(Area):
     @cvar bg: fill color or None for empty
     @cvar r: radius of corners
     """
-    bg=None
-    fg=Color(0)
-    r=0
-    linewidth=None
-    dash=None
+    bg = None
+    fg = Color(0)
+    r = 0
+    linewidth = None
+    dash = None
 
-    def __init__(self,obj=None,**dict):
+    def __init__(self, obj = None, **dict):
         '''
         @param obj:
             for Area() or Bbox(), the size and position will
@@ -572,18 +575,18 @@ class Rectangle(Area):
             radius of corners. Will saturate at min(width/2,height/2)
         '''
 
-        if isinstance(obj,Area) or isinstance(obj,Bbox):
-            dict['sw']=obj.sw
-            dict['width']=obj.width
-            dict['height']=obj.height
+        if isinstance(obj, Area) or isinstance(obj, Bbox):
+            dict['sw'] = obj.sw
+            dict['width'] = obj.width
+            dict['height'] = obj.height
             
             
-        apply(Area.__init__,(self,),dict)
+        apply(Area.__init__, (self, ), dict)
 
     
     def body(self):
         
-        out=cStringIO.StringIO()
+        out = cStringIO.StringIO()
         
         if self.linewidth:
             out.write("%g setlinewidth "%self.linewidth)
@@ -592,27 +595,27 @@ class Rectangle(Area):
             out.write(str(self.dash))
         
         # make sure we have a sensible radius
-        r=min(self.width/2.,self.height/2.,self.r)
-        w=self.width
-        h=self.height
+        r = min(self.width/2., self.height/2., self.r)
+        w = self.width
+        h = self.height
         
-        ATTR={'bg':self.bg,
+        ATTR = {'bg':self.bg,
               'fg':self.fg,
               'width':w,
               'height':h,
               'r':r,
-              'ne':P(w,h),
-              'n':P(w/2.,h),
-              'nw':P(0,h),
-              'w':P(0,h/2.),
-              'sw':P(0,0),
-              's':P(w/2.,0),
-              'se':P(w,0),
-              'e':P(w,h/2.),
+              'ne':P(w, h),
+              'n':P(w/2., h),
+              'nw':P(0, h),
+              'w':P(0, h/2.),
+              'sw':P(0, 0),
+              's':P(w/2., 0),
+              'se':P(w, 0),
+              'e':P(w, h/2.),
               }
                 
         if self.bg is not None:
-            if self.r==0:
+            if self.r == 0:
                 out.write("%(bg)s 0 0 %(width)g uu %(height)g uu rectfill\n"%ATTR)
             else:
                 out.write("%(bg)s newpath %(w)s moveto\n"%ATTR)
@@ -623,7 +626,7 @@ class Rectangle(Area):
                 out.write("closepath fill\n")
                 
         if self.fg is not None:
-            if self.r==0:
+            if self.r == 0:
                 out.write("%(fg)s 0 0 %(width)g uu %(height)g uu rectstroke\n"%ATTR)
             else:
                 out.write("%(fg)s newpath %(w)s moveto\n"%ATTR)
@@ -649,16 +652,16 @@ class Circle(AffineObj):
     """
 
 
-    bg=None
-    fg=Color(0)
-    r=1.0
-    start=0
-    end=360
-    linewidth=None
-    dash=None
+    bg = None
+    fg = Color(0)
+    r = 1.0
+    start = 0
+    end = 360
+    linewidth = None
+    dash = None
     
 
-    def locus(self,angle,target=None):
+    def locus(self, angle, target = None):
         '''
         Set or get a point on the locus
         
@@ -671,10 +674,10 @@ class Circle(AffineObj):
                     to object
         @rtype: self or P
         '''
-        r=self.r
-        x=r*sin(angle/180.0*pi)
-        y=r*cos(angle/180.0*pi)
-        l=P(x,y)
+        r = self.r
+        x = r*sin(angle/180.0*pi)
+        y = r*cos(angle/180.0*pi)
+        l = P(x, y)
 
         if target is None:
             return self.itoe(l)
@@ -685,61 +688,61 @@ class Circle(AffineObj):
     # some named locations
     def _get_c(s):
         return s.o
-    def _set_c(s,pe):
+    def _set_c(s, pe):
         s.move(pe-s.o)
-    c = property(_get_c,_set_c)
+    c = property(_get_c, _set_c)
 
     def _get_n(s):
         return s.locus(0)
-    def _set_n(s,pe):
-        s.locus(0,pe)
-    n = property(_get_n,_set_n)
+    def _set_n(s, pe):
+        s.locus(0, pe)
+    n = property(_get_n, _set_n)
 
     def _get_e(s):
         return s.locus(90)
-    def _set_e(s,pe):
-        s.locus(90,pe)
-    e = property(_get_e,_set_e)
+    def _set_e(s, pe):
+        s.locus(90, pe)
+    e = property(_get_e, _set_e)
 
     def _get_s(s):
         return s.locus(180)
-    def _set_s(s,pe):
-        s.locus(180,pe)
-    s = property(_get_s,_set_s)
+    def _set_s(s, pe):
+        s.locus(180, pe)
+    s = property(_get_s, _set_s)
 
     def _get_w(s):
         return s.locus(270)
-    def _set_w(s,pe):
-        s.locus(270,pe)
-    w = property(_get_w,_set_w)
+    def _set_w(s, pe):
+        s.locus(270, pe)
+    w = property(_get_w, _set_w)
 
     # these are of the square that holds the circle
     def _get_ne(s):
-        return s.itoe(P(s.r,s.r))
-    def _set_ne(s,pe):
+        return s.itoe(P(s.r, s.r))
+    def _set_ne(s, pe):
         s.move(pe-s.ne)
-    ne = property(_get_ne,_set_ne)
+    ne = property(_get_ne, _set_ne)
 
     def _get_nw(s):
-        return s.itoe(P(-s.r,s.r))
-    def _set_nw(s,pe):
-        s.locus(315,pe)
+        return s.itoe(P(-s.r, s.r))
+    def _set_nw(s, pe):
+        s.locus(315, pe)
         s.move(pe-s.nw)
-    nw = property(_get_nw,_set_nw)
+    nw = property(_get_nw, _set_nw)
 
     def _get_se(s):
-        return s.itoe(P(s.r,-s.r))
-    def _set_se(s,pe):
-        s.locus(135,pe)
+        return s.itoe(P(s.r, -s.r))
+    def _set_se(s, pe):
+        s.locus(135, pe)
         s.move(pe-s.se)
-    se = property(_get_se,_set_se)
+    se = property(_get_se, _set_se)
 
     def _get_sw(s):
-        return s.itoe(P(-s.r,-s.r))
-    def _set_sw(s,pe):
-        s.locus(235,pe)
+        return s.itoe(P(-s.r, -s.r))
+    def _set_sw(s, pe):
+        s.locus(235, pe)
         s.move(pe-s.sw)
-    sw = property(_get_sw,_set_sw)
+    sw = property(_get_sw, _set_sw)
 
 
     def body(self):
@@ -756,7 +759,7 @@ class Circle(AffineObj):
         # and starts from 'e' ... fix it so it goes
         # clockwise and starts from 'n'
 
-        ATTR={'bg':self.bg,
+        ATTR = {'bg':self.bg,
               'fg':self.fg,
               'r':self.r,
               'start':self.start,
@@ -775,18 +778,18 @@ class Circle(AffineObj):
 
         #grab a tight boundingbox by zipping around circumference
 
-        SW=self.locus(0)
-        NE=self.locus(0)
-        for ii in xrange(self.start,self.end+10,10):
-            p=self.locus(ii)
+        SW = self.locus(0)
+        NE = self.locus(0)
+        for ii in xrange(self.start, self.end+10, 10):
+            p = self.locus(ii)
 
-            SW[0]=min(SW[0],p[0])
-            SW[1]=min(SW[1],p[1])
-            NE[0]=max(NE[0],p[0])
-            NE[1]=max(NE[1],p[1])
+            SW[0] = min(SW[0], p[0])
+            SW[1] = min(SW[1], p[1])
+            NE[0] = max(NE[0], p[0])
+            NE[1] = max(NE[1], p[1])
 
 
-        return Bbox(sw=SW,width=NE[0]-SW[0],height=NE[1]-SW[1])
+        return Bbox(sw = SW, width = NE[0]-SW[0], height = NE[1]-SW[1])
 
 # -------------------------------------------------------------------------
 class Dot(Circle):
@@ -796,17 +799,17 @@ class Dot(Circle):
     @cvar bg: dot color
     @cvar fg: dot border color
     '''
-    r=.05
-    bg=Color(0)
-    fg=None
+    r = .05
+    bg = Color(0)
+    fg = None
 
-    def __init__(self,p1=P(0,0),p2=0,**dict):
-        if isinstance(p1,P):
-            c=p1
+    def __init__(self, p1 = P(0, 0), p2 = 0, **dict):
+        if isinstance(p1, P):
+            c = p1
         else:
-            c=P(p1,p2)
-        apply(Circle.__init__,(self,),dict)
-        self.c=c
+            c = P(p1, p2)
+        apply(Circle.__init__, (self, ), dict)
+        self.c = c
 
     def bbox(self):
         
@@ -824,45 +827,45 @@ class Paper(Area):
     B{Class deprecated - use Page instead}
     '''
 
-    size=None
-    orientation="portrait"
+    size = None
+    orientation = "portrait"
 
     # PAPERSIZES taken from gs man page (x cm,y cm)
-    PAPERSIZES={
-        "a0":         (83.9611   ,118.816),
-        "a1":         (59.4078   ,83.9611),
-        "a2":         (41.9806   ,59.4078),
-        "a3":         (29.7039   ,41.9806),
-        "a4":         (20.9903   ,29.7039),
-        "a4r":        (29.7039   ,20.9903),  # rotated version of a4
-        "a5":         (14.8519   ,20.9903),
-        "a6":         (10.4775   ,14.8519),
-        "a7":         (7.40833   ,10.4775),
-        "a8":         (5.22111   ,7.40833),
-        "a9":         (3.70417   ,5.22111),
-        "a10":        (2.61056   ,3.70417),
-        "b0":         (100.048   ,141.393),
-        "b1":         (70.6967   ,100.048),
-        "b2":         (50.0239   ,70.6967),
-        "b3":         (35.3483   ,50.0239),
-        "b4":         (25.0119   ,35.3483),
-        "b5":         (17.6742   ,25.0119),
-        "archA":      (22.86     ,30.48),
-        "archB":      (30.48     ,45.72),
-        "archC":      (45.72     ,60.96),
-        "archD":      (60.96     ,91.44),
-        "archE":      (91.44     ,121.92),
-        "flsa":       (21.59     ,33.02),
-        "flse":       (21.59     ,33.02),
-        "halfletter": (13.97     ,21.59),
-        "note":       (19.05     ,25.4 ),
-        "letter":     (21.59     ,27.94),
-        "legal":      (21.59     ,35.56),
-        "11x17":      (27.94     ,43.18),
-        "ledger":     (43.18     ,27.94),
+    PAPERSIZES = {
+        "a0":         (83.9611, 118.816),
+        "a1":         (59.4078, 83.9611),
+        "a2":         (41.9806, 59.4078),
+        "a3":         (29.7039, 41.9806),
+        "a4":         (20.9903, 29.7039),
+        "a4r":        (29.7039, 20.9903),  # rotated version of a4
+        "a5":         (14.8519, 20.9903),
+        "a6":         (10.4775, 14.8519),
+        "a7":         (7.40833, 10.4775),
+        "a8":         (5.22111, 7.40833),
+        "a9":         (3.70417, 5.22111),
+        "a10":        (2.61056, 3.70417),
+        "b0":         (100.048, 141.393),
+        "b1":         (70.6967, 100.048),
+        "b2":         (50.0239, 70.6967),
+        "b3":         (35.3483, 50.0239),
+        "b4":         (25.0119, 35.3483),
+        "b5":         (17.6742, 25.0119),
+        "archA":      (22.86  , 30.48),
+        "archB":      (30.48  , 45.72),
+        "archC":      (45.72  , 60.96),
+        "archD":      (60.96  , 91.44),
+        "archE":      (91.44  , 121.92),
+        "flsa":       (21.59  , 33.02),
+        "flse":       (21.59  , 33.02),
+        "halfletter": (13.97  , 21.59),
+        "note":       (19.05  , 25.4 ),
+        "letter":     (21.59  , 27.94),
+        "legal":      (21.59  , 35.56),
+        "11x17":      (27.94  , 43.18),
+        "ledger":     (43.18  , 27.94),
         }
 
-    def __init__(self,size,**dict):
+    def __init__(self, size, **dict):
         '''
         @param size: eg "a4","letter" etc. See L{PAPERSIZES} for sizes
         @return: An area object the size of the selected paper
@@ -870,19 +873,19 @@ class Paper(Area):
         '''
         warnings.warn("Paper() class deprecated .. use Page()")
         
-        self.size=size
-        orientation=dict.get("orientation",self.orientation)
+        self.size = size
+        orientation = dict.get("orientation", self.orientation)
         
-        if orientation=="portrait":
-            w,h=self.PAPERSIZES[size]
+        if orientation == "portrait":
+            w, h = self.PAPERSIZES[size]
         else:
-            h,w=self.PAPERSIZES[size]
+            h, w = self.PAPERSIZES[size]
         
         
-        self.width=w*UNITS['cm']/float(defaults.units)
-        self.height=h*UNITS['cm']/float(defaults.units)
+        self.width = w*UNITS['cm']/float(defaults.units)
+        self.height = h*UNITS['cm']/float(defaults.units)
 
-        apply(Area.__init__,(self,),dict)
+        apply(Area.__init__, (self, ), dict)
 
         
         
@@ -895,60 +898,60 @@ class Epsf(Area):
     @cvar height: on init - set height to this
     '''
 
-    def __init__(self,file,**dict):
+    def __init__(self, file, **dict):
         '''
         @param file: path to epsf file
         @return: The eps figure as an area object
         '''
 
-        self.file=file
+        self.file = file
 
         print "Loading %s"%file
         
-        fp=open(file,'r')
-        self.all=fp.read(-1)
+        fp = open(file, 'r')
+        self.all = fp.read(-1)
         fp.close()
 
-        bbox_so=re.compile("\%\%boundingbox:\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)",re.I|re.S)
+        bbox_so = re.compile("\%\%boundingbox:\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)", re.I|re.S)
         
-        so=bbox_so.search(self.all)
-        x1s,y1s,x2s,y2s=so.groups()
+        so = bbox_so.search(self.all)
+        x1s, y1s, x2s, y2s = so.groups()
 
-        d=float(defaults.units)
-        x1=float(x1s)/d
-        y1=float(y1s)/d
-        x2=float(x2s)/d
-        y2=float(y2s)/d
+        d = float(defaults.units)
+        x1 = float(x1s)/d
+        y1 = float(y1s)/d
+        x2 = float(x2s)/d
+        y2 = float(y2s)/d
 
-        self.offset=-P(x1,y1)
+        self.offset = -P(x1, y1)
 
-        self.width=x2-x1
-        self.height=y2-y1
+        self.width = x2-x1
+        self.height = y2-y1
 
         # width and height have special meaning here
         if dict.has_key('width') and dict.has_key('height'):
-            sx=dict['width']/float(self.width)
-            sy=dict['height']/float(self.height)
+            sx = dict['width']/float(self.width)
+            sy = dict['height']/float(self.height)
             del dict['width']
             del dict['height']
         elif dict.has_key('width'):
-            sx=sy=dict['width']/float(self.width)
+            sx = sy = dict['width']/float(self.width)
             del dict['width']
         elif dict.has_key('height'):
-            sx=sy=dict['height']/float(self.height)
+            sx = sy = dict['height']/float(self.height)
             del dict['height']
         else:
-            sx=sy=1
+            sx = sy = 1
             
-        self.scale(sx,sy)
+        self.scale(sx, sy)
 
-        apply(Area.__init__,(self,),dict)
+        apply(Area.__init__, (self, ), dict)
 
 
 
     def body(self):
         
-        out=cStringIO.StringIO()
+        out = cStringIO.StringIO()
 
         out.write("BeginEPSF\n")
         out.write("%s translate \n"%self.offset)
