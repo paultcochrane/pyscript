@@ -27,6 +27,7 @@ import time
 from defaults import *
 from util import *
 from objects import *
+from groups import *
 
 # we need to double up the comment %'s
 # The BoundingBox and EndComments will be added later
