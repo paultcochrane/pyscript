@@ -27,6 +27,12 @@ if len(args) != 1:
     usage()
     sys.exit(s)
 
+# clean up the log file
+fp = open("pyscript.log","w")
+fp.close()
+
+
+# now run the script
 execfile(args[0],globals)
 
 
