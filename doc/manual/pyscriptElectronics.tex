@@ -7,51 +7,186 @@ and names.
 
 \section{Objects}
 
+\subsection{AND gate}
 %%% AND gate
-\label{func:pyscriptElectronicsAnd}
-\begin{funcDesc}
-\item[] \funcName{AndGate}(%
-	\optArg{sw}=\defVal{P(0,0)},\\
-	\optArg{direction}=\defVal{e},\\
-	\optArg{height}=\defVal{2.0},\\
-	\optArg{width}=\defVal{3.0},\\
-	\optArg{pinLength}=\defVal{0.5},\\
-	\optArg{label}=\defVal{None},\\
-	\optArg{labelPinIn1}=\defVal{None},\\
-	\optArg{labelPinIn2}=\defVal{None},\\
-	\optArg{labelPinOut}=\defVal{None})
+\label{func:electronicsAnd}
+\begin{python}
+def AndGate(
+    sw=P(0,0),
+    direction='e',
+    height=2.0,
+    width=3.0,
+    pinLength=0.5,
+    label=None,
+    labelPinIn1=None,
+    labelPinIn2=None,
+    labelPinOut=None
+    ):
+\end{python}
 
-\begin{funcExCode}
-\verbatiminput{andGate.py}
-\end{funcExCode}
+\begin{figure}[!h]
+\centerline{\includegraphics[height=1cm]{fig_and.eps}}
+\end{figure}
 
-\begin{funcExOut}
-\includegraphics[width=30mm]{andGate.eps}
-\end{funcExOut}
-
-\end{funcDesc}
-
+\subsection{NAND gate}
 %%% NAND gate
-\label{func:pyscriptElectronicsNand}
-\begin{funcDesc}
-\item[] \funcName{NandGate}(%
-	\optArg{sw}=\defVal{P(0,0)},\\
-	\optArg{direction}=\defVal{e},\\
-	\optArg{height}=\defVal{2.0},\\
-	\optArg{width}=\defVal{3.0},\\
-	\optArg{pinLength}=\defVal{0.5},\\
-	\optArg{label}=\defVal{None},\\
-	\optArg{labelPinIn1}=\defVal{None},\\
-	\optArg{labelPinIn2}=\defVal{None},\\
-	\optArg{labelPinOut}=\defVal{None})
+\label{func:electronicsNand}
+\begin{python}
+def NandGate(
+        sw=P(0,0),
+        direction='e',
+        height=2.0,
+        width=3.0,
+        pinLength=0.5,
+        label=None,
+        labelPinIn1=None,
+        labelPinIn2=None,
+        labelPinOut=None,
+        ):
+\end{python}
 
-\begin{funcExCode}
-\verbatiminput{nandGate.py}
-\end{funcExCode}
+\begin{figure}[!h]
+\centerline{\includegraphics[height=1cm]{fig_nand.eps}}
+\end{figure}
 
-\begin{funcExOut}
-\includegraphics[width=30mm]{nandGate.eps}
-\end{funcExOut}
+\subsection{OR gate}
+%%% OR gate
+\label{func:electronicsOr}
+\begin{python}
+def OrGate(
+        sw=P(0,0),
+        direction='e',
+        height=2.0,
+        width=3.0,
+        pinLength=0.5,
+        label=None,
+        labelPinIn1=None,
+        labelPinIn2=None,
+        labelPinOut=None):
+\end{python}
 
-\end{funcDesc}
+\begin{figure}[!h]
+\centerline{\includegraphics[height=1cm]{fig_or.eps}}
+\end{figure}
+
+\subsection{NOR gate}
+%%% NOR gate
+\label{func:electronicsNor}
+\begin{python}
+def NorGate(
+        sw=P(0,0),
+        direction='e',
+        height=2.0,
+        width=3.0,
+        pinLength=0.5,
+        label=None,
+        labelPinIn1=None,
+        labelPinIn2=None,
+        labelPinOut=None):
+\end{python}
+
+\begin{figure}[!h]
+\centerline{\includegraphics[height=1cm]{fig_nor.eps}}
+\end{figure}
+
+\subsection{XOR gate}
+%%% XOR gate
+\label{func:electronicsXor}
+\begin{python}
+def XorGate(
+        sw=P(0,0),
+        direction='e',
+        height=2.0,
+        width=3.0,
+        pinLength=0.5,
+        label=None,
+        labelPinIn1=None,
+        labelPinIn2=None,
+        labelPinOut=None):
+\end{python}
+
+\begin{figure}[!h]
+\centerline{\includegraphics[height=1cm]{fig_xor.eps}}
+\end{figure}
+
+\subsection{NXOR gate}
+%%% NXOR gate
+\label{func:electronicsNxor}
+\begin{python}
+def NxorGate(
+        sw=P(0,0),
+        direction='e',
+        height=2.0,
+        width=3.0,
+        pinLength=0.5,
+        label=None,
+        labelPinIn1=None,
+        labelPinIn2=None,
+        labelPinOut=None):
+\end{python}
+
+\begin{figure}[!h]
+\centerline{\includegraphics[height=1cm]{fig_nxor.eps}}
+\end{figure}
+
+\subsection{NOT gate}
+%%% NOT gate
+\label{func:electronicsNot}
+\begin{python}
+def NotGate(
+        sw=P(0,0),
+        direction='e',
+        height=2.0,
+        width=3.0,
+        pinLength=0.5,
+        label=None,
+        labelPinIn1=None,
+        labelPinIn2=None,
+        labelPinOut=None,
+        ):
+\end{python}
+
+\begin{figure}[!h]
+\centerline{\includegraphics[height=1cm]{fig_not.eps}}
+\end{figure}
+
+\subsection{Resistor}
+%%% Resistor
+\label{func:electronicsResistor}
+\begin{python}
+def Resistor(
+        w=P(0,0),
+        direction='ew',
+        resLength=3.0,
+        resWidth=1.0,
+        pinLength=0.5,
+        label=None,
+        labelPinIn=None,
+        labelPinOut=None,
+        ):
+\end{python}
+
+\begin{figure}[!h]
+\centerline{\includegraphics[height=1cm]{fig_res.eps}}
+\end{figure}
+
+\subsection{Capacitor}
+%%% Capacitor
+\label{func:electronicsCapacitor}
+\begin{python}
+def Capacitor(
+        w=P(0,0),
+        direction='ew',
+        capHeight=1.0,
+        capSep=0.25,
+        pinLength=0.5,
+        label=None,
+        labelPinIn=None,
+        labelPinOut=None,
+        ):
+\end{python}
+
+\begin{figure}[!h]
+\centerline{\includegraphics[height=1cm]{fig_cap.eps}}
+\end{figure}
 
