@@ -365,16 +365,26 @@ class Talk(Pages):
 	    }
 
     def make_authors(self):
+	"""
+	Generate the authors text on the titlepage
+	"""
 	ttext = "%s %s" % (self.authors_textstyle,self.authors)
         return TeX(ttext,fg=self.authors_fg
             ).scale(self.authors_scale,self.authors_scale)
 
     def make_address(self):
+	"""
+	Generate the address text on the titlepage
+	"""
 	ttext = "%s %s" % (self.address_textstyle,self.address)
         return TeX(ttext,fg=self.address_fg
             ).scale(self.address_scale,self.address_scale)
 
     def make(self, *slides, **opts):
+	"""
+	Routine to collect all of slides together and render them all as
+	the one document
+	"""
         
         self.slides = slides
         # numPages = len(slides)
@@ -396,7 +406,7 @@ class Talk(Pages):
 
 class Slide(Page,Talk):
     """
-    A slide class
+    A slide class.  Use this class to generate the individual slides in a talk
     """
 
     pageNumber = None
@@ -431,6 +441,9 @@ class Slide(Page,Talk):
 	self.area = self.area()
 
     def logos(self,*files):
+	"""
+	Grab the logos (if any)
+	"""
         
         self.thelogos = []
         
@@ -438,6 +451,9 @@ class Slide(Page,Talk):
             self.thelogos.append(Epsf(file, height=self.logo_height))
 
     def make_logos(self):
+	"""
+	Put the logos on the page
+	"""
         
         if len(self.thelogos) == 0:
             return Area(width=0, height=0)
@@ -505,15 +521,28 @@ class Slide(Page,Talk):
         self.figs.append(Group(back,obj))
 
     def make_title(self):
+	"""
+	Make the title of the slide (note that this is *not* the title of
+	the talk
+	"""
 	ttext = "%s %s" % (self.title_textstyle,self.title)
         return TeX(ttext,fg=self.title_fg).scale(self.title_scale*0.8,
                                                       self.title_scale)
     
     def add_heading(self,level,text):
+	"""
+	Add a heading to the slide
+	@cvar level: the heading level as a number starting from 1 (the most
+	significant level)
+	@cvar text: the text to be used for the heading
+	"""
         temp = [ level, text ]
         self.headings.append(temp)
 
     def make_headings(self):
+	"""
+	Make the headings
+	"""
         heading_block = Group()
         for heading in self.headings:
 	    heading_level = heading[0]
@@ -541,6 +570,9 @@ class Slide(Page,Talk):
         return heading_block
             
     def make_waitbar(self):
+	"""
+	Make a waitbar
+	"""
         waitBarBack = Rectangle(se=self.area.se+P(-0.8,0.4),
                         width=2.5,
                         height=0.5,
@@ -560,6 +592,10 @@ class Slide(Page,Talk):
         return  waitBar
 
     def make_footer(self,talk):
+	"""
+	Make the footer.  A text block giving the title and the name of the
+	person giving the talk
+	"""
 	pageOf = False
 	if pageOf:
 	    footerText = " - %s; page %i of %i" %  \
@@ -581,6 +617,17 @@ class Slide(Page,Talk):
         return footer
 
     def add_epsf(self,file="",**dict):
+	"""
+	Add an eps file to the slide
+	
+	@cvar width: the width of the image in the current default units.  If
+	only this variable is given, then the aspect ratio of the image is
+	maintained.
+	@cvar height: the height of the image in the current default units  If
+	only this variable is given, then the aspect ratio of the image is 
+	maintainted.
+	@cvar c,n,ne,e,se,s,sw,w,nw: the location of the anchor point
+	"""
         if dict.has_key('width'):
             picture = Epsf(file,width=dict['width'])
         elif dict.has_key('height'):
@@ -623,18 +670,27 @@ class Slide(Page,Talk):
         self.epsf.append(figure)
 
     def make_epsf(self):
+	"""
+	Collects all of the eps images together
+	"""
         pictures = Group()
         for file in self.epsf:
             pictures.append(file)
         return pictures
 
     def make_figs(self):
+	"""
+	Collects all of the figures together
+	"""
         figs = Group()
         for fig in self.figs:
             figs.append(fig)
         return figs
 
     def make_titlepage(self, talk):
+	"""
+	Makes the titlepage of the talk
+	"""
 	titlepage = Group(self.make_logos())
 	ttext = "%s %s" % (talk.title_textstyle,talk.title)
         titlepage.append(TeX(ttext,
@@ -649,6 +705,9 @@ class Slide(Page,Talk):
 	return titlepage
 
     def make_background(self, talk):
+	"""
+	Makes the background of the slide
+	"""
 	back = Group()
         back.append(Rectangle(sw = self.area.sw,
                         width = self.area.width,
@@ -689,6 +748,10 @@ class Slide(Page,Talk):
 	return back
 	
     def make(self, talk, scale=1):
+	"""
+	Make the slide.  Collect all of the objects together into one Page()
+	object ready for rendering.
+	"""
         
         if self.titlepage:
 	    all = self.make_titlepage(talk)
