@@ -550,14 +550,13 @@ class Path(AffineObj):
         # now add arrowheads
         heads=[]
         for head in self.heads:
-            # make a copy so this instance has it's own
+        
+            # make a copy so this class has it's own instance 
             h=head.copy()
-            
+
             # position it appropriately:
-            h.tip=self.P(h.pos)
-            h.angle=self.tangent(h.pos).arg
-            h.__init__()
-                
+            h.__init__(tip=self.P(head.pos),angle=self.tangent(head.pos).arg)
+    
             heads.append(h)
         self.heads=heads 
            
@@ -569,6 +568,11 @@ class Path(AffineObj):
         b = Bbox()
         for pl in self._pathlettes:
             b.union(pl.bbox(self.itoe))
+
+        # take into account extent of arrowheads
+        for ar in self.heads:
+            b.union(ar.bbox())
+
         return b
 
     def _get_start(self):

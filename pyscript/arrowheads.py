@@ -92,6 +92,11 @@ class ArrowHead(AffineObj):
 
     def __init__(self, *param, **options):
 
+        # remember this angle for when instance is copied...
+        # this assumes all rotations that have been applied
+        # are represented by angle and reverse
+        angle0=self.angle+self.reverse*180
+
         AffineObj.__init__(self, **options)
 
         if len(param) == 1:
@@ -106,10 +111,9 @@ class ArrowHead(AffineObj):
         for b in self.shape:
             shape.append((b[0]*sx, b[1]*sy, b[2]*sx, b[3]*sy, b[4]*sx, b[5]*sy))
         self.shape = shape
-        
-        self.rotate(self.angle)
-        if self.reverse:
-            self.rotate(180)
+     
+        self.rotate(self.angle+self.reverse*180-angle0)
+
         self.move(self.tip)
         
     def body(self):
