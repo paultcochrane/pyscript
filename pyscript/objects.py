@@ -22,16 +22,14 @@ Some of the key drawing objects
 
 __revision__ = '$Revision$'
 
-import os, string, re, sys
+import os, re, sys
 import cStringIO
-
-#from types import *
 
 from math import cos, sin, pi
 
-from pyscript.defaults import *
-from pyscript.vectors import *
-from pyscript.base import PsObj, Color, Dash, PyScriptError, FontError
+from pyscript.defaults import defaults
+from pyscript.vectors import P, Bbox, Matrix
+from pyscript.base import PsObj, Color, UNITS
 from pyscript.afm import AFM
 
 import warnings
@@ -44,8 +42,14 @@ class AffineObj(PsObj):
     on the page.
     '''
 
-    o = P(0, 0)
-    T = Matrix(1, 0, 0, 1)
+    def __init__(self, **options):
+        """
+        Initialisation of AffineObj object
+        """
+        
+        PsObj.__init__(self)
+        self.o = P(0, 0)
+        self.T = Matrix(1, 0, 0, 1)
 
     def concat(self, t, p = None):
         '''
@@ -65,7 +69,7 @@ class AffineObj(PsObj):
         #    self.move(t*(o-p))
         
 
-        o=self.o # o is in external co-ords
+        o = self.o # o is in external co-ords
 
         # set origin at (0,0)
         self.move(-o)
@@ -124,7 +128,8 @@ class AffineObj(PsObj):
         @return: reference to self
         @rtype: self
         '''
-        if sy is None: sy = sx
+        if sy is None: 
+            sy = sx
         
         t = Matrix(sx, 0, 0, sy)
         self.concat(t, p)
@@ -206,10 +211,10 @@ class AffineObj(PsObj):
         o = self.o
         S = "gsave "
         if T == Matrix(1, 0, 0, 1):
-            S = S+"%s translate\n"%o
+            S = S+"%s translate\n" % o
         else:
             # NB postscript matrix is the transpose of what you'd expect!
-            S = S+"[%g %g %g %g %s] concat\n"%(T[0], T[2], T[1], T[3], o())
+            S = S+"[%g %g %g %g %s] concat\n" % (T[0], T[2], T[1], T[3], o())
         return S
 
     def postbody(self):
@@ -245,69 +250,130 @@ class Area(AffineObj):
     @cvar c: centre point (simillarly for n,ne etc)
     """
 
-    #XX allow the changing of sw corner away from origin eg Text
+    #XXX allow the changing of sw corner away from origin eg Text
 
     isw = P(0, 0)
     width = 0
     height = 0
-
+    def __init__(self, **options):
+        AffineObj.__init__(self)
+        #self.isw = P(0, 0)
+        #self.width = 0
+        #self.height = 0
 
     # Dynamic locations
-    def _get_n(s):
-        return s.itoe(P(s.width/2., s.height)+s.isw)
-    def _set_n(s, pe):
-        s.move(pe-s.n)
+    def _get_n(self):
+        """
+        Get the "north" point
+        """
+        return self.itoe(P(self.width/2., self.height)+self.isw)
+    def _set_n(self, pe):
+        """
+        Set the "north" point
+        """
+        self.move(pe-self.n)
     n = property(_get_n, _set_n)
 
-    def _get_ne(s):
-        return s.itoe(P(s.width, s.height)+s.isw)
-    def _set_ne(s, pe):
-        s.move(pe-s.ne)
+    def _get_ne(self):
+        """
+        Get the "north-east" point
+        """
+        return self.itoe(P(self.width, self.height)+self.isw)
+    def _set_ne(self, pe):
+        """
+        Set the "north-east" point
+        """
+        self.move(pe-self.ne)
     ne = property(_get_ne, _set_ne)
 
-    def _get_e(s):
-        return s.itoe(P(s.width, s.height/2.)+s.isw)
-    def _set_e(s, pe):
-        s.move(pe-s.e)
+    def _get_e(self):
+        """
+        Get the "east" point
+        """
+        return self.itoe(P(self.width, self.height/2.)+self.isw)
+    def _set_e(self, pe):
+        """
+        Set the "east" point
+        """
+        self.move(pe-self.e)
     e = property(_get_e, _set_e)
 
-    def _get_se(s):
-        return s.itoe(P(s.width, 0)+s.isw)
-    def _set_se(s, pe):
-        s.move(pe-s.se)
+    def _get_se(self):
+        """
+        Get the "south-east" point
+        """
+        return self.itoe(P(self.width, 0)+self.isw)
+    def _set_se(self, pe):
+        """
+        Set the "south-east" point
+        """
+        self.move(pe-self.se)
     se = property(_get_se, _set_se)
 
-    def _get_s(s):
-        return s.itoe(P(s.width/2., 0)+s.isw)
-    def _set_s(s, pe):
-        s.move(pe-s.s)
+    def _get_s(self):
+        """
+        Get the "south" point
+        """
+        return self.itoe(P(self.width/2., 0)+self.isw)
+    def _set_s(self, pe):
+        """
+        Set the "south" point
+        """
+        self.move(pe-self.s)
     s = property(_get_s, _set_s)
 
-    def _get_sw(s):
-        return s.itoe(s.isw)
-    def _set_sw(s, pe):
-        s.move(pe-s.sw)
+    def _get_sw(self):
+        """
+        Get the "south-west" point
+        """
+        return self.itoe(self.isw)
+    def _set_sw(self, pe):
+        """
+        Set the "south-west" point
+        """
+        self.move(pe-self.sw)
     sw = property(_get_sw, _set_sw)
 
-    def _get_w(s):
-        return s.itoe(P(0, s.height/2.)+s.isw)
-    def _set_w(s, pe):
-        s.move(pe-s.w)
+    def _get_w(self):
+        """
+        Get the "west" point
+        """
+        return self.itoe(P(0, self.height/2.)+self.isw)
+    def _set_w(self, pe):
+        """
+        Set the "west" point
+        """
+        self.move(pe-self.w)
     w = property(_get_w, _set_w)
 
-    def _get_nw(s):
-        return s.itoe(P(0, s.height)+s.isw)
-    def _set_nw(s, pe):
-        s.move(pe-s.nw)
+    def _get_nw(self):
+        """
+        Get the "north-west" point
+        """
+        return self.itoe(P(0, self.height)+self.isw)
+    def _set_nw(self, pe):
+        """
+        Set the "north-west" point
+        """
+        self.move(pe-self.nw)
     nw = property(_get_nw, _set_nw)
 
-    def _get_c(s):
-        return s.itoe(P(s.width/2., s.height/2.)+s.isw)
-    def _set_c(s, pe):
-        s.move(pe-s.c)
+    def _get_c(self):
+        """
+        Get the "centre" point
+        """
+        return self.itoe(P(self.width/2., self.height/2.)+self.isw)
+    def _set_c(self, pe):
+        """
+        Set the "centre" point
+        """
+        self.move(pe-self.c)
     c = property(_get_c, _set_c)
 
     def bbox(self):
+        """
+        Return the bounding box of the object
+        """
 
         x1, y1 = self.sw
         x2, y2 = self.ne
@@ -335,41 +401,42 @@ class TeX(Area):
     fg = Color(0)
     bodyps = ""
 
-    def __init__(self, text = "", **dict):
+    def __init__(self, text = "", **options):
 
         self.text = text
 
         print "Obtaining TeX object's boundingbox ..."
         
         # this should be a tempfile ?
-        TMP = "temp1"
-        fp = open("%s.tex"%TMP, "w")
+        tempName = "temp1"
+        fp = open("%s.tex"%tempName, "w")
         fp.write(defaults.tex_head)
         fp.write(text)
         fp.write(defaults.tex_tail)
         fp.close()
 
-        foe = os.popen(defaults.tex_command%TMP)
+        foe = os.popen(defaults.tex_command % tempName)
         sys.stderr.write(foe.read(-1))
         sys.stderr.write('\n')
         # Help the user out by throwing the latex log to stderr
-        if os.path.exists("%s.log"%TMP):
-            fp = open("%s.log"%TMP, 'r')
+        if os.path.exists("%s.log" % tempName):
+            fp = open("%s.log" % tempName, 'r')
             sys.stderr.write(fp.read(-1))
             fp.close()
         if foe.close() is not None:
-            raise "Latex Error"
+            raise RuntimeError, "Latex Error"
 
 
-        fi, foe = os.popen4("dvips -q -E -o %s.eps %s.dvi"%(TMP, TMP))
+        fi, foe = os.popen4("dvips -q -E -o %s.eps %s.dvi" % \
+                (tempName, tempName))
         err = foe.read(-1)
         sys.stderr.write(err)
         sys.stderr.write('\n')
         fi.close()
         if len(err)>0:
-            raise "dvips Error"
+            raise RuntimeError, "dvips Error"
     
-        fp = open("%s.eps"%TMP, "r")
+        fp = open("%s.eps" % tempName, "r")
         eps = fp.read(-1)
         fp.close()
     
@@ -383,13 +450,16 @@ class TeX(Area):
         self.width = (bbox[2]-bbox[0])/float(defaults.units)
         self.height = (bbox[3]-bbox[1])/float(defaults.units)
 
-        Area.__init__(self,**dict)
+        Area.__init__(self,**options)
 
         self.offset = -P(bbox[0], bbox[1])/float(defaults.units)
 
         self.scale(self.iscale)
 
     def body(self):
+        """
+        Returns the object's postscript body
+        """
         out = cStringIO.StringIO()
 
         
@@ -419,52 +489,77 @@ class Text(Area):
     
     fg = Color(0)
 
-    def __init__(self, text = "", **dict):
+    def __init__(self, text = "", **options):
 
         # get the bbox
         # first need font and scale BEFORE positioning
         # for efficiency don't use dynamic attributes
         self._text = text
-        self._font = dict.get('font', self._font)
-        self._size = dict.get('size', self._size)
-        self._kerning = dict.get('kerning', self._kerning)
+        self._font = options.get('font', self._font)
+        self._size = options.get('size', self._size)
+        self._kerning = options.get('kerning', self._kerning)
         
         # Now calc sizes from AFM
         self._typeset()
 
-
-        apply(Area.__init__, (self, ), dict)
-
+        Area.__init__(self)
         
     def _get_font(self):
+        """
+        Get the font
+        """
         return self._font
     def _set_font(self, fontname):
+        """
+        Set the font
+        """
         self._font = fontname
         self._typeset()
     font = property(_get_font, _set_font)
         
     def _get_size(self):
+        """
+        Get the font size
+        """
         return self._size
     def _set_size(self, size):
+        """
+        Set the font size
+        """
         self._size = size
         self._typeset()
     size = property(_get_size, _set_size)
 
     def _get_kerning(self):
+        """
+        Get the kerning information
+        """
         return self._kerning
     def _set_kerning(self, kerning):
+        """
+        Set the kerning information
+        """
         self._kerning = kerning
         self._typeset()
     kerning = property(_get_kerning, _set_kerning)
 
     def _get_text(self):
+        """
+        Get the text of the Text object
+        """
         return self._text
     def _set_text(self, text):
+        """
+        Set the text of the Text object
+        """
         self._text = text
         self._typeset()
     text = property(_get_text, _set_text)
     
     def _typeset(self):
+        """
+        Typeset the Text object (including kerning info)
+        """
         
         string = self.text
         afm = AFM(self._font)
@@ -474,7 +569,6 @@ class Text(Area):
         
         size = self.size
         sc = size/1000.
-
 
         chars = map(ord, list(string))
 
@@ -535,6 +629,9 @@ class Text(Area):
         self.height = (y2-y1)/float(defaults.units)
 
     def body(self):
+        """
+        Returns the object's postscript body
+        """
         out = cStringIO.StringIO()
 
         ATTR = {'font':self.font,
@@ -569,7 +666,7 @@ class Rectangle(Area):
     linewidth = None
     dash = None
 
-    def __init__(self, obj = None, **dict):
+    def __init__(self, obj = None, **options):
         '''
         @param obj:
             for Area() or Bbox(), the size and position will
@@ -579,15 +676,16 @@ class Rectangle(Area):
         '''
 
         if isinstance(obj, Area) or isinstance(obj, Bbox):
-            dict['sw'] = obj.sw
-            dict['width'] = obj.width
-            dict['height'] = obj.height
+            options['sw'] = obj.sw
+            options['width'] = obj.width
+            options['height'] = obj.height
             
-            
-        apply(Area.__init__, (self, ), dict)
-
+        Area.__init__(self)
     
     def body(self):
+        """
+        Returns the object's postscript body
+        """
         
         out = cStringIO.StringIO()
         
@@ -619,18 +717,20 @@ class Rectangle(Area):
                 
         if self.bg is not None:
             if self.r == 0:
-                out.write("%(bg)s 0 0 %(width)g uu %(height)g uu rectfill\n"%ATTR)
+                out.write("%(bg)s 0 0 %(width)g uu %(height)g uu rectfill\n"\
+                        % ATTR)
             else:
-                out.write("%(bg)s newpath %(w)s moveto\n"%ATTR)
-                out.write("%(nw)s %(n)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
-                out.write("%(ne)s %(e)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
-                out.write("%(se)s %(s)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
-                out.write("%(sw)s %(w)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
+                out.write("%(bg)s newpath %(w)s moveto\n" % ATTR)
+                out.write("%(nw)s %(n)s %(r)s uu arcto 4 {pop} repeat\n" % ATTR)
+                out.write("%(ne)s %(e)s %(r)s uu arcto 4 {pop} repeat\n" % ATTR)
+                out.write("%(se)s %(s)s %(r)s uu arcto 4 {pop} repeat\n" % ATTR)
+                out.write("%(sw)s %(w)s %(r)s uu arcto 4 {pop} repeat\n" % ATTR)
                 out.write("closepath fill\n")
                 
         if self.fg is not None:
             if self.r == 0:
-                out.write("%(fg)s 0 0 %(width)g uu %(height)g uu rectstroke\n"%ATTR)
+                out.write("%(fg)s 0 0 %(width)g uu %(height)g uu rectstroke\n"\
+                                % ATTR)
             else:
                 out.write("%(fg)s newpath %(w)s moveto\n"%ATTR)
                 out.write("%(nw)s %(n)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
@@ -654,7 +754,6 @@ class Circle(AffineObj):
     @cvar c: (also n, ne,...) as for L{Area}
     """
 
-
     bg = None
     fg = Color(0)
     r = 1.0
@@ -662,7 +761,9 @@ class Circle(AffineObj):
     end = 360
     linewidth = None
     dash = None
-    
+
+    def __init__(self, **options):
+        AffineObj.__init__(self)
 
     def locus(self, angle, target = None):
         '''
@@ -689,66 +790,124 @@ class Circle(AffineObj):
             return self
     
     # some named locations
-    def _get_c(s):
-        return s.o
-    def _set_c(s, pe):
-        s.move(pe-s.o)
+    def _get_c(self):
+        """
+        Get the "centre" point
+        """
+        return self.o
+    def _set_c(self, pe):
+        """
+        Set the "centre" point
+        """
+        self.move(pe-self.o)
     c = property(_get_c, _set_c)
 
-    def _get_n(s):
-        return s.locus(0)
-    def _set_n(s, pe):
-        s.locus(0, pe)
+    def _get_n(self):
+        """
+        Get the "north" point
+        """
+        return self.locus(0)
+    def _set_n(self, pe):
+        """
+        Set the "north" point
+        """
+        self.locus(0, pe)
     n = property(_get_n, _set_n)
 
-    def _get_e(s):
-        return s.locus(90)
-    def _set_e(s, pe):
-        s.locus(90, pe)
+    def _get_e(self):
+        """
+        Get the "east" point
+        """
+        return self.locus(90)
+    def _set_e(self, pe):
+        """
+        Set the "east" point
+        """
+        self.locus(90, pe)
     e = property(_get_e, _set_e)
 
-    def _get_s(s):
-        return s.locus(180)
-    def _set_s(s, pe):
-        s.locus(180, pe)
+    def _get_s(self):
+        """
+        Get the "south" point
+        """
+        return self.locus(180)
+    def _set_s(self, pe):
+        """
+        Set the "south" point
+        """
+        self.locus(180, pe)
     s = property(_get_s, _set_s)
 
-    def _get_w(s):
-        return s.locus(270)
-    def _set_w(s, pe):
-        s.locus(270, pe)
+    def _get_w(self):
+        """
+        Get the "west" point
+        """
+        return self.locus(270)
+    def _set_w(self, pe):
+        """
+        Set the "west" point
+        """
+        self.locus(270, pe)
     w = property(_get_w, _set_w)
 
     # these are of the square that holds the circle
-    def _get_ne(s):
-        return s.itoe(P(s.r, s.r))
-    def _set_ne(s, pe):
-        s.move(pe-s.ne)
+    def _get_ne(self):
+        """
+        Get the "nort-east" point
+        """
+        return self.itoe(P(self.r, self.r))
+    def _set_ne(self, pe):
+        """
+        Set the "north-east" point
+        """
+        self.move(pe-self.ne)
     ne = property(_get_ne, _set_ne)
 
-    def _get_nw(s):
-        return s.itoe(P(-s.r, s.r))
-    def _set_nw(s, pe):
-        s.locus(315, pe)
-        s.move(pe-s.nw)
+    def _get_nw(self):
+        """
+        Get the "nort-west" point
+        """
+        return self.itoe(P(-self.r, self.r))
+    def _set_nw(self, pe):
+        """
+        Set the "nort-west" point
+        """
+        self.locus(315, pe)
+        self.move(pe-self.nw)
     nw = property(_get_nw, _set_nw)
 
-    def _get_se(s):
-        return s.itoe(P(s.r, -s.r))
-    def _set_se(s, pe):
-        s.locus(135, pe)
-        s.move(pe-s.se)
+    def _get_se(self):
+        """
+        Get the "south-east" point
+        """
+        return self.itoe(P(self.r, -self.r))
+    def _set_se(self, pe):
+        """
+        Set the "south-east" point
+        """
+        self.locus(135, pe)
+        self.move(pe-self.se)
     se = property(_get_se, _set_se)
 
-    def _get_sw(s):
-        return s.itoe(P(-s.r, -s.r))
-    def _set_sw(s, pe):
-        s.locus(235, pe)
-        s.move(pe-s.sw)
+    def _get_sw(self):
+        """
+        Get the "south-west" point
+        """
+        return self.itoe(P(-self.r, -self.r))
+    def _set_sw(self, pe):
+        """
+        Set the "south-west" point
+        """
+        self.locus(235, pe)
+        self.move(pe-self.sw)
     sw = property(_get_sw, _set_sw)
 
 
     def body(self):
+        """
+        Returns the object's postscript body
+        """
+
 
         out = cStringIO.StringIO()
 
@@ -769,15 +928,19 @@ class Circle(AffineObj):
               'end':self.end}
 
         if self.bg is not None:
-            out.write("%(bg)s 0 0 %(r)g uu 360 %(start)g -1 mul add 90 add 360 %(end)g -1 mul add 90 add arcn fill\n" % ATTR)
+            out.write("%(bg)s 0 0 %(r)g uu 360 %(start)g -1 mul add 90 " 
+                    "add 360 %(end)g -1 mul add 90 add arcn fill\n" % ATTR)
 
         if self.fg is not None:
-            out.write("%(fg)s 0 0 %(r)g uu 360 %(start)g -1 mul add 90 add 360 %(end)g -1 mul add 90 add arcn stroke\n" % ATTR)
+            out.write("%(fg)s 0 0 %(r)g uu 360 %(start)g -1 mul add 90 "
+                    "add 360 %(end)g -1 mul add 90 add arcn stroke\n" % ATTR)
 
         return out.getvalue()
 
-
     def bbox(self):
+        """
+        Return the bounding box object of the Circle
+        """
 
         #grab a tight boundingbox by zipping around circumference
 
@@ -806,17 +969,20 @@ class Dot(Circle):
     bg = Color(0)
     fg = None
 
-    def __init__(self, p1 = P(0, 0), p2 = 0, **dict):
+    def __init__(self, p1 = P(0, 0), p2 = 0, **options):
         if isinstance(p1, P):
             c = p1
         else:
             c = P(p1, p2)
-        apply(Circle.__init__, (self, ), dict)
+        Circle.__init__(self)
         self.c = c
 
     def bbox(self):
+        """
+        Return the bounding box of the Dot
+        """
         
-        return Bbox(sw=self.sw,width=2*self.r,height=2*self.r)
+        return Bbox(sw = self.sw, width = 2*self.r, height = 2*self.r)
 
 
 
@@ -868,7 +1034,7 @@ class Paper(Area):
         "ledger":     (43.18  , 27.94),
         }
 
-    def __init__(self, size, **dict):
+    def __init__(self, size, **options):
         '''
         @param size: eg "a4","letter" etc. See L{PAPERSIZES} for sizes
         @return: An area object the size of the selected paper
@@ -877,7 +1043,7 @@ class Paper(Area):
         warnings.warn("Paper() class deprecated .. use Page()")
         
         self.size = size
-        orientation = dict.get("orientation", self.orientation)
+        orientation = options.get("orientation", self.orientation)
         
         if orientation == "portrait":
             w, h = self.PAPERSIZES[size]
@@ -888,7 +1054,7 @@ class Paper(Area):
         self.width = w*UNITS['cm']/float(defaults.units)
         self.height = h*UNITS['cm']/float(defaults.units)
 
-        apply(Area.__init__, (self, ), dict)
+        Area.__init__(self)
 
         
         
@@ -901,21 +1067,23 @@ class Epsf(Area):
     @cvar height: on init - set height to this
     '''
 
-    def __init__(self, file, **dict):
+    def __init__(self, fname, **options):
         '''
-        @param file: path to epsf file
+        @param fname: path to epsf file
         @return: The eps figure as an area object
         '''
 
-        self.file = file
+        self.fname = fname
 
-        print "Loading %s"%file
+        print "Loading %s" % fname
         
-        fp = open(file, 'r')
+        fp = open(fname, 'r')
         self.all = fp.read(-1)
         fp.close()
 
-        bbox_so = re.compile("\%\%boundingbox:\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)", re.I|re.S)
+        bbox_so = re.compile(
+                "\%\%boundingbox:\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)", 
+                re.I|re.S)
         
         so = bbox_so.search(self.all)
         x1s, y1s, x2s, y2s = so.groups()
@@ -932,34 +1100,35 @@ class Epsf(Area):
         self.height = y2-y1
 
         # width and height have special meaning here
-        if dict.has_key('width') and dict.has_key('height'):
-            sx = dict['width']/float(self.width)
-            sy = dict['height']/float(self.height)
-            del dict['width']
-            del dict['height']
-        elif dict.has_key('width'):
-            sx = sy = dict['width']/float(self.width)
-            del dict['width']
-        elif dict.has_key('height'):
-            sx = sy = dict['height']/float(self.height)
-            del dict['height']
+        if options.has_key('width') and options.has_key('height'):
+            sx = options['width']/float(self.width)
+            sy = options['height']/float(self.height)
+            del options['width']
+            del options['height']
+        elif options.has_key('width'):
+            sx = sy = options['width']/float(self.width)
+            del options['width']
+        elif options.has_key('height'):
+            sx = sy = options['height']/float(self.height)
+            del options['height']
         else:
             sx = sy = 1
             
         self.scale(sx, sy)
 
-        apply(Area.__init__, (self, ), dict)
-
-
+        Area.__init__(self)
 
     def body(self):
+        """
+        Return the body of the object's postcript
+        """
         
         out = cStringIO.StringIO()
 
         out.write("BeginEPSF\n")
-        out.write("%s translate \n"%self.offset)
+        out.write("%s translate \n" % self.offset)
 
-        out.write("%%%%BeginDocument: %s\n"%self.file)
+        out.write("%%%%BeginDocument: %s\n" % self.fname)
         out.write(self.all)
         out.write("%%EndDocument\n")
         out.write("EndEPSF\n")
