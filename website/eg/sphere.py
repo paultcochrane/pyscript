@@ -47,7 +47,7 @@ def ArrowHead(tip=P(0,0),width=0.2,height=0.2,dir="e",fg=Color("black"),bg=Color
                   tip-P(width/2.0,-height),tip-P(0,-height*(1-dent)),tip-P(-width/2.0,-height),
                   tip,fg=fg,bg=bg)
 
-    ah.rotate(angle)
+    ah.rotate(angle,p=ah.bbox().sw)
 
     return ah
 
@@ -69,21 +69,21 @@ circ3.c = P(0,-0.6)
 zaxis = Path(P(0,-1.2),P(0,1.2),linewidth=0.3)
 xaxis = Path(P(-1.2,0),P(1.2,0),linewidth=0.3)
 yaxis = Path(P(-0.7,0),P(0.7,0),linewidth=0.3)
-yaxis.rotate(p=yaxis.c,angle=-30)
+yaxis.rotate(p=yaxis.P(.5),angle=-30)
 
-xArrow = ArrowHead(tip=xaxis.e+P(0,0),width=0.07,height=0.07)
-yArrow = ArrowHead(tip=yaxis.bbox().ne+P(0.09,0),angle=-30,width=0.07,height=0.07)
-zArrow = ArrowHead(tip=zaxis.n,dir="n",width=0.07,height=0.07)
+xArrow = ArrowHead(tip=xaxis.end+P(0,0),width=0.07,height=0.07)
+yArrow = ArrowHead(tip=yaxis.end+P(0.09,0),angle=-30,width=0.07,height=0.07)
+zArrow = ArrowHead(tip=zaxis.end,dir="n",width=0.07,height=0.07)
 
-xLabel = TeX(sw=xaxis.ne,text="$\mathbf{J}_x$").scale(0.5,0.5)
-yLabel = TeX(sw=yaxis.ne,text="$\mathbf{J}_y$").scale(0.5,0.5)
-zLabel = TeX(sw=zaxis.ne,text="$\mathbf{J}_z$").scale(0.5,0.5)
+xLabel = TeX(sw=xaxis.bbox().ne,text="$\mathbf{J}_x$").scale(0.5,0.5)
+yLabel = TeX(sw=yaxis.bbox().ne,text="$\mathbf{J}_y$").scale(0.5,0.5)
+zLabel = TeX(sw=zaxis.bbox().ne,text="$\mathbf{J}_z$").scale(0.5,0.5)
 
 rad = Path(P(0,-0.59),P(0.5,-0.59))
-rad.rotate(p=rad.w,angle=20)
-radArrow = ArrowHead(tip=rad.e+P(0.01,0.02),dir="e",width=0.06,height=0.06,angle=20)
+rad.rotate(p=rad.bbox().w,angle=20)
+radArrow = ArrowHead(tip=rad.end+P(0.01,0.02),dir="e",width=0.06,height=0.06,angle=20)
 radThing = Group(rad,radArrow)
-radLabel = TeX(sw=rad.c,text="$\mathcal{R}$").scale(0.5,0.5)
+radLabel = TeX(sw=rad.bbox().c,text="$\mathcal{R}$").scale(0.5,0.5)
 
 fig = Group(circ1,circ2,circ3,
 	    zaxis,xaxis,yaxis,
