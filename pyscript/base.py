@@ -111,6 +111,15 @@ class PsDict(UserDict.UserDict):
     def __repr__(self):
         return self.type+"("+str(self.data)+")"
 
+    def set(self,**dict):
+        '''
+        Set a whole lot of attributes in one go
+        '''
+
+        for key,value in dict.items():
+            self[key]=value
+
+
 
 # -------------------------------------------------------------------------
 # Color

@@ -265,26 +265,35 @@ class Text(Area):
         
     def __init__(self,text="",**dict):
 
+        # this is a bit ugly ... we need a
+        # minimal text object with no transformations
+        # in order to grab the bounding box
+        
+        font="Times-Roman"
+        scale="12"
+        if dict.has_key('font'): font=dict['font']
+        if dict.has_key('scale'): font=dict['scale']
+
+        temp=Text_nobbox(text=text,scale=scale,font=font)
+
+        # get the bbox
+        SW,NE=gsbbox(temp)
+
+        # Now create the real text object
         self.natives(
             {"bg":None,
              "fg":Color(0),
              "text":text,
              "font":"Times-Roman",
              "scale":"12",
+             'width':NE[0]-SW[0],
+             'height':NE[1]-SW[1],
              },dict)
-        apply(PsObject.__init__,(self,),dict)
 
-        self.offset=P(0,0)
-
-        # get the bbox
-        SW,NE=gsbbox(self)
-
-        # these are all internal co-ordinates
-        self['width']=NE[0]-SW[0]
-        self['height']=NE[1]-SW[1]
         self.offset=-SW
 
-        print SW,NE
+        apply(Area.__init__,(self,),dict)
+
 
     def body(self):
         out=cStringIO.StringIO()
@@ -407,8 +416,10 @@ class Rectangle(Area):
         
         self.natives(
             {"bg":None,
-             "fg":Color(0)},
-            dict)
+             "fg":Color(0),
+             "linewidth":defaults.linewidth,
+             "dash":defaults.dash,
+             }, dict)
         apply(Area.__init__,(self,),dict)
 
 
@@ -416,6 +427,12 @@ class Rectangle(Area):
         
         out=cStringIO.StringIO()
         
+        if self['linewidth']!=defaults.linewidth:
+            out.write("%(linewidth)f setlinewidth "%self)
+
+        if self['dash']!=defaults.dash:
+            out.write("%(dash)s setdash "%self)
+
         if self["bg"] is not None:
             out.write("%(bg)s 0 0 %(width)g uu %(height)g uu rectfill\n"%self)
         out.write("%(fg)s 0 0 %(width)g uu %(height)g uu rectstroke\n"%self)
@@ -439,6 +456,7 @@ class Circle(PsObject):
     0-360 point on circumference at that angle (degrees clockwise from n)
 
     'fg','bg'  foreground and background colors
+    'linewidth', 'dash'
 
     get ellipses by scaling
     
@@ -454,7 +472,11 @@ class Circle(PsObject):
                       "fg": Color(0),
                       "r": 1.0,
                       "start":0,
-                      "end":360},dict)
+                      "end":360,
+                      "linewidth":defaults.linewidth,
+                      "dash":defaults.dash,
+                      },dict)
+        
         apply(PsObject.__init__, (self,), dict)
 
     def locus(self,angle):
@@ -501,6 +523,12 @@ class Circle(PsObject):
 
         out = cStringIO.StringIO()
 
+        if self['linewidth']!=defaults.linewidth:
+            out.write("%(linewidth)f setlinewidth "%self)
+
+        if self['dash']!=defaults.dash:
+            out.write("%(dash)s setdash "%self)
+
         # By default postscript goes anti-clockwise
         # and starts from 'e' ... fix it so it goes
         # clockwise and starts from 'n'
@@ -520,7 +548,7 @@ class Circle(PsObject):
 
         SW=self.locus(0)
         NE=self.locus(0)
-        for ii in xrange(0,360,10):
+        for ii in xrange(self['start'],self['end']+5,5):
             p=self.locus(ii)
 
             SW[0]=min(SW[0],p[0])
@@ -774,20 +802,22 @@ class Group(PsObject):
         
         if len(self.objects)==0:
             return None,None
-        
-        SW,NE=self.objects[0].boundingbox()
-        if SW and NE:
-            SW=self.itoe(SW)
-            NE=self.itoe(NE)
-        
-        if len(self.objects)==1:
-            return SW,NE
-        
-        for obj in self.objects[1:]:
+
+        # first grap initial values
+        for obj in self.objects:
+            sw,ne=obj.boundingbox()
+            if not sw or not ne:
+                # some objects may not return a boundingbox
+                continue
+            else:
+                SW=self.itoe(sw)
+                NE=self.itoe(ne)
+
+        for obj in self.objects:
             sw,ne=obj.boundingbox()
             if sw and ne: # some objects return None
-                sw=self.itoe(sw)
-                ne=self.itoe(ne)
+                sw,ne=bbox_itoe(sw,ne,self.itoe)
+
                 SW[0]=min(sw[0],SW[0])
                 SW[1]=min(sw[1],SW[1])
                 NE[0]=max(ne[0],NE[0])
@@ -800,6 +830,21 @@ class Group(PsObject):
             out.write(str(obj))
         return out.getvalue()
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
