@@ -10,11 +10,15 @@ g=Group(
 	ArrowHead4(tip=P(.4,0),angle=90)
 	).scale(3)
 
+g2=HAlign(ArrowHead(),ArrowHead(scalew=2),ArrowHead(scaleh=2),space=.2).scale(2)
+g2.move(0,-1)
+
 p=Path(P(0,0),C(90,-90),P(2,2),
-	heads=[ArrowHead(1),ArrowHead2(.8),ArrowHead3(.6),ArrowHead4(.4,reverse=1)])
+	heads=[ArrowHead(1),ArrowHead2(.8),ArrowHead3(.6),ArrowHead4(.4,reverse=1)]).scale(1.5)
 	
 render(
 	g,
+	g2,
 	p,
 	
     file='test_arrowhead.eps',
