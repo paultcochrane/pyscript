@@ -22,11 +22,11 @@ The Path module
 
 __revision__ = '$Revision$'
 
+from math import sqrt, pi, sin, cos
 from pyscript.vectors import P, Bbox, U, Identity, R
 from pyscript.base import Color
 from pyscript.objects import AffineObj
 import cStringIO
-from math import sqrt, pi, sin, cos
 
 # -------------------------------------------------------------------------
 # Pathlettes ... components of path, not used by themselves
@@ -40,9 +40,9 @@ class _line(object):
     e = None
 
     def __init__(self, s, e):
+        object.__init__(self)
         self.s = s
         self.e = e
-        object.__init__(self)
 
     def _get_start(self):
         """
@@ -180,7 +180,7 @@ class _bezier(object):
         """
         Return the postscript body of the object
         """
-        return '%s %s %s curveto\n'%(self.cs, self.ce, self.e)
+        return '%s %s %s curveto\n' % (self.cs, self.ce, self.e)
 
 
     def _t(self, t):
@@ -228,7 +228,8 @@ class _bezier(object):
         p0 = self.s
         for p in self._points:
             l = (p-p0).length
-            if L+l >= Lf: break
+            if L+l >= Lf: 
+                break
             L += l
             p0 = p
 
@@ -303,7 +304,8 @@ class C(object):
         # anything supplied in keywords will override
         # the above points eg C(P(0, 0), c1=45)
         object.__init__(self)
-        apply(self, (), options)
+        #apply(self, (), options)
+        self(**options)
 
     def __call__(self, **options):
         '''
@@ -474,7 +476,7 @@ class Path(AffineObj):
 
         self._pathlettes = []
 
-        AffineObj.__init__(self)
+        AffineObj.__init__(self, **options)
 
         path = list(path) # so we can use pop
         
@@ -483,7 +485,7 @@ class Path(AffineObj):
 
         # if the last point of a closed path has been
         # skipped, add it now
-        if not isinstance(path[-1],P) and self.closed:
+        if not isinstance(path[-1], P) and self.closed:
             path.append(path[0])
 
         cp = path.pop(0) # current point
