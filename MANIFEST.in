@@ -1,3 +1,4 @@
+# base stuff to include
 include README
 include CHANGES
 include LICENSE
@@ -5,7 +6,62 @@ include TODO
 include BUGS
 include setup.py
 include bin/pyscript
-recursive-include pyscript *.py
-include doc/examples/*.py
+
+# add pyscript base level files
+include pyscript/__init__.py
+include pyscript/afm.py
+include pyscript/base.py
+include pyscript/defaults.py
+include pyscript/groups.py
+include pyscript/objects.py
+include pyscript/path.py
+include pyscript/render.py
+include pyscript/vectors.py
+include pyscript/version.py
+
+# add pyscript font files
+include pyscript/fonts/__init__.py
+include pyscript/fonts/courier_boldoblique.py
+include pyscript/fonts/courier_bold.py
+include pyscript/fonts/courier_oblique.py
+include pyscript/fonts/courier.py
+include pyscript/fonts/helvetica_boldoblique.py
+include pyscript/fonts/helvetica_bold.py
+include pyscript/fonts/helvetica_oblique.py
+include pyscript/fonts/helvetica.py
+include pyscript/fonts/symbol.py
+include pyscript/fonts/times_bolditalic.py
+include pyscript/fonts/times_bold.py
+include pyscript/fonts/times_italic.py
+include pyscript/fonts/times_roman.py
+include pyscript/fonts/zapfdingbats.py
+
+# add pyscript library files
+include pyscript/lib/__init__.py
+# include pyscript/lib/electronics.py  # incomplete
+include pyscript/lib/misc.py
+# include pyscript/lib/optics.py  # deprecated/incomplete?
+# include pyscript/lib/plot.py  # incomplete
+# include pyscript/lib/presentation.py  # deprecated?
+include pyscript/lib/present.py
+include pyscript/lib/qi.py
+# include pyscript/lib/quantumcircuits.py  # deprecated?
+
+# add the current set of examples
+include doc/examples/Makefile
+include doc/examples/align.py
+include doc/examples/align2.py
+include doc/examples/atom.py
+include doc/examples/detector.py
+include doc/examples/distribute.py
+include doc/examples/div_con.py
+include doc/examples/flower_algorithm.py
+include doc/examples/qcirc.py
+include doc/examples/sarah.py
+include doc/examples/sphere.py
+include doc/examples/stateSwap.py
+include doc/examples/tex.py
+
+# add the manual (as it currently stands)
 include doc/manual/pyscript.pdf
 
