@@ -5,16 +5,26 @@ import tempfile
 
 def usage():
     print """Usage:
-    pyscript file.py
+    pyscript [options] file.py
+
+    options:
+    [-h/--help] print usage information and exit
+    [-V/--version] print version information and exit
+    [-o/--output=outputFile] specify an alternative output file name
+    [-l/--logfile=logFile] specify an alternative log file name
     """
+
+def version():
+    print "This is pyscript version 0.5"
+    print "For more information see http://pyscript.sourceforge.net\n"
 
 #---------------------------------------------------------------------
 # Handle options
 #---------------------------------------------------------------------
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "ho:l:d", ["help","output=",
-                                                       "logfile="])
+    opts, args = getopt.getopt(sys.argv[1:], "hVo:l:d", 
+	    ["help", "version", "output=", "logfile="])
 except getopt.GetoptError:
     # print help information and exit:
     usage()
@@ -28,16 +38,22 @@ for o, a in opts:
     if o in ("-h", "--help"):
         usage()
         sys.exit()
-    if o in ("-o","--output"):
+    if o in ("-V", "--version"):
+	version()
+	sys.exit()
+    if o in ("-o", "--output"):
         globals['output']=a
-    elif o in ("-l","--logfile"):
+    elif o in ("-l", "--logfile"):
         logFile=a
     elif o in ("-d",):
         DEBUG=True
         
 if len(args) != 1:
     usage()
-    sys.exit(s)
+    sys.exit()
+
+# print some pretty info
+version()
 
 #---------------------------------------------------------------------
 # Set up log file
@@ -114,6 +130,3 @@ else:
 		    os.remove(tmpfile)
     print "Done!"
     
-    
-
-
