@@ -118,21 +118,22 @@ def TeXstuff(objects):
     fp.write(defaults.tex_tail)
     fp.close()
 
-    os.system(defaults.tex_command%file)
+    os.system(defaults.tex_command%file+'> pyscript.log 2>&1')
 
-    os.system("dvips -tunknown -o temp.ps temp.dvi")
+    os.system("dvips -tunknown -o temp.ps temp.dvi"+'>> pyscript.log 2>&1')
 
     fp=open("temp.ps","r")
     ps=fp.read(-1)
     fp.close()
 
     #grab tex
-    tt=re.findall('(?s)\%\%Page:.*?TeXDict(.*?)end',ps)
+    tt=re.findall('(?s)\%\%Page: \d+ \d+(.*?)(?=\%\%)',ps)
 
+    print tt
     assert len(tt)==len(objects)
 
     for ii in range(len(objects)):
-        objects[ii].bodyps="TeXDict %s end"%tt[ii]
+        objects[ii].bodyps=tt[ii]
 
     # grab headers
     start=string.index(ps,"%DVIPSSource")
@@ -275,6 +276,7 @@ def render(*objects,**opts):
 
     defs=""
     if len(tex)>0:
+	print tex
         defs=TeXstuff(tex)
 
 
