@@ -38,27 +38,40 @@ def BS(sw=P(0,0),label=None,h=1.0):
 # box beam splitter (aka polarising beam splitter)
 def BSBox(sw=P(0,0), label=None, h=1.0, angle=0):
     """
-
+    Beam splitter as a box as opposed to a line
     """
-    # need to implement the angle
     beamSplitter = Path(sw, sw+P(0,h), sw+P(h,h), sw+P(h,0), sw, sw+P(h,h),
              fg=Color("black"), bg=Color("white"))
+    beamSplitter.rotate(angle,p=sw+P(h/2.0,h/2.0))
     if label is not None:
-        label['w'] = sw+P(h,0)+P(-h/4,h/2)
+        label.w = sw+P(h,0)+P(-h/4,h/2)
         return Group(beamSplitter, label)
     else:
         return Group(beamSplitter)
 
-# line beam splitter
-def BSLine(sw=P(0,0), label=None, w=1.0, h=0.1, angle=0):
+# polarising beam splitter
+def PBS(c=P(0,0), h=1.0, angle=0):
     """
+    Polarising beam splitter (box)
+    """
+    sw=c-P(h/2.0,h/2.0)
+    beamSplitter = Path(sw, sw+P(0,h), sw+P(h,h), sw+P(h,0), sw, sw+P(h,h),
+             fg=Color("black"), bg=Color("white"))
+    beamSplitter.rotate(angle,p=sw+P(h/2.0,h/2.0))
+    return Group(beamSplitter)
 
+
+# line beam splitter
+def BSLine(c=P(0,0), label=None, w=1.0, h=0.1, angle=0, anchor=None):
     """
-    # need to implement the angle
+    Line beam splitter
+    """
+    sw = c-P(w/2.0,h/2.0)
     beamSplitter = Path(sw, sw+P(0,h), sw+P(w,h), sw+P(w,0), sw,
              fg=Color("black"), bg=Color("black"))
+    beamSplitter.rotate(angle,p=c)
     if label is not None:
-        label['w'] = sw+P(h,0)+P(-h/4,h/2)
+        label.w = sw+P(h,0)+P(-h/4,h/2)
         return Group(beamSplitter, label)
     else:
         return Group(beamSplitter)
@@ -73,9 +86,35 @@ def PhaseShifter(sw=P(0,0), label=None, w=0.5, h=0.7, angle=0):
     phaseShifter = Path(sw, sw+P(w/2,h), sw+P(w,0), sw,
                         fg=Color("white"), bg=Color("white"))
     if label is not None:
-        label['s'] = sw+P(w/2,-h)
+        label.s = sw+P(w/2,-h)
         return Group(phaseShifter, label)
     else:
         return Group(phaseShifter)
 
+
+# mirror
+def Mirror(c=P(0,0), label=None, length=1.0, thickness=0.1, angle=0, anchor=None):
+    """
+    Mirror
+    """
+    
+    # different kinds of mirrors??
+    sw = c-P(length/2.0,thickness/2.0)
+    mirror = Group()
+    mirror.append(Path(sw, sw+P(0,thickness),
+                  sw+P(length,thickness), sw+P(length,0), sw,
+                  fg=Color("black"), bg=Color("black")))
+    flickLen = 0.15
+    flicks = Group()
+    for i in range(10):
+        flicks.append(Path(sw+P((i+1.0)*length/10.0,thickness),
+                           sw+P(i*length/10.0,thickness+flickLen)))
+
+    mirror.append(flicks)
+    mirror.rotate(angle, p=c)
+    if label is not None:
+        label.w = sw+P(thickness,0)+P(-thickness/4,thickness/2)
+        return mirror.append(label)
+    else:
+        return mirror
 
