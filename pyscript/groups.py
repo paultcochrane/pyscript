@@ -166,7 +166,8 @@ class Group(Area):
     def body(self):
         out=cStringIO.StringIO()
         for obj in self.objects:
-            out.write(str(obj))
+            if obj.bbox().sw is not None:
+                out.write(str(obj))
         return out.getvalue()
 
 
@@ -216,27 +217,35 @@ def Align(*items,**dict):
         if not isinstance(items[0],Group):
             # Nothing to do here ...
             return apply(Group,items) 
+        # assume: single item which is a group - user wants to align group members
         objects=items[0]
         if len(objects) <= 1:
+            # Nothing to do here ...		
             return objects
     else:
         # create a group around the objects
         objects=Group(items)
 
-    # keep a reference to the anchor ... we'll
-    # move it back later
-    anchor_bbox_sw=objects[anchor].bbox().sw
     
     assert a1 in ["n","ne","e","se","s","sw","w","nw","c"]
     assert a2 in ["n","ne","e","se","s","sw","w","nw","c"]
 
-    # need to implement a length for group
-    for ii in range(1,len(objects)):
+    # filter out non-alignable objects
+    alignable=[]
+    for obj in objects:
+        if obj.bbox().sw is not None:
+            alignable.append(obj)
+			
+    # keep a reference to the anchor ... we'll
+    # move it back later
+    anchor_bbox_sw=alignable[anchor].bbox().sw
 
-        obj=objects[ii]
-        p1=getattr(objects[ii-1].bbox(),a1)
+    # need to implement a length for group
+    for ii in range(1,len(alignable)):
+
+        obj=alignable[ii]
+        p1=getattr(alignable[ii-1].bbox(),a1)
         p2=getattr(obj.bbox(),a2)
-        
 
         if space is not None:
             obj.move(U(angle,space)-(p2-p1))
@@ -250,21 +259,36 @@ def Align(*items,**dict):
         
         p1=p2
 
-    offset=anchor_bbox_sw-objects[anchor].bbox().sw
+    offset=anchor_bbox_sw-alignable[anchor].bbox().sw
 
     # Can't really move group since it might be fake
-    for obj in objects:
+    # and not actually processed during write (hence no move)
+    # move individual items instead
+    for obj in alignable:
         obj.move(offset)
 
-    if isinstance(objects,Group):
-        objects.recalc_size()
+    # for convenience return a group ..
+    objects.recalc_size()
+    return objects
 
-        # for convenience ..
-        return objects
-    else:
-        # create a group (though it may not be used)
-        # for convenience
-        return apply(Group,objects) 
+# ----------------------------------------------------------------------
+# some convenience functions
+
+def VAlign(*items,**dict):
+	dict['a1']=dict.get('a1','s')
+	dict['a2']=dict.get('a2','n')
+	dict['space']=dict.get('space',1)
+	dict['angle']=dict.get('angle',180)
+
+	return Align(*items,**dict)
+
+def HAlign(*items,**dict):
+	dict['a1']=dict.get('a1','e')
+	dict['a2']=dict.get('a2','w')
+	dict['space']=dict.get('space',1)
+	dict['angle']=dict.get('angle',90)
+
+	return Align(*items,**dict)
 
 # -------------------------------------------------------------------------
 
@@ -596,12 +620,13 @@ class Eps(Group):
         fp.write('/uu {%f mul} def '%defaults.units)
         #fp.write('%s\n'%defaults.fg)
         fp.write('%g setlinewidth \n'%defaults.linewidth)
-        fp.write('%d setlinecap %d setlinejoin %g setmiterlimit %s setdash\n'%\
+        fp.write('%d setlinecap %d setlinejoin %g setmiterlimit\n'%\
                  (defaults.linecap,
                   defaults.linejoin,
-                  defaults.miterlimit,
-                  defaults.dash
+                  defaults.miterlimit
                   ))
+        if defaults.dash is not None:
+            fp.write(defaults.dash+"\n")
         fp.write("end\n")
         fp.write("%%EndSetup\n")
 
@@ -861,12 +886,13 @@ class Pages(Group):
         fp.write("PyScriptDict begin\n")
         fp.write('/uu {%f mul} def '%defaults.units)
         fp.write('%g setlinewidth \n'%defaults.linewidth)
-        fp.write('%d setlinecap %d setlinejoin %g setmiterlimit %s setdash\n'%\
+        fp.write('%d setlinecap %d setlinejoin %g setmiterlimit\n'%\
                  (defaults.linecap,
                   defaults.linejoin,
                   defaults.miterlimit,
-                  defaults.dash
                   ))
+        if defaults.dash is not None:
+            fp.write(defaults.dash+"\n")
         fp.write("end\n")
         fp.write("%%EndSetup\n")
 

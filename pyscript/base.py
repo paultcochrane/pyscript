@@ -365,7 +365,35 @@ class Color(PsObj):
         return apply(Color,tuple(newcol))
 
 # -------------------------------------------------------------------------
+class Dash(PsObj):
+    """
+    Class to encode postscript dash
+ 
+    """
 
+    pattern=(2,)
+    offset=0
+
+    def __init__(self,*args,**dict):
+
+        if len(args) > 0:
+            self.pattern=args
+     
+        PsObj.__init__(self,**dict)
+       
+       
+    def body(self):
+
+        # if we don't start with a space horrible things happen
+    
+        pat=""
+        pat = "[ "+ string.join(["%g" % l for l in self.pattern],' ')    
+
+        pat = pat+"] %g setdash "%self.offset
+
+        return pat
+
+# -------------------------------------------------------------------------
 # XXX fix!
 
 ##class Postscript(PsObj):

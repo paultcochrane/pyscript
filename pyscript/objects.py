@@ -26,7 +26,7 @@ from math import cos,sin,pi
 
 from defaults import *
 from vectors import *
-from base import PsObj,Color,PyScriptError,FontError
+from base import PsObj,Color,Dash,PyScriptError,FontError
 from afm import AFM
 
 
@@ -52,13 +52,29 @@ class AffineObj(PsObj):
         @rtype: self
         '''
 
+        # update transformation matrix
         self.T=t*self.T
 
-        if p is not None:
-            o=self.o # o is in external co-ords
-            self.move(p-o)
-            self.move(t*(o-p))
         
+        #if p is not None:
+        #    o=self.o # o is in external co-ords
+        #    self.move(p-o)
+        #    self.move(t*(o-p))
+        
+
+        o=self.o # o is in external co-ords
+
+        # set origin at (0,0)
+        self.move(-o)
+
+        # move to transformed p id defined 
+        if p is not None:
+            self.move(p)
+            self.move(t*(-p))
+
+        # move to transformed origin
+        self.move(t*o)
+       
         return self
 
     def move(self,*args):
@@ -536,7 +552,7 @@ class Rectangle(Area):
     Draw a rectangle 
 
     @cvar linewidth: the line thickness in points
-    @cvar dash: the dash pattern to use (string ala postscript)
+    @cvar dash: a Dash() object giving the dash pattern to use 
     @cvar fg: line color
     @cvar bg: fill color or None for empty
     @cvar r: radius of corners
@@ -572,8 +588,8 @@ class Rectangle(Area):
         if self.linewidth:
             out.write("%g setlinewidth "%self.linewidth)
 
-        if self.dash:
-            out.write("%s setdash "%self.dash)
+        if self.dash is not None:
+            out.write(str(self.dash))
         
         # make sure we have a sensible radius
         r=min(self.width/2.,self.height/2.,self.r)
@@ -733,8 +749,8 @@ class Circle(AffineObj):
         if self.linewidth:
             out.write("%g setlinewidth "%self.linewidth)
 
-        if self.dash:
-            out.write("%s setdash "%self.dash)
+        if self.dash is not None:
+            out.write(str(self.dash))
 
         # By default postscript goes anti-clockwise
         # and starts from 'e' ... fix it so it goes
@@ -793,11 +809,8 @@ class Dot(Circle):
         self.c=c
 
     def bbox(self):
-        """
-        Returns a Null Bbox ... a point doesn't have extent  
-        """
         
-        return Bbox()
+        return Bbox(sw=self.sw,width=2*self.r,height=2*self.r)
 
 
 

@@ -525,7 +525,7 @@ class Path(AffineObj):
             out.write("%f setmiterlimit "%self.miterlimit)
 
         if self.dash is not None:
-            out.write("%s setdash "%self.dash)
+            out.write(str(self.dash))
 
         out.write('newpath %s moveto\n'%self._pathlettes[0].start)
 
