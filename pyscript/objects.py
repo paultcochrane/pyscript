@@ -17,7 +17,7 @@
 """
 Base objects
 """
-import os,string,re
+import os,string,re,sys
 import cStringIO,commands
 
 from types import *
@@ -446,21 +446,15 @@ class TeX(Area):
         #os.system(defaults.tex_command%TMP+'> pyscript.log 2>&1')
 	(fi,foe) = os.popen4(defaults.tex_command%TMP)
 	fi.close()
-	fp = open("pyscript.log","a")
-	stdouterr = foe.readlines()
-	fp.write(str(stdouterr))
-	fp.write('\n')
-	fp.close()
+	sys.stderr.writelines(str(foe.readlines()))
+	sys.stderr.write('\n')
 	foe.close()
 
         #os.system("dvips -h - -E -o %s.eps %s.dvi"%(TMP,TMP)+'>> pyscript.log 2>&1')
 	(fi,foe) = os.popen4("dvips -h - -E -o %s.eps %s.dvi"%(TMP,TMP))
 	fi.close()
-	fp = open("pyscript.log","a")
-	stdouterr = foe.readlines()
-	fp.write(str(stdouterr))
-	fp.write('\n')
-	fp.close()
+	sys.stderr.writelines(str(foe.readlines()))
+	sys.stderr.write('\n')
 	foe.close()
     
         fp=open("%s.eps"%TMP,"r")
