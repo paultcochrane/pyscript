@@ -1,4 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env pyscript
+
+# $Id$
+
+"""
+Create a quantum circuit of a quantum teleporter using the qi library
+"""
 
 from pyscript import *
 from pyscript.lib.qi import *
@@ -25,3 +31,5 @@ render(
         Meter(w=w[1].e),
         file="teleport.eps"
         )
+
+# vim: expandtab shiftwidth=4:
