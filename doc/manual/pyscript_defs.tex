@@ -3,9 +3,10 @@
 \usepackage{fancyhdr}
 \usepackage{makeidx}
 \usepackage{alltt}
-\usepackage{verbatim}
-\usepackage{shortvrb}
-\usepackage{verbatimfiles}
+%\usepackage{verbatim}
+%\usepackage{shortvrb}
+%\usepackage{verbatimfiles}
+\usepackage{rotating}
 \usepackage{html}
 \usepackage{xspace}
 \usepackage{colortbl}
@@ -152,10 +153,17 @@ formatcom=\color{pycolor}\small,fontshape=sl}
 \newenvironment{example}{%
 \begin{center}%
 %\makebox{\rule{.4\textwidth}{1pt}Hello\rule{.4\textwidth}{1pt}}\\[5mm]
-\makebox[.8\textwidth]{\rule[-1ex]{1pt}{1ex}\hrulefill\ \raisebox{-1ex}{Example}\ \hrulefill\rule[-1ex]{1pt}{1ex}}\\[5mm]
+\makebox[.8\textwidth]{\rule[-.92ex]{1pt}{1ex}\hrulefill\ \raisebox{-.85ex}{Example}\ \hrulefill\rule[-.92ex]{1pt}{1ex}}\\[5mm]
 \begin{minipage}{.75\textwidth}}%
 {\end{minipage}\\[5mm]
 \makebox[.8\textwidth]{\rule{1pt}{1ex}\hrulefill\rule{1pt}{1ex}}\end{center}}
+
+%\newenvironment{example}{%
+%\begin{center}%
+%\makebox[.8\textwidth]{\rule[-1ex]{1pt}{1ex}\hrulefill\ \raisebox{-1ex}{Example}\ \hrulefill\rule[-1ex]{1pt}{1ex}}\\[5mm]
+%\begin{minipage}{.75\textwidth}}%
+%{\end{minipage}\\[5mm]
+%\makebox[.8\textwidth]{\rule{1pt}{1ex}\hrulefill\rule{1pt}{1ex}}\end{center}}
 
 
 % --------------------------------------------------------------

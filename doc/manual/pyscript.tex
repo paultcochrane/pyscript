@@ -6,14 +6,23 @@
 
 \begin{document}
 
-\title{{\Huge \emph{Pyscript}}\\[1cm]
-\emph{Postscript scripting in Python}\\[3cm]}
+\begin{titlepage}
+\begin{center}
+\vspace*{3cm}
+\LARGE
 
-\author{Alexei Gilchrist\\
-Paul Cochrane\\[3cm]}
+\includegraphics{logo}\\[4cm]
 
+{\Huge \emph{Pyscript}}\\[1cm]
+\emph{Postscript scripting in Python}\\[2cm]
 
-\maketitle
+v 0.2\\[2cm]
+
+Alexei Gilchrist\\
+Paul Cochrane
+\end{center}
+\end{titlepage}
+
 
 \tableofcontents
 
@@ -60,7 +69,8 @@ some common pitfalls to be aware of ...
 \item The default units are postscript points,
   $1\mathrm{pp}=28.346\mathrm{cm}$. For a figure the default can
   easily be changed with the command
-  \Verb|defaults.units=UNITS['cm']|.
+  \Verb|defaults.units=UNITS['cm']|. All of the examples in this manual are
+  in \texttt{cm}.
 \item In python, an integer divided by an integer is truncated to an
   integer, To avoid this use floating point numbers, e.g. \Verb|2/3 = 0|
   but \Verb|2/3. = 0.6666|.
@@ -75,22 +85,165 @@ some common pitfalls to be aware of ...
 \section{Tutorial}
 \label{sec:tutotial}
 
+As a tutorial, we'll look in detail at the script that created the
+following figure:
+\begin{center}
+  \includegraphics{tutorial}
+\end{center}
+In the following script, we've interdispersed 
+comments explaining what we're doing, the full script is available
+with the other examples and is called \texttt{tutorial.py}.
 
+First import the \Verb|pyscript| libraries, and we'll grab some objects
+from \Verb|pyscript.lib.quantumcircuits| too. Most scripts would have
+something like this at the begining.
+\begin{python}
+from pyscript import *
+from pyscript.lib.quantumcircuits import *
+\end{python}
+The default units are in postscript points. I prefer to use
+\texttt{cm} so switch the units here. The dafault units are stored in
+\Verb|defaults.units| which is just a number giving giving the
+multiplying factor compared to posrscript points. \Verb|UNITS| is a
+dictionary of factors for some common units.
+\begin{python}
+defaults.units=UNITS['cm']
+\end{python}
+There's a bunch of \LaTeX{} macros I use often. Rather than defining
+them each time they're needed, well define them in the \Verb|tex_head|
+variable in \Verb|defaults|, which defines the start of the
+environment where \emph{all} the \LaTeX{} is processed.
+\begin{python}
+defaults.tex_head=r"""
+\documentclass{article}
+\pagestyle{empty}
+\usepackage{amsmath}
+
+\newcommand{\ket}[1]{\mbox{$|#1\rangle$}}
+\newcommand{\bra}[1]{\mbox{$\langle #1|$}}
+\newcommand{\braket}[2]{\mbox{$\langle #1|#2\rangle$}}
+\newcommand{\ketbra}[2]{\mbox{|#1$\rangle\langle #2|$}}
+\newcommand{\op}[1]{\mbox{\boldmath $\hat{#1}$}}
+\newcommand{\R}[3]{%
+\renewcommand{\arraystretch}{.5}
+$\begin{array}{@{}c@{}}{#1}\\{#2}\end{array}{#3}$
+\renewcommand{\arraystretch}{1}
+}
+\begin{document}
+"""
+\end{python}
+Now, define the colors of some objects here to make it easy to chage
+them everywhere in the figure later if we need to. There's a whole
+variety of ways to specify a color, we'll use RGB values here.
+\begin{python}
+blue=Color(.65,.65,1)
+green=Color(.65,1,.65)
+\end{python}
+There's a component of the figure we'll use several times, so for
+convenience, define it here as a function which returns the object. 
+A separate class would also be possible, but would involve more work.
+We could also have created the object and used the \Verb|copy()| method
+to make duplicates, but that would be clumsy.
+\begin{python}
+def BellDet(c=P(0,0)):
+
+    H=P(0,.8)
+    W=P(.5,0)
+\end{python}
+\Verb|D| is a D-shaped path filled in with the blue color we defined earlier.
+\begin{python}
+    D=Path(c+H,
+           C(c+H+W),
+           c+W,
+           C(c-H+W),
+           c-H,bg=blue,
+           )
+\end{python}
+Now return everything as a \Verb|Group|, which will then get treated as a unit 
+in the rest of the figure.
+\begin{python}
+    return Group(
+        Path(c-H,c+H,linewidth=2),
+        D,
+        TeX(r'$\mathcal{B}$',c=D.c)
+        )
+\end{python}
+Create the big gray box, here we've tweaked the parameters after
+examining the results so that it looks nice. The dash specification is
+straight from posscript.
+\begin{python}
+offline=Rectangle(height=4,width=5.5,e=P(3.5,1.5),
+                  dash='[3 ] 0',bg=Color(.85))
+\end{python}
+Now render the figure! What about all the other bits of the figure?
+Well, we'll render them on the fly since we don't need to refer to the
+objects again. \Verb|render| is a function that can take a variable
+number of arguments, we'll create some of the objects in the
+actual function call.
+
+First put on the big gray box, this way
+it'll appear to be behind everything else.
+\begin{python}
+render(
+    offline,
+    TeX('offline',nw=offline.nw+P(.1,-.1)),
+\end{python}
+Now draw the lines, and some dots. A rough sketch on a piece of paper
+beforehand will really help in figuring out what the co-ordinates are
+for what you want to draw. You can always tweak them later.
+\begin{python}
+    Path(P(5,0),P(-.3,0),P(-.6,.5),P(-.3,1),P(2,1)),
+    Path(P(2,2),P(-.3,2),P(-.6,2.5),P(-.3,3),P(3.7,3)),
+    Path(P(-1,4),P(3.7,4)),
+
+    Dot(P(-.6,.5)),
+    Dot(P(-.6,2.5)),
+\end{python}
+Now add a double line, notice how the central region of the line in
+the figure is unbroken? Can you guess how it was done?
+\begin{python}
+    classicalpath(Path(P(2.1,1.5),P(4.5,1.5),P(4.5,0)),
+                  Path(P(3,1.5),P(3,0)),
+                  Path(P(3.8,3.5),P(4.5,3.5),P(4.5,1.5)),
+                  ),
+\end{python}
+Use the function we defined earlier to add those large detectors to the figure.
+\begin{python}
+    BellDet(P(2,1.5)),
+    BellDet(P(3.7,3.5)),
+\end{python}
+Add some boxed equations to the figure. This object is from the
+\Verb|quantumcircuits| library, and will add a box around and
+abritrary object.
+\begin{python}
+    Boxed(TeX(r'$D\left(\frac{i\theta}{2\alpha^2}\right)$'),c=P(1,2),bg=green),
+
+    Boxed(TeX('$X$'),c=P(3,0),bg=green),
+    Boxed(TeX('$Z$'),c=P(4.5,0),bg=green),
+\end{python}
+Finally, add some \LaTeX{} expressions (notice some of the macros we
+defined earlier), and give the filename to write the postscript to.
+N.B.  keywords, such as \Verb|file=|, have to go after parameter in a
+function call.
+\begin{python}
+    TeX(r'$\ket{B_{00}}$',e=P(-.7,.5)),
+    TeX(r'$\ket{B_{00}}$',e=P(-.7,2.5)),
+    TeX(r'$\ket{Q}$',e=P(-1.1,4)),
+
+    file="tutorial.eps",
+    )
+\end{python}
+
+We're done. Sit back and admire the figure.
 %==========================================================================
 \chapter{Pyscript Objects}
 \label{cha:base-objects}
 
-These are the basic \Verb|pyscript| objects and functions. At the begining
-of each class there is a brief description of the structure of the class
-showing the relevant methods and members.
-
-\begin{figure}[h]
-  \begin{center}
-   \includegraphics{class_structure}
-  \end{center}
-  \caption{Class structure of pyscript}
-  \label{fig:classes}
-\end{figure}
+These are the basic \Verb|pyscript| objects and functions. At the
+begining of each class there is a brief description of the structure
+of the class showing the relevant methods and members. See also
+figure~\ref{fig:classes} on page~\pageref{fig:classes} for an
+indication of how the classes fit together.
 
 \section{Base Objects}
 
@@ -203,7 +356,7 @@ This object mainly adds the ability to align to named compass points on the
 circumference see figure below.
 
 \begin{center}
-  \includegraphics{fig_area}
+  \includegraphics[width=.25\textwidth]{fig_area}
 \end{center}
 
 These points are always returned in external co-ordinates.
@@ -212,64 +365,78 @@ These points are always returned in external co-ordinates.
 \section{Drawing Objects}
 
 %--------------------------------------------------------------------------
-\subsection{Color()}
-\label{sec:color}
-\begin{python}
-class Color(PsObj)
-    def __mul__(self,other)
-\end{python}
-
-This class represents a postscript color. There are four ways to specify
-the color distinguished by the number and type of paprameters that
-are passed when you create the object.
-
-\begin{itemize}
-\item \Verb|Color(C,M,Y,K)| - a postsctipt CMYKColor (Cyan, Magenta, Yellow, blacK) 
-\item \Verb|Color(R,G,B)| - RGBColor (Red, Green, Blue)
-\item \Verb|Color(G)| - Gray
-\item \Verb|Color('yellow')| etc
-\end{itemize}
-
-All the numbers above range from 0 to 1. Some of the named colors that
-are defined are red, green, blue, cyan, magenta, yellow, black, white.
-
-Color objects can be multiplied by a numeric factor between 0 and 1.
-The effect is mostly to darken colors as they approach 0,
-but this depends on how the colors where specified.
-eg \Verb|Color(.2,.6,.6)*.5 = Color(.1,.3,.3)|
-
-%--------------------------------------------------------------------------
 \subsection{Rectangle()}
 \label{sec:rectangle}
 %\begin{python}
 %\end{python}
 
 \begin{center}
-  \includegraphics{fig_rectangle}
+  \includegraphics[width=.25\textwidth]{fig_rectangle}
 \end{center}
 
 %--------------------------------------------------------------------------
 \subsection{Circle()}
 \label{sec:circle}
-%\begin{python}
-%\end{python}
+\begin{python}
+    bg=None
+    fg=Color(0)
+    r=1.0
+    start=0
+    end=360
+    linewidth=defaults.linewidth
+    dash=defaults.dash
+    
+    n, ne, e, se, s, sw, w, nw, c  ... see description below
 
+    def locus(self,angle,target=None):
+        Set or get a point on the locus
+
+        @param angle: locus point in degrees
+                      (Degrees clockwise from north)
+        @param target: target point
+        @return: target is None: point on circumference at that angle
+                 else: set point to the target, and return reference
+                       to object
+
+\end{python}
+Draw a circle. The circle is specified by it's position and it's
+radius.  You can also specify part of a circle with the attributes
+\Verb|start| and \Verb|end| which are in degrees clockwise from the
+top. As with the \Verb|Rectangle| there are named points on the
+enclosing square that corrwsponding to the compass points which can be
+read or set.
 \begin{center}
-  \includegraphics{fig_circle}
+  \includegraphics[width=.25\textwidth]{fig_circle}
 \end{center}
-
-To obtain an ellipse, then just scale a circle.
-
+In addition and abtritrary point on the circumference can be read or
+set by using the \Verb|locus()| method --- with one parameter (the
+angle on the locus) the locus point is returned, with an additional
+target point supplied, the locus point is set to the target point.
 \begin{example}
 \begin{python}
-d=Dot(P(0,0))
-c1=Circle(n=d.c)
-c2=Circle(fg=Color('green'))
-c2[15]=d.c
-render(d,c1,c2)
+c=Circle(r=.5,bg=Color('dandelion'))
+g=Group()
+for ii in range(0,360,30):
+    g.append(
+        Circle(r=.2,bg=Color('white')).locus(180+ii,c.locus(ii))
+        )
+render(c,g,file=...)
 \end{python}
 \begin{center}
   \includegraphics{fig_circle_eg1}
+\end{center}
+\end{example}
+\begin{example}
+\begin{python}
+g=Group(Rectangle(sw=P(0,0),width=2,height=2),
+        Circle(r=1,sw=P(0,0)),
+        Circle(r=sqrt(2)).locus(-135,P(0,0)),
+        )
+g.scale(1.5,.5)
+render(g,file=...)
+\end{python}
+\begin{center}
+  \includegraphics{fig_circle_eg2}
 \end{center}
 \end{example}
 
@@ -299,10 +466,27 @@ an abritrary path (line curve etc).
 %--------------------------------------------------------------------------
 \subsection{Text()}
 \label{sec:text}
-%\begin{python}
-%\end{python}
+\begin{python}
+class Text(Area):
+    A single line text object within an Area object
+    
+    text=''
+    font="Times-Roman"
+    size=12
+    fg=Color(0)
+    bg=None
+    kerning=1
+\end{python}
 The \Verb|Text| object allows typesetting a simple string in a single
-font.  The text will use \emph{kerning} automatically, that is, the
+font. The usual postscript fonts are defined, these are (case
+insensitive): \Verb|courier|, \Verb|courier_bold|,
+\Verb|courier_boldoblique|, \Verb|courier_oblique|, \Verb|helvetica|,
+\Verb|helvetica_bold|, \Verb|helvetica_boldoblique|,
+\Verb|helvetica_oblique|, \Verb|symbol|, \Verb|times_bold|,
+\Verb|times_bolditalic|, \Verb|times_italic|, \Verb|times_roman| and
+\Verb|zapfdingbats|.
+
+The text will use \emph{kerning} automatically, that is, the
 letter spacing will be adjusted depending on the pair of letters so
 that it looks nicer. The kerning can be turned of if necessary, see
 example below.
@@ -310,24 +494,93 @@ example below.
 \begin{python}
 t1=Text('SWEPT AWAY',kerning=0,size=20)
 t2=Text('SWEPT AWAY',kerning=1,size=20,nw=t1.sw)
-render(t1,t2)
+render(t1,t2,file=...)
 \end{python}
 \begin{center}
   \includegraphics{text_kerning}
 \end{center}
 \end{example}
 
+Since \Verb|Text| is a subclass of \Verb|Area| then the usual compass point
+(\Verb|n|, \Verb|ne|, etc) are defined and can be read or set.
 %--------------------------------------------------------------------------
 \subsection{TeX()}
 \label{sec:tex}
-%\begin{python}
-%\end{python}
+\begin{python}
+class TeX(Area):
+    an TeX expression
 
+    text=""
+    fg=Color(0)
+\end{python}
+
+A \LaTeX{} object --- any \LaTeX expression, can be typeset and
+positioned on the diagram.  The \LaTeX{} expression is passed to the
+\Verb|latex| program followed by \Verb|dvips|, the resulting
+postscript is parsed and forms the basis of the object. Obviously this
+requires working \Verb|latex| and \Verb|dvips| distributions on your
+system. We recoment setting up your \Verb|latex| distribution to
+use postscript fonts, that way they can be scaled to any size.
+
+One common pitfall is that the backslash ('\Verb|\|') is used in python
+strings as an escape character and so gets interpreted by python before
+the string gets passed to the \Verb|latex| program. The easiest work
+around to this problem is to use python raw-strings --- just prepend an
+``r'' to the string e.g. \Verb|r"$\alpha$"|.
+
+The object inherits from the \Verb|Area| object, and can also be
+scaled , rotated, etc as will any of the other objects.
+\begin{example}
+\begin{python}
+tex=TeX(r'$|\psi_t\rangle=e^{itH}|\psi_0\rangle$',w=P(.5,0))
+
+g=Group()
+for ii in range(0,360,60):
+    g.append(tex.copy().rotate(ii,P(0,0)))
+
+render(g,file=...)
+\end{python}
+\begin{center}
+  \includegraphics{tex_example}
+\end{center}
+\end{example}
 %--------------------------------------------------------------------------
 \section{Groups}
 
 %--------------------------------------------------------------------------
 \section{Vectors and Matrices}
+
+%--------------------------------------------------------------------------
+\section{Other}
+
+%--------------------------------------------------------------------------
+\subsection{Color()}
+\label{sec:color}
+\begin{python}
+class Color(PsObj)
+    def __mul__(self,other)
+\end{python}
+
+This class represents a postscript color. There are four ways to specify
+the color distinguished by the number and type of paprameters that
+are passed when you create the object.
+
+\begin{itemize}
+\item \Verb|Color(C,M,Y,K)| - a postsctipt CMYKColor (Cyan, Magenta, Yellow, blacK) 
+\item \Verb|Color(R,G,B)| - RGBColor (Red, Green, Blue)
+\item \Verb|Color(G)| - Gray
+\item \Verb|Color('yellow')| etc
+\end{itemize}
+
+All the numbers above range from 0 to 1. Some of the named colors that
+are defined are red, green, blue, cyan, magenta, yellow, black, white.
+
+Color objects can be multiplied by a numeric factor between 0 and 1.
+The effect is mostly to darken colors as they approach 0,
+but this depends on how the colors where specified.
+eg \Verb|Color(.2,.6,.6)*.5 = Color(.1,.3,.3)|
+
+
 
 %==========================================================================
 \chapter{Development}
@@ -336,6 +589,15 @@ The aim of this section is to document some of the internals of
 \Verb|pyscript| to enable developers to modify and extend it. 
 It should also help in solving some of the trickier problems.
 
+\begin{figure}[h]
+  \begin{center}
+    \begin{sideways}
+      \includegraphics[height=.9\textwidth]{class_structure}
+    \end{sideways}
+  \end{center}
+  \caption{Class structure of pyscript}
+  \label{fig:classes}
+\end{figure}
 
 %--------------------------------------------------------------------------
 \section{Object Attributes}
