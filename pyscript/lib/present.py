@@ -20,7 +20,7 @@ from pyscript import *
 # First some useful components
 # ----------------------------------------------------------------------
 
-class Box(Group,Rectangle):
+class Box(Group, Rectangle):
     '''
     Draws a box around an object,
     the box can be placed acording to standard Area tags
@@ -31,38 +31,36 @@ class Box(Group,Rectangle):
     '''
 
     # set these preferences different from Rectangle:
-    fg=Color(0)
-    bg=Color(1)
-    pad=.2
+    fg = Color(0)
+    bg = Color(1)
+    pad = .2
 
-    width=None
-    height=None
+    width = None
+    height = None
 
-    def __init__(self,obj,**dict):
-        
-        apply(Rectangle.__init__, (self,), dict)
-        apply(Group.__init__, (self,), dict)
+    def __init__(self, obj, **options):
+        Rectangle.__init__self, **options)
+        Group.__init__self, **options)
 
-        bbox=obj.bbox()
+        bbox = obj.bbox()
 
-        self.object=obj
+        self.object = obj
 
-        w=bbox.width+2*self.pad
-        h=bbox.height+2*self.pad
+        w = bbox.width+2*self.pad
+        h = bbox.height+2*self.pad
 
 
         # overide the width and height if supplied
         if self.width is None:
-            self.width=dict.get('width',w)
+            self.width = options.get('width', w)
         if self.height is None:
-            self.height=dict.get('height',h)
+            self.height = options.get('height', h)
 
         self.append(
-            Rectangle(width=self.width,height=self.height,
-                      bg=self.bg,fg=self.fg,
-                      c=obj.c,
-                      r=self.r,linewidth=self.linewidth,dash=self.dash),
-
+            Rectangle(width=self.width, height=self.height,
+                      bg=self.bg, fg=self.fg,
+                      c=obj.c, r=self.r, 
+                      linewidth=self.linewidth, dash=self.dash),
             obj,
             )
 
@@ -70,76 +68,76 @@ class Box(Group,Rectangle):
 class  TeXArea(Group):
     '''
     Typeset some LaTeX within a fixed width minipage environment.
-    
+
     @cvar width: the width of the environment
     @cvar iscale: initial scale of the tex
-    @evar align: alignment of the LaTeX to box if its smaller than the full width
+    @evar align: alignment of the LaTeX to box if its smaller than 
+    the full width
     @evar fg: color of TeX
     '''
 
     # has to be different from groups width attribute
-    width=9.4
-    iscale=1
-    fg=Color(0)
-    align="w"
-    
-    def __init__(self,text,**dict):
+    width = 9.4
+    iscale = 1
+    fg = Color(0)
+    align = "w"
 
-        Group.__init__(self,**dict)
+    def __init__(self, text, **options):
+        Group.__init__(self, **options)
 
         # set up tex width ... this relies on latex notion of
         # a point being accurate ... adjust for tex_scale too
-        width_pp=int(self.width/float(self.iscale)*defaults.units)
-        
-        t=TeX(r'\begin{minipage}{%dpt}%s\end{minipage}'%(width_pp,text),
-              fg=self.fg,iscale=self.iscale)
+        width_pp = int(self.width/float(self.iscale)*defaults.units)
+
+        t = TeX(r'\begin{minipage}{%dpt}%s\end{minipage}'%(width_pp, text),
+              fg=self.fg, iscale=self.iscale)
 
         # use this for alignment as the latex bounding box may be smaller
         # than the full width
-        a=Area(width=self.width,height=0)
+        a = Area(width=self.width, height=0)
 
-        Align(t,a,a1=self.align,a2=self.align,space=0)
+        Align(t, a, a1=self.align, a2=self.align, space=0)
 
-        self.append(a,t)
-        #apply(self,(),dict)
+        self.append(a, t)
+        #apply(self, (), options)
 
-		
+
 # ----------------------------------------------------------------------
 # Poster class
 # ----------------------------------------------------------------------
 
-class Poster(Page,VAlign):
+class Poster(Page, VAlign):
     '''
     A poster class  
- 
+
     @cvar size: the size of the poster eg A0
     @cvar orientation: portrait or landscape
     @cvar space: space between vertically aligned objects appended to poster
     @cvar topspace: initial space at top of poster
-    @cvar bg: background color of poster (unless background() method is overiden)
+    @cvar bg: background color of poster (unless background() method 
+    is overiden)
     '''
 
-    size="A0"
-    orientation="portrait"
+    size = "A0"
+    orientation = "portrait"
 
-    bg=Color('DarkSlateBlue')
+    bg = Color('DarkSlateBlue')
 
-    space=1
+    space = 1
 
-    topspace=2
+    topspace = 2
 
-    def __init__(self, *objects, **dict):
-        
-        Page.__init__(self,**dict)
-        VAlign.__init__(self,**dict)
+    def __init__(self, *objects, **options):
+        Page.__init__(self, **options)
+        VAlign.__init__(self, **options)
 
-        back=self.background()
-      
+        back = self.background()
+
         # use Page's append so background doesn't get aligned
-        Page.append(self,back)
+        Page.append(self, back)
 
         # add invisible area at top to start alignment
-        a=Area(width=0,height=self.topspace-self.space,n=self.area().n)
+        a = Area(width=0, height=self.topspace-self.space, n=self.area().n)
         self.append(a)
 
 
@@ -147,14 +145,16 @@ class Poster(Page,VAlign):
         '''
         Return background for poster
         '''
-        area=self.area()
-        
-        signature=Text('Created with PyScript.  http://pyscript.sourceforge.net',
-                        size=14,fg=Color(1))
-       
-        signature.se=area.se+P(-.5,.5)
+        area = self.area()
+
+        signature = Text(
+                'Created with PyScript.  http://pyscript.sourceforge.net', 
+                size=14, fg=Color(1))
+
+        signature.se = area.se+P(-.5, .5)
         return Group(
-                Rectangle(width=area.width, height=area.height, fg=None, bg=self.bg),
+                Rectangle(width=area.width, height=area.height, 
+                    fg=None, bg=self.bg),
                 signature,
                 )
 
@@ -194,124 +194,193 @@ class Pause(object):
     '''
     def bbox(self):
         return Bbox()
-	   
+
 # ----------------------------------------------------------------------
 class Talk(Pages):
+    """
+    A Talk class for seminar presentations
+    """
 
-	def append(self,*slides_raw):
+    def append(self, *slides_raw):
+        """
+        Append slides to the Talk
 
-		slides=[]
-	
-		pg=1	
-		for slide in slides_raw:
+        @param slides_raw: list of slides to append to the talk
+        @type slides_raw: list
+        """
 
-			slide(label=str(pg))
-			pg+=1
-			# find any Pauses present
-			pauses=[]
-			f=slide.flatten()
-			for ii in range(len(f)):
-				if isinstance(f[ii][0],Pause):
-					pauses.append(ii)
+        slides = []
 
-			for pause in pauses:
-				# create a copy and remove everything from Pause onwards
-				print "Found Pause(): splitting slide in two"
-				s=slide.copy()
-				fs=s.flatten()
-				for obj,group in fs[pause:]:
-					group.objects.remove(obj)
-				slides.append(s)
-		
-			
-			slides.append(slide)
+        pg = 1    
+        for slide in slides_raw:
+
+            slide(label = str(pg))
+            pg += 1
+            # find any Pauses present
+            pauses = []
+            f = slide.flatten()
+            for ii in range(len(f)):
+                if isinstance(f[ii][0], Pause):
+                    pauses.append(ii)
+
+            for pause in pauses:
+                # create a copy and remove everything from Pause onwards
+                print "Found Pause(): splitting slide in two"
+                s = slide.copy()
+                fs = s.flatten()
+                for obj, group in fs[pause:]:
+                    group.objects.remove(obj)
+                slides.append(s)
+
+            slides.append(slide)
+
+        for slide in slides:
+            Pages.append(self, slide)
+
+    def write(self, fp, title="PyScriptPS"):
+        """
+        Write the talk out to file
+
+        @param fp: the file handle of the file to write to
+        @type fp: filehandle
+
+        @param title: the title to use in the output postscript
+        @type title: string
+        """
+        tot = len(self)
+        for pp in range(tot):
+            self[pp].make(page=pp, total=tot)
+
+        Pages.write(self, fp, title)
 
 
-		for slide in slides:
-			Pages.append(self,slide)
-
-			
-	def write(self,fp,title="PyScriptPS"):
-
-		tot=len(self)
-		for pp in range(tot):
-			self[pp].make(page=pp,total=tot)
-
-		Pages.write(self,fp,title)
 # ----------------------------------------------------------------------
 class EmptySlide(Page):
 
-	title=None
-	orientation="Landscape"
-	size="screen"
+    title = None
+    orientation = "Landscape"
+    size = "screen"
 
+    def flatten(self, thegroup=None, objects=[]):
+        '''
+        Return a flattened list of objects
+        '''
+        if thegroup is None:
+            objects = []
+            objects = self.flatten(self.objects, objects)
+        else:
+            for obj in thegroup:
+                objects.append((obj, thegroup))
+                if isinstance(obj, Group):
+                    objects = self.flatten(obj, objects)
+        return objects
 
-	def flatten(self,thegroup=None,objects=[]):
-		'''
-		Return a flattened list of objects
-		'''
-		if thegroup is None:
-			objects=[]
-			objects=self.flatten(self.objects,objects)
-		else:
-			for obj in thegroup:
-				objects.append((obj,thegroup))
-				if isinstance(obj,Group):
-					objects=self.flatten(obj,objects)
-		return objects
+    def append(self, *items, **options):
+        """
+        Append items to the slide
 
-	def append(self,*items,**dict):
-	   
-		a1 = dict.get('a1',None)
-		a2 = dict.get('a2',None)
-	   
+        @param items: list of PyScript objects to append
+        @type items: list
 
-		if (a1 is not None) and (a2 is not None) and len(items)>0:
-			assert a1 in ["n","ne","e","se","s","sw","w","nw","c"]
-			assert a2 in ["n","ne","e","se","s","sw","w","nw","c"]
-		
-			area=self.main()	
-			setattr(items[0],a1,getattr(area,a2))
+        @param options: dictionary of options (where to append object etc)
+        @type options: dict
+        """
 
-		return Page.append(self,*items)
+        a1 = options.get('a1', None)
+        a2 = options.get('a2', None)
 
-	def append_n(self,*items):
-		return apply(self.append,items,{'a1':'n','a2':'n'})
-	def append_s(self,*items):
-		return apply(self.append,items,{'a1':'s','a2':'s'})
-	def append_e(self,*items):
-		return apply(self.append,items,{'a1':'e','a2':'e'})
-	def append_w(self,*items):
-		return apply(self.append,items,{'a1':'w','a2':'w'})
-	def append_c(self,*items):
-		return apply(self.append,items,{'a1':'c','a2':'c'})
+        if (a1 is not None) and (a2 is not None) and len(items)>0:
+            assert a1 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
+            assert a2 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
 
-	def main(self):
+            area = self.main()    
+            setattr(items[0], a1, getattr(area, a2))
 
-		bbox=self.bbox()
-		return bbox
-	
-	def make_back(self):
-		return None
+        return Page.append(self, *items)
 
-	def make_title(self):
-		return None
-		
-	def clear(self):
-		Page.clear(self)
-		
-	def make(self,page=1,total=1):
+    def append_n(self, *items):
+        """
+        Append items using the "north" attribute of the objects
 
-		self.page=page
-		self.total=total
+        @param items: list of objects to append
+        @type items: list
+        """
+        return apply(self.append, items, {'a1':'n', 'a2':'n'})
+    def append_s(self, *items):
+        """
+        Append items using the "south" attribute of the objects
 
-		b=self.make_back()
-		if b is not None:
-			self.insert(0,b)
-			
-		t=self.make_title()
-		if t is not None:
-			self.append(t)
+        @param items: list of objects to append
+        @type items: list
+        """
+        return apply(self.append, items, {'a1':'s', 'a2':'s'})
+    def append_e(self, *items):
+        """
+        Append items using the "east" attribute of the objects
+
+        @param items: list of objects to append
+        @type items: list
+        """
+        return apply(self.append, items, {'a1':'e', 'a2':'e'})
+    def append_w(self, *items):
+        """
+        Append items using the "west" attribute of the objects
+
+        @param items: list of objects to append
+        @type items: list
+        """
+        return apply(self.append, items, {'a1':'w', 'a2':'w'})
+    def append_c(self, *items):
+        """
+        Append items using the "centre" attribute of the objects
+
+        @param items: list of objects to append
+        @type items: list
+        """
+        return apply(self.append, items, {'a1':'c', 'a2':'c'})
+
+    def main(self):
+        bbox = self.bbox()
+        return bbox
+
+    def make_back(self):
+        """
+        Make the background of the slide
+        """
+        return None
+
+    def make_title(self):
+        """
+        Make the title of the slide
+        """
+        return None
+
+    def clear(self):
+        """
+        Clear the slide of objects
+        """
+        Page.clear(self)
+
+    def make(self, page=1, total=1):
+        """
+        Make the slide
+
+        @param page: the page in the sequence of slides to make (default=1)
+        @type page: int
+
+        @param total: the total number of slides in the talk (default=1)
+        @type total: int
+        """
+        self.page = page
+        self.total = total
+
+        b = self.make_back()
+        if b is not None:
+            self.insert(0, b)
+
+        t = self.make_title()
+        if t is not None:
+            self.append(t)
 
 # vim: expandtab shiftwidth=4:
 
