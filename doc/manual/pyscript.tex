@@ -31,7 +31,7 @@
 {\Huge \emph{Pyscript}}\\[1cm]
 \emph{Postscript Graphics with Python}\\[2cm]
 
-v 0.5\\[2cm]
+v 0.6\\[2cm]
 
 Alexei Gilchrist\\
 Paul Cochrane
@@ -680,12 +680,17 @@ class Path(AffineObj):
     dash=None
     closed=0
 
+	heads=[]
+
     length
     start
     end
 
     def P(self,t):
        point at fraction t of length
+	   
+    def tangent(self,t):
+       unit vector tangent to point at fraction t of length
 
 \end{python}
 
@@ -702,9 +707,10 @@ The syntax is easy, between each pair of points, without a
 is a  \Verb|C| inbetween then a curve segment is drawn between 
 the points. The curve is controlled by the arguments to \Verb|C|.
 At the moment only bezier curves can be specified by \Verb|C|
-which takes two points as arguments --- they are the control
-points of the bezier. If one of the points is omitted then both
-control points will be set to the one specified point.
+which takes two arguments --- they can be either a point or an angle. 
+Points specify the control points of the bezier, and angles specify
+the direction the curve leaves the end points, the strength is 
+calculated automatically.
 
 The points to both the \Verb|Path| and \Verb|C| can be specified with
 either \Verb|P| or \Verb|R|. \Verb|P| are absolute points from the
@@ -724,12 +730,16 @@ The following two specify the same curve:\\
 As you would expect, you can set the linewidth, dash pattern, color
 etc in the usual way. If you set a \Verb|bg| that is not \Verb|None|
 then the `interior' of the path will be filled in that color. 
+The \Verb|heads| attribute is a list of \Verb|Arrowhead| \emph{instances}
+to place on the path. 
+
 
 \Verb|Path| also has some additional methods and attributes. The 
 \Verb|start| and \Verb|end| atributtes give, well, the start and end of
 the path. The \Verb|length| attribute give the length of the path
 in it's default co-ordinate system. You can also get the a point a fraction
-\Verb|f| along the path with \Verb|path.P(f)|.
+\Verb|f| along the path with \Verb|path.P(f)|, and a unit vector tangent 
+to the point at that fraction with \Verb|path.tangent(f)|.
 \begin{example}
 \begin{python}
 path=Path(p0,p1,C(c1,c2),p2,p3,fg=Color('red'),linewidth=.8)
@@ -744,6 +754,54 @@ render(path,g,...)
   \includegraphics{figs/fig_path_eg}
 \end{center}
 \end{example}
+
+%--------------------------------------------------------------------------
+\subsection{Arrowhead()}
+\label{sec:arrowhead}
+\begin{python}
+class Arrowhead(AffineObj):
+    fg=Color(0)
+    bg=Color(0)
+
+    reverse=0    
+    pos=1
+
+    tip=P(0,0)
+    angle=0
+
+    start=(0,0)
+    shape=[...]
+
+    closed=1
+
+    scalew=1
+    scaleh=1
+
+    linewidth=.2
+    linejoin=2 
+
+    miterlimit = 2  
+
+\end{python}
+
+A class to efficiently draw an arrow head. There are two ways of using the arrow head:
+\begin{itemize}
+\item Within the \Verb|Path| object: add arrowheads to the path by adding them
+to the \Verb|heads| attribute of \Verb|Path| which is a list. In this case, the
+arrow head takes one argument which is the fraction along the path at which to
+place the tip of the arrowhead. The arrow head can be reversed using its
+\Verb|reverse=1| attribute.  eg
+\Verb|Path(...,heads=[Arrowhead(.5,reverse=1)])| will place an arrowhead
+halfway along the path pointing backward.
+\item Place the arrow head manually. You can set the tip position with
+\Verb|tip| and set the direction it points to with \Verb|angle|.
+\end{itemize}
+
+There are several styles of arrow heads defined \Verb|Arrowhead1| \ldots
+\Verb|Arrowhead5|, and new styles can be easily defined.
+
+
+
 %--------------------------------------------------------------------------
 \section{Text Objects}
 
@@ -1089,9 +1147,10 @@ It should also help in solving some of the trickier problems.
 
 \appendix
 
-\include{pyscriptQuantInfo}
+\include{libpresent}
+\include{libqi}
 
-\include{pyscriptPlot}
+%\include{pyscriptPlot}
 
 \include{pyscriptElectronics}
 
