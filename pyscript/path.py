@@ -91,9 +91,12 @@ class Arrowhead(AffineObj):
     # 1.0 cuts off miters at all angles, so that bevels are always produced
     miterlimit = 2  
 
-    def __init__(self,**options):
+    def __init__(self,*param,**options):
 
         AffineObj.__init__(self, **options)
+
+        if len(param) ==1:
+            self.pos=param[0]
 
         sx=self.scalew
         sy=self.scaleh
@@ -244,6 +247,13 @@ class _line(object):
         '''
         return (self.s+(self.e-self.s)*f)
 
+    def tangent(self, f):
+        '''
+        return angle of tangent of curve at fraction f of length
+        '''
+        return (self.e-self.s).arg
+
+
     def body(self):
         """
         Return the postscript body
@@ -280,7 +290,7 @@ class _bezier(object):
     
     TOL = None #tolerance for linearising
 
-    def __init__(self, s, cs, ce, e, TOL = 5e-3, temporary = False):
+    def __init__(self, s, cs, ce, e, TOL = 2e-3, temporary = False):
         object.__init__(self)
         self.s = s # start
         self.e = e # end
@@ -411,6 +421,33 @@ class _bezier(object):
 
         return (p-p0).U*(Lf-L) +p0
 
+    def tangent(self, f):
+        '''
+        return angle of tangent of curve at fraction f of length
+        '''
+        assert 0 <= f <= 1
+
+        if f == 0:
+            return (self.cs-self.s).arg
+        elif f == 1:
+            return (self.e-self.ce).arg
+        
+        Lf = self.length*f
+
+        L = 0
+        p0 = self.s
+        for p in self._points:
+            l = (p-p0).length
+            if L+l >= Lf: 
+                break
+            L += l
+            p0 = p
+
+        # XXX Add a correction here so it's actually on the curve!
+        # Newton Rapson?
+
+        return (p-p0).arg
+
     def bbox(self, itoe = Identity):
         """
         Return the bounding box of the object
@@ -456,7 +493,7 @@ class C(object):
     c1 = None
     t0 = 1
     t1 = 1
-    curl = 1
+    #curl = 1
 
     # this for specifing an arc
     arc = None
@@ -467,13 +504,14 @@ class C(object):
         '''
 
         if len(args) == 1:
-            self.c0 = args[0]
-            self.c1 = args[0]
-	    
+            raise ValueError, "C takes two arguments"
+            #self.c0 = args[0]
+            #self.c1 = args[0]
+        
         elif len(args) == 2: 
             self.c0 = args[0]
             self.c1 = args[1]
-	    
+        
         # anything supplied in keywords will override
         # the above points eg C(P(0, 0), c1=45)
         object.__init__(self)
@@ -523,7 +561,7 @@ class C(object):
             return 0
 
     fullyspecified = property(_get_fullyspecified, None)
-	    
+        
     def curve(self, p0, p1 = None):
         '''
         return pathlette object corresponding to curve
@@ -636,6 +674,9 @@ class Path(AffineObj):
     dash = None
     closed = 0
 
+    #Arrowhead instances:
+    heads=[]
+
     #_pathlettes=[]
 
     def __init__(self, *path, **options):
@@ -679,6 +720,21 @@ class Path(AffineObj):
                 
             else:
                 raise ValueError, "Unknown path control"
+
+        # now add arrowheads
+        heads=[]
+        for head in self.heads:
+            # make a copy so this instance has it's own
+            h=head.copy()
+            
+            # position it appropriately:
+            h.tip=self.P(h.pos)
+            h.angle=self.tangent(h.pos).arg
+            h.__init__()
+                
+            heads.append(h)
+        self.heads=heads 
+           
 
     def bbox(self):
         """
@@ -731,6 +787,22 @@ class Path(AffineObj):
             L += l
         return self.itoe(pl.P((Lf-L)/float(l)))
 
+    def tangent(self, f):
+        '''
+        return tangent (unit vector) of curve at fraction f of length
+        '''
+
+        assert 0 <= f <= 1
+
+        Lf = self.length*f
+
+        L = 0
+        for pl in self._pathlettes:
+            l = pl.length
+            if L+l >= Lf: 
+                break
+            L += l
+        return U(self.itoe(U(pl.tangent((Lf-L)/float(l)))).arg)
 
     def body(self):
         """
@@ -768,6 +840,19 @@ class Path(AffineObj):
         if self.fg is not None:
             out.write("%s stroke\n"%self.fg)
 
+        for head in self.heads:
+            out.write(str(head))
+
         return out.getvalue()
 
+# -------------------------------------------------------------------------
+# Path object
+# -------------------------------------------------------------------------
+
+class Arrow(Path):
+    '''
+    Path object with arrow at end ... just for convenience
+    '''
+    heads=[Arrowhead(1)]
+    
 # vim: expandtab shiftwidth=4:
