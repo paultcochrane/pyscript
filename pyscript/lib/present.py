@@ -72,14 +72,14 @@ class  TeXArea(Group):
     Typeset some LaTeX within a fixed width minipage environment.
     
     @cvar width: the width of the environment
-    @cvar tex_scale: The abount by which to scale the tex
+    @cvar iscale: initial scale of the tex
     @evar align: alignment of the LaTeX to box if its smaller than the full width
     @evar fg: color of TeX
     '''
 
     # has to be different from groups width attribute
     width=9.4
-    tex_scale=.7
+    iscale=1
     fg=Color(0)
     align="w"
     
@@ -89,13 +89,11 @@ class  TeXArea(Group):
 
         # set up tex width ... this relies on latex notion of
         # a point being accurate ... adjust for tex_scale too
-        width_pp=int(self.width/float(self.tex_scale)*defaults.units)
+        width_pp=int(self.width/float(self.iscale)*defaults.units)
         
         t=TeX(r'\begin{minipage}{%dpt}%s\end{minipage}'%(width_pp,text),
-              fg=self.fg)
+              fg=self.fg,iscale=self.iscale)
 
-        t.scale(self.tex_scale)
-        
         # use this for alignment as the latex bounding box may be smaller
         # than the full width
         a=Area(width=self.width,height=0)

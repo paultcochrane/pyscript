@@ -301,9 +301,6 @@ class Align(Group):
 
         self.append(*objects)
         
-        # for convenience
-        return self
-
 
     def append(self,*objects,**dict):
 

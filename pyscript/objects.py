@@ -327,9 +327,11 @@ class TeX(Area):
     (requires working latex and dvips systems)
     
     @cvar fg: TeX color
+    @cvar iscale: initial scale for tex
     '''
 
     text = ""
+    iscale=1
     fg = Color(0)
     bodyps = ""
 
@@ -371,7 +373,7 @@ class TeX(Area):
         eps = fp.read(-1)
         fp.close()
     
-        # grab boundingbox
+        # grab boundingbox ... only thing we want at this stage
         bbox_so = re.search("\%\%boundingbox:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)",
                           eps, re.I)
         bbox = []
@@ -381,10 +383,11 @@ class TeX(Area):
         self.width = (bbox[2]-bbox[0])/float(defaults.units)
         self.height = (bbox[3]-bbox[1])/float(defaults.units)
 
-        apply(Area.__init__, (self, ), dict)
+        Area.__init__(self,**dict)
 
         self.offset = -P(bbox[0], bbox[1])/float(defaults.units)
 
+        self.scale(self.iscale)
 
     def body(self):
         out = cStringIO.StringIO()
