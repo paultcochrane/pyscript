@@ -221,15 +221,17 @@ def render(*objects,**opts):
     if type(objects)==type(()):
         objects=apply(Group,objects)
 
-    # Make the sw corner (0,0) since some brain-dead previewers 
-    # don't understand bounding-boxes
-    objects.sw=P(0,0)
-    
-    bbox=objects.bbox()
 
+    bbox=objects.bbox()
     if not bbox.is_set():
         print "No objects to render!"
         return
+
+    # Make the sw corner (0,0) since some brain-dead previewers 
+    # don't understand bounding-boxes
+    objects.move( P(0,0)-bbox.sw )
+
+    bbox=objects.bbox()
     SW=bbox.sw
     NE=bbox.ne
 

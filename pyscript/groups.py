@@ -68,9 +68,9 @@ class Group(Area):
         '''
         append object(s) to group
         '''
-	for obj in objs:
+        for obj in objs:
             self.objbox.union(obj.bbox())
-	    self.objects.append(obj)
+            self.objects.append(obj)
 
         # update size
         if self.objbox.is_set():
@@ -104,7 +104,7 @@ class Group(Area):
         recalculate internal container size based on objects within
         '''
         self.objbox=Bbox()
-	for obj in self.objects:
+        for obj in self.objects:
             self.objbox.union(obj.bbox())
 
         if self.objbox.is_set():
@@ -260,7 +260,7 @@ def Distribute(*items,**dict):
         
         ov=( getattr(items[0].bbox(),a1)+getattr(items[0].bbox(),a2) )/2. -p1
 
-	# how much we need to move by
+        # how much we need to move by
         mv=(pv.length/2.-pv.U*ov)*pv.U
 
         items[0].move(mv)

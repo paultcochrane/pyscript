@@ -383,13 +383,37 @@ class Bbox(object):
         
         ne=itoe(bbox.ne)
         sw=itoe(bbox.sw)
+        nw=itoe(bbox.nw)
+        se=itoe(bbox.se)
+        
+
+        xmin=min(ne[0],nw[0],se[0],sw[0])
+        xmax=max(ne[0],nw[0],se[0],sw[0])
+        ymin=min(ne[1],nw[1],se[1],sw[1])
+        ymax=max(ne[1],nw[1],se[1],sw[1])
+        
+        #if self.is_set():
+
+            #x1=min(self.sw[0],sw[0])
+            #y1=min(self.sw[1],sw[1])
+            #x2=max(self.ne[0],ne[0])
+            #y2=max(self.ne[1],ne[1])
+
+            #self.sw=P(x1,y1)
+            #self.width=x2-x1
+            #self.height=y2-y1
+            
+        #else:
+
+            #self.sw=sw
+            #self.width,self.height=ne-sw
 
         if self.is_set():
 
-            x1=min(self.sw[0],sw[0])
-            y1=min(self.sw[1],sw[1])
-            x2=max(self.ne[0],ne[0])
-            y2=max(self.ne[1],ne[1])
+            x1=min(self.sw[0],xmin)
+            y1=min(self.sw[1],ymin)
+            x2=max(self.ne[0],xmax)
+            y2=max(self.ne[1],ymax)
 
             self.sw=P(x1,y1)
             self.width=x2-x1
@@ -397,5 +421,7 @@ class Bbox(object):
             
         else:
 
-            self.sw=sw
-            self.width,self.height=ne-sw
+            self.sw=P(xmin,ymin)
+            self.width=xmax-xmin
+            self.height=ymax-ymin
+            

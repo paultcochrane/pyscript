@@ -104,15 +104,11 @@ class Poster_1:
     
     logos=()
 
-    references=""
-    references_fg=Color(0)
-    references_scale=.5
-
     pad=.4
 
     col1 = Group()
     col2 = Group()
-
+    
     paper=None
     area=None
 
@@ -167,19 +163,11 @@ class Poster_1:
                       tex_scale=self.authors_scale,
                       fixed_width=self.area.width*.8,align="c")
 
-    def make_references(self):
-
-        self.col2.append(
-            TeXBox(self.references,
-                   fg=self.references_fg,tex_scale=self.references_scale)
-            )
         
     def make(self,scale=1):
 
         # NB: A0 = 4x A4
         
-        self.make_references()
-
         # vertically align the column items ... no spacing yet!
         Align(self.col1,a1="s",a2="n",angle=180,space=None)
         Align(self.col2,a1="s",a2="n",angle=180,space=None)
