@@ -1,0 +1,7 @@
+include README
+include CHANGES
+include LICENSE
+include TODO
+include BUGS
+include setup.py
+recursive-include pyscript/*.py
