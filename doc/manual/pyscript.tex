@@ -669,25 +669,37 @@ are passed when you create the object.
 \item \Verb|Color(C,M,Y,K)| - a postscript CMYKColor (Cyan, Magenta, Yellow, blacK) 
 \item \Verb|Color(R,G,B)| - RGBColor (Red, Green, Blue)
 \item \Verb|Color(G)| - Gray
-\item \Verb|Color('yellow')| etc
+\item \Verb|Color('Yellow')| etc
 \end{itemize}
 
 All the numbers above range from 0 to 1. Some of the named colors that
-are defined are red, green, blue, cyan, magenta, yellow, black, white.
+are defined are Red, Green, Blue, Cyan, Magenta, Yellow, Black, White.
 
-Color objects can be multiplied by a numeric factor between 0 and 1.
-The effect is mostly to darken colors as they approach 0,
-but this depends on how the colors where specified.
-eg \Verb|Color(.2,.6,.6)*.5 = Color(.1,.3,.3)|
+Color objects can be multiplied by a numeric factor.  The effect is
+mostly to darken colors if the factor is less than 1 and to lighten
+colors if it's greater, but this depends on how the colors where
+specified.  eg \Verb|Color(.2,.6,.6)*.5 = Color(.1,.3,.3)|
 
 The colours in the named colour model are shown in figure
-\ref{fig:colourChart}.  
+\ref{fig:colourchart}. As a historical note, the color names originated 
+from unixes X11 color names, and were at one point considered as 
+cadidate named colours for HTML documents, but in the end where
+never adopted. They have however, aquired an unofficial permanence.
 \begin{figure}[h]
 \centerline{
-  \includegraphics[height=0.9\textheight]{colorChart}
+  \includegraphics[height=0.8\textwidth]{fig_colorchart}
 }
-\label{fig:colourChart}
+\caption{Named colors}
+\label{fig:colourchart}
 \end{figure}
+
+A final note on the colors --- what you get on paper may not reflect
+what you see on the screen. The actual color that turns up on the
+paper is a complicated function of how it was produced, and depends on
+the hardware. The fastest and most accurate way to match colors in a
+printed document is to print out a color chart on the intended
+hardware.
+
 
 %--------------------------------------------------------------------------
 
