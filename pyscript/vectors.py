@@ -44,7 +44,7 @@ class Matrix:
         if isinstance(o,Matrix):
             return Matrix(s[0]+o[0],s[1]+o[1],s[2]+o[2],s[3]+o[3])
         else:
-            raise TypeError,"non-matrix in matrix addition"
+            raise TypeError,"non-matrix (%s) in matrix addition"%type(o)
 
     __radd__=__add__
   
@@ -52,13 +52,13 @@ class Matrix:
         if isinstance(o,Matrix):
             return Matrix(s[0]-o[0],s[1]-o[1],s[2]-o[2],s[3]-o[3])
         else:
-            raise TypeError,"non-matrix in matrix subtraction"
+            raise TypeError,"non-matrix (%s) in matrix subtraction"%type(o)
 
     def __rsub__(s,o):
         if isinstance(o,Matrix):
             return Matrix(o[0]-s[0],o[1]-s[1],o[2]-s[2],o[3]-s[3])
         else:
-            raise TypeError,"non-matrix in right matrix subtraction"
+            raise TypeError,"non-matrix (%s) in right matrix subtraction"%type(o)
 
     def __neg__(s):
         return Matrix(-s[0],-s[1],-s[2],-s[3])
@@ -187,7 +187,7 @@ class P(PsObj):
         elif isinstance(o,(float,int)):
             return P(s[0]+o,s[1]+o)
         else:
-            raise TypeError, "non-vector in vector addition"
+            raise TypeError, "non-vector (%s) in vector addition"%type(o)
 
     __radd__=__add__
 
@@ -195,13 +195,13 @@ class P(PsObj):
         if isinstance(o,P):
             return P(s[0]-o[0],s[1]-o[1])
         else:
-            raise TypeError, "non-vector in vector subtraction"
+            raise TypeError, "non-vector (%s) in vector subtraction"%type(o)
 
     def __rsub__(s,o):
         if isinstance(o,P):
             return P(o[0]-s[0],o[1]-s[1])
         else:
-            raise TypeError, "non-vector in right vector subtraction"
+            raise TypeError, "non-vector (%s) in right vector subtraction"%type(o)
 
     def __neg__(s):
         return P(-s[0],-s[1])
@@ -265,7 +265,7 @@ class P(PsObj):
             tmp[1]=self[2]*other[0]-self[0]*other[2]
             return tmp
         else:
-            raise TypeError, "non-vector in cross product"
+            raise TypeError, "non-vector (%s) in cross product"%type(o)
 
 
 

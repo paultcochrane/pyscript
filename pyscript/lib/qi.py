@@ -268,7 +268,7 @@ class CWire(QWire):
 
 class Assemble(Group):
 
-    qubitspacing=1
+    wirespacing=1
     gatespacing=.1
    
     wires=[]
@@ -332,23 +332,26 @@ class Assemble(Group):
         Distribute(self,p1=P(0,0),p2=P(L,0))            
         self.recalc_size()
 
+        # XXX should check wires are ints
+
         # add wires ...
         x0=self.w.x-self.starthang
         x1=self.e.x+self.endhang
         if len(self.wires) == 0:
             for w in range(-min(wires),-max(wires)-1,-1):
-                wire=QWire().set(w,x0,x1)
+                wire=QWire().set(w*self.wirespacing,x0,x1)
                 self.insert(0,wire)
                 self.wires.append(wire)
             print self.wires
         else:
-            w=-min(wires)
+            #w=-int(min(wires))
+            w=-1
             wirestmp=[]
             for wire in self.wires:
                 # if it already an instance this will have no effect
                 # otherwise create an instance
                 wire=apply(wire,())
-                wire.set(w,x0,x1)
+                wire.set(w*self.wirespacing,x0,x1)
                 self.insert(0,wire)
                 wirestmp.append(wire)
                 w-=1

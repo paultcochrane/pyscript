@@ -68,6 +68,7 @@ class Box_1(Group):
     @cvar bg: color of box background
     @cvar fixed_width: width of box
     @cvar pad: vertical padding between items
+    @cvar r: corner radius
     '''
     
     bg=Color('Lavender')
@@ -75,6 +76,7 @@ class Box_1(Group):
     border=1
     fixed_width=9.6
     pad=.2
+    r=0
 
     def __init__(self,*items,**dict):
 
@@ -92,6 +94,7 @@ class Box_1(Group):
                     bg=self.bg,
                     fg=self.fg,
                     linewidth=self.border,
+                    r=self.r,
                     )
 
         self.insert(0,r)
