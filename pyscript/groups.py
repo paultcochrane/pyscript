@@ -61,10 +61,16 @@ class Group(Area):
     def __len__(self):
         return len(self.objects)
 
+    def validate(self,obj):
+        '''
+        make sure this object can be inserted
+        '''
+        if isinstance(obj,Page) or isinstance(obj,Pages):
+            raise "Can't add a Page to %s"%str(self.__class__)
+        
     def insert(self,idx,obj):
 
-        if isinstance(obj,Page):
-            raise "Can't add a Page to %s"%str(self.__class__)
+        self.validate(obj)
         self.objbox.union(obj.bbox())
         self.objects.insert(idx,obj)
 
@@ -73,8 +79,7 @@ class Group(Area):
         append object(s) to group
         '''
         for obj in objs:
-            if isinstance(obj,Page):
-                raise "Can't add a Page to %s"%str(self.__class__)
+            self.validate(obj)
             self.objbox.union(obj.bbox())
             self.objects.append(obj)
 
@@ -780,21 +785,9 @@ class Pages(Group):
         fp.write("%%Trailer\n") 
         fp.write("%%EOF\n") 
 
-    def insert(self,idx,obj):
-        self.objbox.union(obj.bbox())
-        self.objects.insert(idx,obj)
-
-    def append(self,*objs):
-        '''
-        append object(s) to group
-        '''
-        for obj in objs:
-            self.objbox.union(obj.bbox())
-            self.objects.append(obj)
-
-        # update size
-        if self.objbox.is_set():
-            self.isw=self.objbox.sw
-            self.width=self.objbox.width
-            self.height=self.objbox.height
+    def validate(self,obj):
+        
+        if not isinstance(obj,Page):
+            raise "Can only add Page to %s"%str(self.__class__)
+        
         

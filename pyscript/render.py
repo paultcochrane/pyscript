@@ -51,13 +51,17 @@ def render(*objects,**opts):
         elif isinstance(objects[0],Pages):
             obj=objects[0]
         elif isinstance(objects[0],Page):
+            # wrap in Pages environment
             obj=apply(Pages,objects)
         else:
+            # assume it's an eps and wrap
             obj=apply(Eps,objects)
     else:
         if isinstance(objects[0],Page):
+            # assume we have pages
             obj=apply(Pages,objects)
         else:
+            # we have an eps
             obj=apply(Eps,objects)
         
     if isinstance(obj,Eps):
