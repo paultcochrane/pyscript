@@ -42,9 +42,10 @@ class PsObject(PsDict):
     type="PsObject"
 
     def __init__(self,**dict):
-        self.natives({"o":P(0,0),
-                      "T":Matrix(1,0,0,1)},
-                     dict)
+        self.natives(dict,
+                     o=P(0,0),
+                     T=Matrix(1,0,0,1),
+                     )
         apply(PsDict.__init__,(self,),dict)
 
     def concat(self,t):
@@ -66,6 +67,8 @@ class PsObject(PsDict):
             # assume we have dx,dy
             self["o"]=self["o"]+P(args[0],args[1])
 
+    	return self
+	    
     def rotate(self,angle):
         '''
         rotate object, angle in degrees, clockwise
@@ -132,7 +135,7 @@ class Area(PsObject):
     type="Area"
 
     def __init__(self,**dict):
-        self.natives({"width":0,"height":0},dict)
+        self.natives(dict,width=0,height=0)
         apply(PsObject.__init__,(self,),dict)
 
         # Dynamic locations ... retrival
@@ -226,12 +229,11 @@ class TeX(Area):
         for ii in bbox_so.groups():
             bbox.append(int(ii))
 
-        self.natives(
-            {"width":(bbox[2]-bbox[0])/float(defaults.units),
-             "height":(bbox[3]-bbox[1])/float(defaults.units),
-             "fg":Color(0)
-             },
-            dict)
+        self.natives(dict,
+                     width=(bbox[2]-bbox[0])/float(defaults.units),
+                     height=(bbox[3]-bbox[1])/float(defaults.units),
+                     fg=Color(0)
+                     )
         apply(Area.__init__,(self,),dict)
 
         self.offset=-P(bbox[0],bbox[1])/float(defaults.units)
@@ -280,15 +282,15 @@ class Text(Area):
         SW,NE=gsbbox(temp)
 
         # Now create the real text object
-        self.natives(
-            {"bg":None,
-             "fg":Color(0),
-             "text":text,
-             "font":"Times-Roman",
-             "scale":"12",
-             'width':NE[0]-SW[0],
-             'height':NE[1]-SW[1],
-             },dict)
+        self.natives(dict,
+                     bg=None,
+                     fg=Color(0),
+                     text=text,
+                     font="Times-Roman",
+                     scale="12",
+                     width=NE[0]-SW[0],
+                     height=NE[1]-SW[1],
+                     )
 
         self.offset=-SW
 
@@ -300,7 +302,7 @@ class Text(Area):
         
         out.write("%s moveto\n"%self.offset)
         out.write("/%(font)s findfont\n%(scale)s scalefont setfont\n"%self)
-        out.write("(%(text)s) show\n"%self)
+        out.write("%(fg)s (%(text)s) show\n"%self)
         
         return out.getvalue()
 
@@ -332,14 +334,14 @@ class Text_alt(Area):
         
         self.bbox=map(float,BBOX)
 
-        self.natives(
-            {"bg":None,
-             "fg":Color(0),
-             "o":P(0,0),
-             "text":text,
-             "font":font,
-             "scale":scale
-             },dict)
+        self.natives(dict,
+                     bg=None,
+                     fg=Color(0),
+                     o=P(0,0),
+                     text=text,
+                     font=font,
+                     scale=scale
+                     )
         apply(PsObject.__init__,(self,),dict)
 
 
@@ -349,7 +351,7 @@ class Text_alt(Area):
         
         out.write("0 0 moveto\n")
         out.write("/%(font)s findfont\n%(scale)s scalefont setfont\n"%self)
-        out.write("(%(text)s) show\n"%self)
+        out.write("%(fg)s (%(text)s) show\n"%self)
         
         return out.getvalue()
 
@@ -375,14 +377,14 @@ class Text_nobbox(PsObject):
     """
     def __init__(self,text="",**dict):
 
-        self.natives(
-            {"bg":None,
-             "fg":Color(0),
-             "o":P(0,0),
-             "text":text,
-             "font":"Helvetica",
-             "scale":"12"
-             },dict)
+        self.natives(dict,
+                     bg=None,
+                     fg=Color(0),
+                     o=P(0,0),
+                     text=text,
+                     font="Helvetica",
+                     scale="12"
+                     )
         apply(PsObject.__init__,(self,),dict)
 
     def body(self):
@@ -390,7 +392,7 @@ class Text_nobbox(PsObject):
         
         out.write("0 0 moveto\n")
         out.write("/%(font)s findfont\n%(scale)s scalefont setfont\n"%self)
-        out.write("(%(text)s) show\n"%self)
+        out.write("%(fg)s (%(text)s) show\n"%self)
         
         return out.getvalue()
 
@@ -414,12 +416,12 @@ class Rectangle(Area):
 
     def __init__(self,**dict):
         
-        self.natives(
-            {"bg":None,
-             "fg":Color(0),
-             "linewidth":defaults.linewidth,
-             "dash":defaults.dash,
-             }, dict)
+        self.natives(dict,
+                     bg=None,
+                     fg=Color(0),
+                     linewidth=defaults.linewidth,
+                     dash=defaults.dash,
+                     )
         apply(Area.__init__,(self,),dict)
 
 
@@ -468,15 +470,15 @@ class Circle(PsObject):
 
     def __init__(self, **dict):
 
-        self.natives({"bg": None,
-                      "fg": Color(0),
-                      "r": 1.0,
-                      "start":0,
-                      "end":360,
-                      "linewidth":defaults.linewidth,
-                      "dash":defaults.dash,
-                      },dict)
-        
+        self.natives(dict,
+                     bg=None,
+                     fg=Color(0),
+                     r=1.0,
+                     start=0,
+                     end=360,
+                     linewidth=defaults.linewidth,
+                     dash=defaults.dash,
+                     )
         apply(PsObject.__init__, (self,), dict)
 
     def locus(self,angle):
@@ -548,7 +550,7 @@ class Circle(PsObject):
 
         SW=self.locus(0)
         NE=self.locus(0)
-        for ii in xrange(self['start'],self['end']+5,5):
+        for ii in xrange(self['start'],self['end']+10,10):
             p=self.locus(ii)
 
             SW[0]=min(SW[0],p[0])
@@ -614,19 +616,19 @@ class Path(Area):
         sw,ne=self.extent(path)
         self.offset=-sw
 
-        self.natives(
-            {"path":path,
-             "fg":Color(0),
-             "bg":None,
-             "width":ne[0]-sw[0],
-             "height":ne[1]-sw[1],
-             "o":sw,
-             "linewidth":defaults.linewidth,
-             "linecap":defaults.linecap,
-             "linejoin":defaults.linejoin,
-             "miterlimit":defaults.miterlimit,
-             "dash":defaults.dash
-             },dict)
+        self.natives(dict,
+                     path=path,
+                     fg=Color(0),
+                     bg=None,
+                     width=ne[0]-sw[0],
+                     height=ne[1]-sw[1],
+                     o=sw,
+                     linewidth=defaults.linewidth,
+                     linecap=defaults.linecap,
+                     linejoin=defaults.linejoin,
+                     miterlimit=defaults.miterlimit,
+                     dash=defaults.dash
+                     )
         apply(Area.__init__,(self,),dict)
 
     def closed(self):
@@ -755,11 +757,7 @@ class Group(PsObject):
             self.objects=list(objects[0])
         else:
             self.objects=list(objects)
-        #self.natives(dict,
-                 #"width":ne[0]-sw[0],
-                 #"height":ne[1]-sw[1],
-                 #"o":sw,
-                 #})
+
 
         apply(PsObject.__init__,(self,),dict)
 

@@ -35,6 +35,12 @@ EPSheader="""%%!PS-Adobe-2.0 EPSF-2.0
 %%%%CreationDate: %s
 """%(VERSION,time.ctime(time.time()))
 
+PSheader="""%%!PS-Adobe-2.0
+%%%%Creator: pyscript v%s
+%%%%CreationDate: %s
+%%%%Pages: 1
+%%%%Page: 1 1
+"""%(VERSION,time.ctime(time.time()))
 
 import os,re
 def TeXdefs(text=""):
@@ -80,7 +86,11 @@ def collecttex(objects,tex):
 
 
 def render(*objects,**opts):
-    "Create the EPSF file"
+    '''
+    render the file
+    '''
+
+    filetype=opts.get('type','eps')
 
     if not opts.has_key('file'):
         opts['file']=sys.argv[0]+".eps"
@@ -123,15 +133,24 @@ def render(*objects,**opts):
     NE[0]=round(NE[0]*defaults.units)+pad
     NE[1]=round(NE[1]*defaults.units)+pad
 
-    out.write(EPSheader)
-    out.write('%%%%BoundingBox: %d %d %d %d\n%%%%EndComments\n'%\
-              (SW[0],SW[1],NE[0],NE[1]))
+
+    if filetype=='ps':
+        out.write(PSheader)
+
+    else:
+        out.write(EPSheader)
+        out.write('%%%%BoundingBox: %d %d %d %d\n%%%%EndComments\n'%\
+                  (SW[0],SW[1],NE[0],NE[1]))
+
     out.write('/uu {%f mul} def '%defaults.units)
     out.write('%f setlinewidth '%defaults.linewidth)
     out.write(defs)
     
     out.write(str(objects))
     
+    if filetype=='ps':
+        out.write('\nshowpage\n')
+
     out.close()
 
 

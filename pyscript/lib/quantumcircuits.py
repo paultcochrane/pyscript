@@ -1,6 +1,87 @@
-# Quantum Information Theory objects library
+'''
+Quantum circuits objects library
+'''
 
 from pyscript import *
+
+class Boxed(Group,Area):
+    '''
+    Draws a box around an object,
+    the box can be placed acording to standard Area tags
+    '''
+        
+    def __init__(self,obj,**dict):
+        
+        Psw,Pne=obj.boundingbox()
+
+        pad=.1
+        w=Pne[0]-Psw[0]+2*pad
+        h=Pne[1]-Psw[1]+2*pad
+
+        self.natives(dict,
+                     width=w,
+                     bg=Color(1),
+                     height=h)
+
+        apply(Group.__init__, (self,), dict)
+        apply(Area.__init__, (self,), dict)
+
+        obj['sw']=P(pad,pad)
+
+        self.append(
+            Rectangle(width=w,height=h,bg=self['bg']),
+            obj,
+            )
+
+def dot(p,r=.05):
+    '''
+    @return: a filled circle
+    @param p: a point for the center of the dot
+    @param r: the radius of the dot
+    '''
+    return Circle(r=r,bg=Color(0),c=p)
+
+def cbox(obj,x,yt,yc):
+    '''
+    @return: a controlled box
+    @param obj: the object to put a box around
+    @param x: x position of line and center of box
+    @param yt: y position of target
+    @param yc: y position of control
+    '''
+    g=Group(
+        Path(P(x,yt),P(x,yc)),
+        Boxed(obj,c=P(x,yt),bg=Color(1)),
+        dot(P(x,yc)),
+        )
+    return g
+
+def detector(**dict):
+    '''
+    @return: a D shaped detector
+    '''
+    r=0.3
+    c=0.65*r
+    path=[P(0,-r),P(0,r),C(c,r,r,c),P(r,0),C(r,-c,c,-r)]
+    dict['bg']=dict.get('bg',Color(.8))
+
+    return apply(Path,path,dict)
+
+def classicalpath(*paths):
+    '''
+    @return: classical path
+    @param paths: 1 or more Path() objects
+    '''
+    g=Group()
+
+    for path in paths:
+        g.append(path.copy(linewidth=2,fg=Color(0)))
+
+    # reuse these paths
+    for path in paths:
+        g.append(path.set(linewidth=1,fg=Color(1)))
+
+    return g
 
 # Rail
 def Rail(w=P(0,0), length=1.0, labelIn=None, labelOut=None, buff=0.05):

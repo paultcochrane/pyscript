@@ -18,30 +18,22 @@
 Base objects
 """
 import UserDict,copy
-from types import *
+import types
 
-#os,string,re,copy
-#import cStringIO,commands
-#from math import cos,sin,pi
-
-#from defaults import *
 from util import *
-#from vectors import *
 
-# -------------------------------------------------------------------------
-# PsDict: implement a dynamic dictionary
 # -------------------------------------------------------------------------
 
 class PsDict(UserDict.UserDict):
     """
-    Base class, 
-    implements a dict with dynamic elements
+    An extended dictionary with dynamic elements,
+    this is the base class of may pyscript classes
     """
     type="PsDict"
 
     def __init__(self,**dict):
 
-        self.natives({},dict)
+        self.natives(dict)
 
         # create the dict structures
         UserDict.UserDict.__init__(self)
@@ -56,10 +48,11 @@ class PsDict(UserDict.UserDict):
             if key not in natives:
                 self[key]=value
             
-    def natives(self,newnatives={},dict={}):
+    def natives(self,dict={},**newnatives):
         '''
-        set native attributes
-        MUST be done BEFORE initialisation!
+        this function allows the setting of default values
+        NB: set native attributes MUST be done BEFORE initialisation
+        of parent class!
         '''
         # need to set natives attribute (may not be initialised yet!)
         if not self.__dict__.has_key('_natives'):
@@ -81,7 +74,13 @@ class PsDict(UserDict.UserDict):
         
 
     def __getitem__(self, key):
-        "get dict or attribute"
+        '''extended getitem to allow dynamic attributes
+        
+             1. first check internal dict for key
+             2. second, return ._get_key() if method exists
+             3. else raise KeyError
+            
+        '''
         if self.data.has_key(key):
             return self.data[key]
         try:
@@ -90,7 +89,12 @@ class PsDict(UserDict.UserDict):
             raise KeyError,key
 
     def __setitem__(self, key, item):
-        "set attribute or dict"
+        '''extended setitem to allow dynamic attributes
+
+             1. call ._set_key(item) if method exists
+             2. else return data[key]
+          
+        '''
         try:
             getattr(self,"_set_%s"%key)(item)
         except AttributeError:
@@ -100,6 +104,9 @@ class PsDict(UserDict.UserDict):
         '''
         return a copy of this object
         with listed attributes modified
+
+        eg::
+          newobj=obj.copy(bg=Color(.3))
         '''
         # here for convenience
         obj=copy.deepcopy(self)
@@ -114,33 +121,53 @@ class PsDict(UserDict.UserDict):
     def set(self,**dict):
         '''
         Set a whole lot of attributes in one go
+
+        eg::
+          obj.set(bg=Color(.3),linewidth=2)
+
+        @return: self 
         '''
 
         for key,value in dict.items():
             self[key]=value
 
+        # for convenience return a reference to us
+        return self
 
-
-# -------------------------------------------------------------------------
-# Color
 # -------------------------------------------------------------------------
 
 class Color(PsDict):
     """
-    (C,M,Y,K)=CMYKColor or (R,G,B)=RGBColor or (G)=Gray or 'yellow' etc 
+    Class to encode a postscript color
+ 
+    There are four ways to specify the color:
+
+     - Color(C,M,Y,K) =CMYKColor
+     - Color(R,G,B) =RGBColor
+     - Color(G) = Gray
+     - Color('yellow') etc, see L{COLORS}
     """
     type="Color"
-    
+
+    COLORS={'red':(1,0,0),
+            'green':(0,1,0),
+            'blue':(0,0,1),
+            'cyan':(1,0,0,0),
+            'magenta':(0,1,0,0),
+            'yellow':(0,0,1,0),
+            'black':(0,),
+            'white':(1,)}
+
     def __init__(self,*col,**dict):
       
-        if type(col[0])==StringType:
-            col=COLORS[col[0]]
+        if type(col[0])==types.StringType:
+            col=self.COLORS[col[0]]
 
         # some sanity checks
         assert len(col)>0 and len(col)<5
         for ii in col: assert ii>=0 and ii<=1
             
-        self.natives({"color":col},dict)
+        self.natives(dict,color=col)
         apply(PsDict.__init__,(self,),dict)
         
         
@@ -162,6 +189,15 @@ class Color(PsDict):
         return ps
     
     def __mul__(self,other):
+        '''
+        colors can be multiplied by a numeric factor between 0 and 1.
+        The effect is mostly to darken colors as they approach 0,
+        but this depends on how the colors where specified.
+
+        eg::
+          Color(.2,.6,.6)*.5 = Color(.1,.3,.3)
+
+        '''
         assert other>=0 and other<=1
         newcol=[]
         for ii in self['color']:
@@ -169,9 +205,6 @@ class Color(PsDict):
         return apply(Color,tuple(newcol))
 
 # -------------------------------------------------------------------------
-# Pass through abritrary postcript
-# -------------------------------------------------------------------------
-
 
 # XXX fix!
 
@@ -183,7 +216,7 @@ class Postscript(PsDict):
 
     def __init__(self,postscript,**dict):
 
-        self.natives({"postscript":postscript},dict)
+        self.natives(dict,postscript=postscript)
         apply(PsDict.__init__,(self,),dict)
 
 

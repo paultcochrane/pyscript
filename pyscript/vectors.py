@@ -168,7 +168,7 @@ class P(PsDict):
     def __init__(self,x=0.0,y=0.0,**dict):
         self.point=[x,y]
 
-        self.natives({"relative":0},dict)
+        self.natives(dict,relative=0)
         apply(PsDict.__init__,(self,),dict)
         
     def __repr__(self):
@@ -263,11 +263,14 @@ class P(PsDict):
 # R = Vector (relative to last point) function dependent!
 # -------------------------------------------------------------------------
 
-class R(P):
+def R(*args,**dict):
     """
     Exactly the same as a P() but some functions interpret
     this as a relative direction
     """
-    type="R"
+
+    dict['relative']=1
+
+    return apply(P,args,dict)
 
 #E base vectors
