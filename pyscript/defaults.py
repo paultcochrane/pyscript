@@ -18,6 +18,8 @@
 A class to hold default settings
 """
 
+from util import UNITS
+
 class defaults:
 
     tex_head=r"""\documentclass{article}
@@ -25,9 +27,11 @@ class defaults:
     \begin{document}
     """
     tex_tail=r"\end{document}"
-    tex_command="latex %s"
+    tex_command="latex -interaction=batchmode %s"
+
+    dvips_options="-Ppdf"
   
-    units=1
+    units=UNITS['cm']
 
     linewidth=0.5
     linecap=1  #0=butt, 1=round, 2=square

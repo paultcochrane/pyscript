@@ -73,34 +73,6 @@ b4_Inc_state restore
 """
 
 import os,re
-##def TeXdefs(text=""):
-##    '''
-##    get font & stuff headers out of dvips
-##    '''
-
-##    file="temp.tex"
-##    fp=open(file,"w")
-##    fp.write(defaults.tex_head)
-##    fp.write(text)
-##    fp.write(defaults.tex_tail)
-##    fp.close()
-
-##    os.system(defaults.tex_command%file)
-
-##    os.system("dvips -E -o temp.eps temp.dvi")
-
-##    fp=open("temp.eps","r")
-##    eps=fp.read(-1)
-##    fp.close()
-
-##    # grab headers
-##    so=re.search("(\%\%BeginProcSet.*)\s*TeXDict begin \d",eps,re.S)
-##    defs=so.group(1)
-
-##    # remove showpage
-##    defs=re.sub("(?m)showpage","",defs)
-
-##    return "\n%s\n"%defs
 
 
 def TeXstuff(objects):
@@ -109,6 +81,8 @@ def TeXstuff(objects):
     the tex objects. Also grab fonts and defs
     '''
 
+    print "Collecting postscript for TeX objects ..."
+    
     file="temp.tex"
     fp=open(file,"w")
     fp.write(defaults.tex_head)
@@ -118,17 +92,29 @@ def TeXstuff(objects):
     fp.write(defaults.tex_tail)
     fp.close()
 
-    #os.system(defaults.tex_command%file+'> pyscript.log 2>&1')
-    (fi,foe) = os.popen4(defaults.tex_command%file)
-    fi.close()
-    sys.stderr.writelines(str(foe.readlines()))
-    sys.stderr.write('\n')
-    foe.close()
+    ##os.system(defaults.tex_command%file+'> pyscript.log 2>&1')
+    #(fi,foe) = os.popen4(defaults.tex_command%file)
+    #fi.close()
+    #sys.stderr.writelines(str(foe.readlines()))
+    #sys.stderr.write('\n')
+    #foe.close()
 
-    #os.system("dvips -tunknown -o temp.ps temp.dvi"+'>> pyscript.log 2>&1')
-    (fi,foe) = os.popen4("dvips -tunknown -o temp.ps temp.dvi")
+    # TeX it twice ... only pay attention to the 2nd one
+    os.popen(defaults.tex_command%file)
+    foe = os.popen(defaults.tex_command%file)
+    sys.stderr.write(foe.read(-1))
+    sys.stderr.write('\n')
+    # Help the user out by throwing the latex log to stderr
+    if os.path.exists("%s.log"%file):
+        fp=open("%s.log"%file,'r')
+        sys.stderr.write(fp.read(-1))
+        fp.close()
+    if foe.close() is not None:
+        raise "Latex Error"
+    
+    (fi,foe) = os.popen4("dvips -tunknown %s -o temp.ps temp.dvi"%defaults.dvips_options)
     fi.close()
-    sys.stderr.writelines(str(foe.readlines()))
+    sys.stderr.write(foe.read(-1))
     sys.stderr.write('\n')
     foe.close()
 
@@ -163,14 +149,6 @@ def TeXstuff(objects):
     return "\n%s\n"%defs
 
 
-#def collecttex(objects,tex):
-#    for object in objects:
-#        if isinstance(object,TeX):
-#            tex=tex+object.text
-#        elif isinstance(object,Group):
-#            tex=collecttex(object.objects,tex)
-#    return tex
-
 def collecttex(objects,tex=[]):
     '''
     Collect the TeX objects in the order theyre rendered
@@ -186,81 +164,6 @@ def collecttex(objects,tex=[]):
 # Create the actual postscript
 # ---------------------------------------------------------------------------
 
-##def render(*objects,**opts):
-##    '''
-##    render the file
-##    '''
-
-##    filetype=opts.get('type','eps')
-
-##    if not opts.has_key('file'):
-##        opts['file']=sys.argv[0]+".eps"
-        
-        
-##    if opts['file']=='-':
-##        out=sys.stdout
-##    else:
-##        print "Writing",opts['file']
-##        out=open(opts['file'],"w")
-
-##    # step through and accumulate postscript
-##    # and auxillary information
-
-##    tex=collecttex(objects,"")
-    
-##    defs=""
-##    if len(tex)>0:
-##        defs=TeXdefs(tex)
-
-
-##    # put all objects into group
-##    #if len(objects)>1:
-##    #    objects=Group(objects)
-
-##    if type(objects)==type(()):
-##        objects=apply(Group,objects)
-
-##    # Make the sw corner (0,0) since some brain-dead previewers 
-##    # don't understand bounding-boxes
-##    objects.sw=P(0,0)
-    
-##    bbox=objects.bbox()
-
-##    if not bbox.is_set():
-##        print "No objects to render!"
-##        return
-##    SW=bbox.sw
-##    NE=bbox.ne
-
-
-##    pad=5 # no. of points to pad bbox with
-##    # convert bbox to points
-##    SW[0]=round(SW[0]*defaults.units)-pad
-##    SW[1]=round(SW[1]*defaults.units)-pad
-##    NE[0]=round(NE[0]*defaults.units)+pad
-##    NE[1]=round(NE[1]*defaults.units)+pad
-
-
-##    if filetype=='ps':
-##        out.write(PSheader)
-
-##    else:
-##        out.write(EPSheader)
-##        out.write('%%%%BoundingBox: %d %d %d %d\n%%%%EndComments\n'%\
-##                  (SW[0],SW[1],NE[0],NE[1]))
-
-##    out.write(PSMacros)
-##    out.write('/uu {%f mul} def '%defaults.units)
-##    out.write('%f setlinewidth '%defaults.linewidth)
-##    out.write(defs)
-    
-##    out.write(str(objects))
-    
-##    if filetype=='ps':
-##        out.write('\nshowpage\n')
-
-##    out.close()
-
 def render(*objects,**opts):
     '''
     render the file
@@ -275,7 +178,6 @@ def render(*objects,**opts):
     if opts['file']=='-':
         out=sys.stdout
     else:
-        print "Writing",opts['file']
         out=open(opts['file'],"w")
 
     # step through and accumulate postscript
@@ -315,6 +217,7 @@ def render(*objects,**opts):
     NE[0]=round(NE[0]*defaults.units)+pad
     NE[1]=round(NE[1]*defaults.units)+pad
 
+    print "Writing",opts['file']
 
     if filetype=='ps':
         out.write(PSheader)
@@ -331,8 +234,7 @@ def render(*objects,**opts):
     
     out.write(str(objects))
     
-    if filetype=='ps':
-        out.write('\nshowpage\n')
+    out.write('\nshowpage\n')
 
     out.close()
 

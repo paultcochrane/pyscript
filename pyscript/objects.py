@@ -84,8 +84,8 @@ class AffineObj(PsObj):
             # assume we have dx,dy
             self.o+=P(args[0],args[1])
 
-    	return self
-	    
+            return self
+            
     def rotate(self,angle,p=None):
         """
         rotate object, 
@@ -435,7 +435,9 @@ class TeX(Area):
 
         self.text=text
 
-
+        print "Obtaining TeX object's boundingbox ..."
+        
+        # this should be a tempfile ?
         TMP="temp1"
         fp=open("%s.tex"%TMP,"w")
         fp.write(defaults.tex_head)
@@ -443,19 +445,25 @@ class TeX(Area):
         fp.write(defaults.tex_tail)
         fp.close()
 
-        #os.system(defaults.tex_command%TMP+'> pyscript.log 2>&1')
-	(fi,foe) = os.popen4(defaults.tex_command%TMP)
-	fi.close()
-	sys.stderr.writelines(str(foe.readlines()))
-	sys.stderr.write('\n')
-	foe.close()
+        foe = os.popen(defaults.tex_command%TMP)
+        sys.stderr.write(foe.read(-1))
+        sys.stderr.write('\n')
+        # Help the user out by throwing the latex log to stderr
+        if os.path.exists("%s.log"%TMP):
+            fp=open("%s.log"%TMP,'r')
+            sys.stderr.write(fp.read(-1))
+            fp.close()
+        if foe.close() is not None:
+            raise "Latex Error"
 
-        #os.system("dvips -h - -E -o %s.eps %s.dvi"%(TMP,TMP)+'>> pyscript.log 2>&1')
-	(fi,foe) = os.popen4("dvips -h - -E -o %s.eps %s.dvi"%(TMP,TMP))
-	fi.close()
-	sys.stderr.writelines(str(foe.readlines()))
-	sys.stderr.write('\n')
-	foe.close()
+
+        fi,foe = os.popen4("dvips -h - -E -o %s.eps %s.dvi"%(TMP,TMP))
+        sys.stderr.write(foe.read(-1))
+        sys.stderr.write('\n')
+        fi.close()
+        if foe.close():
+            # this doesn't work ...
+            raise "dvips Error"
     
         fp=open("%s.eps"%TMP,"r")
         eps=fp.read(-1)
@@ -534,16 +542,16 @@ class Text(Area):
         sc=size/1000.
 
 
-	chars=map(ord,list(string))
+        chars=map(ord,list(string))
 
-	# order: width l b r t
+        # order: width l b r t
 
-	# use 'reduce' and 'map' as they're written in C
+        # use 'reduce' and 'map' as they're written in C
 
-	# add up all the widths
-	width= reduce(lambda x, y: x+font[y][0],chars,0)
+        # add up all the widths
+        width= reduce(lambda x, y: x+font[y][0],chars,0)
 
-	# subtract the kerning
+        # subtract the kerning
         if self.kerning==1:
             if len(chars)>1:
                 kerns=map(lambda x,y:font[(x,y)] ,chars[:-1],chars[1:])
@@ -571,21 +579,21 @@ class Text(Area):
         else:
             settext="("+string+")"
 
-	# get rid of the end bits
-	start=font[chars[0]][1]
-	f=font[chars[-1]]
-	width = width-start-(f[0]-f[3])
+        # get rid of the end bits
+        start=font[chars[0]][1]
+        f=font[chars[-1]]
+        width = width-start-(f[0]-f[3])
 
-	# accumulate maximum height
-	top = reduce(lambda x, y: max(x,font[y][4]),chars,0)
+        # accumulate maximum height
+        top = reduce(lambda x, y: max(x,font[y][4]),chars,0)
 
-	# accumulate lowest point
-	bottom = reduce(lambda x, y: min(x,font[y][2]),chars,font[chars[0]][2])
+        # accumulate lowest point
+        bottom = reduce(lambda x, y: min(x,font[y][2]),chars,font[chars[0]][2])
 
-	xl=start*sc
-	yb=bottom*sc
-	xr=xl+width*sc
-	yt=top*sc
+        xl=start*sc
+        yb=bottom*sc
+        xr=xl+width*sc
+        yt=top*sc
 
         return settext,xl,yb,xr,yt
         
@@ -1018,6 +1026,9 @@ class Paper(Area):
     returns an area object the size of one of the standard paper sizes
     '''
 
+    size=None
+    orientation="portrait"
+
     # PAPERSIZES taken from gs man page (x cm,y cm)
     PAPERSIZES={
         "a0":         (83.9611   ,118.816),
@@ -1060,8 +1071,14 @@ class Paper(Area):
                  with the sw corner on P(0,0)
         '''
 
+        self.size=size
+        orientation=dict.get("orientation",self.orientation)
         
-        w,h=self.PAPERSIZES[size]
+        if orientation=="portrait":
+            w,h=self.PAPERSIZES[size]
+        else:
+            h,w=self.PAPERSIZES[size]
+        
         
         self.width=w*UNITS['cm']/float(defaults.units)
         self.height=h*UNITS['cm']/float(defaults.units)
@@ -1087,6 +1104,8 @@ class Epsf(Area):
 
         self.file=file
 
+        print "Loading %s"%file
+        
         fp=open(file,'r')
         self.all=fp.read(-1)
         fp.close()

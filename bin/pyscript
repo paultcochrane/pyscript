@@ -1,19 +1,26 @@
 #!/usr/bin/env python
 
-import sys,getopt,os
+import sys,getopt,os,traceback
+import tempfile
 
 def usage():
     print """Usage:
     pyscript file.py
     """
 
+#---------------------------------------------------------------------
+# Handle options
+#---------------------------------------------------------------------
+
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "ho:", ["help","output="])
+    opts, args = getopt.getopt(sys.argv[1:], "ho:l:", ["help","output=",
+                                                       "logfile="])
 except getopt.GetoptError:
     # print help information and exit:
     usage()
     sys.exit(2)
 
+logFile = "pyscript.log"
 
 globals={}
 for o, a in opts:
@@ -22,19 +29,35 @@ for o, a in opts:
         sys.exit()
     if o in ("-o","--output"):
         globals['output']=a
-    
+    elif o in ("-l","--logfile"):
+        logFile=a
 if len(args) != 1:
     usage()
     sys.exit(s)
+
+#---------------------------------------------------------------------
+# Set up log file
+#---------------------------------------------------------------------
 
 # redirect stdout and stderr to file
 # keep a copy
 save_err = sys.stderr
 
 # open the log file
-logFile = "pyscript.log"
-log = open(logFile,"w")
+#tempfile.template="pyscript-"
+#logFile = tempfile.mktemp(".log")
+
+if logFile=="-":
+    log=sys.stdout
+else:
+    log = open(logFile,"w")
+    print "Log file is",logFile
+
 sys.stderr = log
+
+#---------------------------------------------------------------------
+# look for ~/.pyscript
+#---------------------------------------------------------------------
 
 # now see about importing the defaults from .pyscript/defaults.py
 HOME = os.path.expandvars("$HOME")
@@ -48,17 +71,38 @@ if os.path.isfile(HOME+'/.pyscript/defaults.py'):
     # try $HOME/.pyscript/defaults.py
     execfile(HOME+'/.pyscript/defaults.py',globals)
 else:
-    print "No defaults file found."
-    print "You'll need to put any defaults into your script"
+    print "No user defaults file found."
 
 print "Executing script..."
+
+#---------------------------------------------------------------------
 # now run the script
-execfile(args[0],globals)
+#---------------------------------------------------------------------
+try:
+    execfile(args[0],globals)
+except:
+    divider="-"*60+'\n'
 
-# clean up a bit
-log.close()
-sys.stderr = save_err
+    sys.stderr.write("Exception in user code:\n")
+    sys.stderr.write(divider)
+    traceback.print_exc(file=sys.stderr)
+    sys.stderr.write(divider)
 
-print "Done!"
+    sys.stdout.write("Exception in user code:\n")
+    sys.stdout.write(divider)
+    traceback.print_exc(file=sys.stdout)
+    sys.stdout.write(divider)
+    print "Further clues may be found in the log file:",logFile
+else:
+    # clean up a bit
+    sys.stderr = save_err
+    if logFile!="-":
+        log.close()
+        print "Removing log file"
+        os.remove(logFile)
+
+    print "Done!"
+    
+    
 
 

@@ -59,6 +59,11 @@ class Group(Area):
     def __len__(self):
         return len(self.objects)
 
+    def insert(self,idx,obj):
+
+        self.objbox.union(obj.bbox())
+        self.objects.insert(idx,obj)
+
     def append(self,*objs):
         '''
         append object(s) to group
@@ -157,10 +162,10 @@ def Align(*items,**dict):
     if len(items)==1:
         if not isinstance(items[0],Group):
             # Nothing to do here ...
-            return
+            return apply(Group,objects) 
         objects=items[0]
-	if len(objects) <= 1:
-	    return
+        if len(objects) <= 1:
+            return objects
     else:
         # create a group around the objects
         objects=Group(items)

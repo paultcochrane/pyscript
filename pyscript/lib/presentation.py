@@ -19,9 +19,217 @@ pyscript Presentation library (posters and talks)
 
 from pyscript import *
 
-class Poster_paper:
+class  TeXBox(Group):
 
-    gutter=.5 # paper margin for A4 in cm
+    fixed_width=9.2
+    
+    tex_scale=.7
+
+    fg=Color(0)
+
+    align="w"
+    
+    def __init__(self,text,**dict):
+
+        apply(Group.__init__,(self,),dict)
+
+        width_pp=int(self.fixed_width/float(self.tex_scale)*defaults.units)
+
+        t=TeX(r'\begin{minipage}{%dpt}%s\end{minipage}'%(width_pp,text),
+              fg=self.fg)
+
+        t.scale(self.tex_scale,self.tex_scale)
+        
+        a=Area(width=self.fixed_width,height=0)
+
+        Align(t,a,a1=self.align,a2=self.align,space=0)
+
+        #this is useful for debugging:
+        #rb=t.bbox()
+        #r=Rectangle(c=rb.c,width=rb.width,height=rb.height)
+        #self.append(r)
+
+        self.append(a,t)
+        
+
+class Box_1(Group):
+    
+    bg=Color('Lavender')
+    fg=Color(0)
+    border=1
+    fixed_width=9.6
+    pad=.2
+
+    def __init__(self,*items,**dict):
+
+        apply(Group.__init__,(self,),dict)
+        
+        apply(self.append,items)
+
+        Align(self,a1="s",a2="n",angle=180,space=self.pad)
+
+        gb=self.bbox()
+
+        r=Rectangle(n=gb.n+P(0,self.pad),
+                    width=self.fixed_width,
+                    height=gb.height+2*self.pad,
+                    bg=self.bg,
+                    fg=self.fg,
+                    linewidth=self.border,
+                    )
+
+        self.insert(0,r)
+
+class Poster_1:
+
+    gutter=.4 # paper margin for A4 in cm
+
+    bg=Color('DarkSlateBlue')
+    fg=Color('Lavender')
+
+    thelogos=[]
+    logo_height=.8
+    
+    title=""
+    title_fg=Color('Yellow')
+    title_scale=1.4
+
+    authors=""
+    authors_fg=Color(0)
+    authors_scale=1
+    
+    abstract=""
+    abstract_fg=Color(0)
+    abstract_scale=.8
+    
+    logos=()
+
+    references=""
+    references_fg=Color(0)
+    references_scale=.5
+
+    pad=.4
+
+    col1 = Group()
+    col2 = Group()
+
+    paper=None
+    area=None
+
+    def __init__(self):
+
+        # This has to be done here as we don't know
+        # what units the user will choose until now
+        if self.paper is None:
+            self.paper=Paper("a4")
+            
+        self.area=Area(
+            sw=self.paper.sw+P(1,1)*self.gutter,
+            width=self.paper.width-2*self.gutter,
+            height=self.paper.height-2*self.gutter
+            )
+
+    def make_logos(self):
+
+        thelogos=Group()
+        for logo in self.logos:
+            thelogos.append(Epsf(logo,height=self.logo_height))
+            
+        #if len(self.thelogos)==0:
+        #    return Area(width=0,height=0)
+
+        Distribute(thelogos,a1="e",a2="w",
+                   p1=self.area.nw,p2=self.area.ne)
+
+        Align(thelogos,a1="e",a2="w",angle=90,space=None)
+
+        return thelogos
+
+
+    def make_title(self):
+
+        return TeXBox(self.title,fg=self.title_fg,
+                      fixed_width=self.area.width*.7,
+                      tex_scale=self.title_scale,
+                      align="c")
+
+    def make_abstract(self):
+        
+        return TeXBox(self.abstract,
+                      fixed_width=self.area.width*.8,
+                      tex_scale=self.abstract_scale,
+                      fg=self.abstract_fg,align="c")
+
+    def make_authors(self):
+
+        return TeXBox(self.authors,
+                      fg=self.authors_fg,
+                      tex_scale=self.authors_scale,
+                      fixed_width=self.area.width*.8,align="c")
+
+    def make_references(self):
+
+        self.col2.append(
+            TeXBox(self.references,
+                   fg=self.references_fg,tex_scale=self.references_scale)
+            )
+        
+    def make(self,scale=1):
+
+        # NB: A0 = 4x A4
+        
+        self.make_references()
+
+        # vertically align the column items ... no spacing yet!
+        Align(self.col1,a1="s",a2="n",angle=180,space=None)
+        Align(self.col2,a1="s",a2="n",angle=180,space=None)
+
+        # Distribute the cols horizontally
+        Distribute(Area(width=0,height=0),
+                   self.col1,self.col2,
+                   Area(width=0,height=0),
+                   p1=self.area.w,p2=self.area.e,a1="e",a2="w")
+        
+        
+        # find the distance between the cols
+        pad=(self.col2.bbox().w-self.col1.bbox().e)[0]
+
+        # vertically align the column items
+        Align(self.col1,a1="s",a2="n",angle=180,space=pad)
+        Align(self.col2,a1="s",a2="n",angle=180,space=pad)        
+
+        # align the two columns themselves
+        cols=Align(self.col1,self.col2,angle=90,space=None,a1="ne",a2="nw")
+        
+        all=Align(
+            self.make_logos(),
+            self.make_title(),
+            self.make_authors(),
+            self.make_abstract(),
+            cols,
+            a1="s",a2="n",angle=180,space=pad
+            )
+
+        all.n=self.area.n-P(0,.1)
+
+        back=Rectangle(width=self.paper.width,
+                       height=self.paper.height,
+                       fg=None,
+                       bg=self.bg
+                       )
+
+        p=self.area.se+P(-.1,.1)
+        signature=Text('Created with PyScript',size=6,
+                       sw=p,fg=self.bg*.8).rotate(-90,p)
+
+        All=Group(back,all,signature).scale(scale,scale) 
+
+        return All
+
+
+class Poster_paper2:
+
+    gutter=.4 # paper margin for A4 in cm
 
     bg=Color('DarkSlateBlue')
     fg=Color('Lavender')
@@ -177,8 +385,9 @@ class Poster_paper:
         
         self.make_references()
 
-        col1=Align(self.col1,a1="s",a2="n",angle=180,space=self.pad)        
+        col1=Align(self.col1,a1="s",a2="n",angle=180,space=self.pad)
         col2=Align(self.col2,a1="s",a2="n",angle=180,space=self.pad)        
+
 
         col2.nw = col1.ne+P(self.pad,0)
         cols=Group(col1,col2)
@@ -207,6 +416,7 @@ class Poster_paper:
         All=Group(back,all,signature).scale(scale,scale) 
 
         return All
+
 
 class Talk(Paper):
     """
@@ -241,53 +451,53 @@ class Talk(Paper):
     box_border = 2
     
     headings_fgs = {
-	    1 : Color('yellow'), 
-	    2 : Color('yellow'), 
-	    3 : Color('yellow'),
-	    "default" : Color('yellow'),
-	    }
+            1 : Color('yellow'), 
+            2 : Color('yellow'), 
+            3 : Color('yellow'),
+            "default" : Color('yellow'),
+            }
     headings_scales = { 
-	    1 : 3, 
-	    2 : 2.5, 
-	    3 : 2.2,
-	    "default" : 1.5,
-	    }
+            1 : 3, 
+            2 : 2.5, 
+            3 : 2.2,
+            "default" : 1.5,
+            }
     headings_bullets = {
-	    1 : r"$\bullet$", 
-	    2 : r"--", 
-	    3 : r"$\gg$",
-	    "default" : r"$\cdot$",
-	    }
+            1 : r"$\bullet$", 
+            2 : r"--", 
+            3 : r"$\gg$",
+            "default" : r"$\cdot$",
+            }
 
     headings_indent = {
-	    1 : 0,
-	    2 : 0.5,
-	    3 : 1,
-	    "default" : 2,
-	    }
+            1 : 0,
+            2 : 0.5,
+            3 : 1,
+            "default" : 2,
+            }
 
     def __init__(self):
-	
-	self.paper = Paper("a4r")
-	
+        
+        self.paper = Paper("a4r")
+        
     def tex(self, text, width=9, fg=None):
-	if fg is None:
-	    fg = Color(0)
-	return TeX(r'\begin{minipage}{%fcm}%s\end{minipage}' % 
-		    (width,text), fg=fg)
+        if fg is None:
+            fg = Color(0)
+        return TeX(r'\begin{minipage}{%fcm}%s\end{minipage}' % 
+                    (width,text), fg=fg)
 
     def make(self, *slides):
-	
-	self.slides = slides
-	numPages = len(slides)
-	i = 1
-	for slide in slides:
-	    slide.pageNumber = i
-	    temp = slide.make(self)
-	    fname = '%s%02d%s' % ("slide",i,".eps")
-	    render(temp,file=fname)
-	    i += 1
-	print "%i slides produced" % (i-1,)
+        
+        self.slides = slides
+        numPages = len(slides)
+        i = 1
+        for slide in slides:
+            slide.pageNumber = i
+            temp = slide.make(self)
+            fname = '%s%02d%s' % ("slide",i,".eps")
+            render(temp,file=fname)
+            i += 1
+        print "%i slides produced" % (i-1,)
 
 class Slide(Talk):
     """
@@ -299,51 +509,51 @@ class Slide(Talk):
     titlepage = False
 
     def __init__(self,talk):
-	
-	self.bg = talk.bg
-	self.fg = talk.fg
-	self.paper = talk.paper
-	self.footerScale = talk.footerScale
-	self.talkAuthor = talk.talkAuthor
-	self.waitbar_fg = talk.waitbar_fg
-	self.headings = []
-	self.epsf = []
-	self.figs = []
+        
+        self.bg = talk.bg
+        self.fg = talk.fg
+        self.paper = talk.paper
+        self.footerScale = talk.footerScale
+        self.talkAuthor = talk.talkAuthor
+        self.waitbar_fg = talk.waitbar_fg
+        self.headings = []
+        self.epsf = []
+        self.figs = []
 
     def logos(self,*files):
-	
-	self.thelogos = []
-	
-	for file in files:
-	    self.thelogos.append(Epsf(file, height=self.logo_height))
+        
+        self.thelogos = []
+        
+        for file in files:
+            self.thelogos.append(Epsf(file, height=self.logo_height))
 
     def make_logos(self):
-	
-	if len(self.thelogos) == 0:
-	    return Area(width=0, height=0)
-	elif len(self.thelogos) == 1:
-	    return Group(
-		Area(width=self.paper.width, height=0, nw=P(0,0)),
-		self.thelogos[0]
-		)
+        
+        if len(self.thelogos) == 0:
+            return Area(width=0, height=0)
+        elif len(self.thelogos) == 1:
+            return Group(
+                Area(width=self.paper.width, height=0, nw=P(0,0)),
+                self.thelogos[0]
+                )
 
-	width = self.paper.width -\
-		self.thelogos[0].bbox().width -\
-		self.thelogos[-1].bbox().width -\
-		0.2
+        width = self.paper.width -\
+                self.thelogos[0].bbox().width -\
+                self.thelogos[-1].bbox().width -\
+                0.2
 
-	for logo in self.thelogos[1:-1]:
-	    width -= logo.bbox().width
+        for logo in self.thelogos[1:-1]:
+            width -= logo.bbox().width
 
-	space = width/(len(self.thelogos)-1)
-	a = Align(self.thelogos, a1="e", a2="w", angle=90, space=space)
+        space = width/(len(self.thelogos)-1)
+        a = Align(self.thelogos, a1="e", a2="w", angle=90, space=space)
 
-	return a
+        return a
 
     def add_fig(self,obj,**dict):
-	"""
-	Chuck an arbitrary figure onto the page, with a white background
-	"""
+        """
+        Chuck an arbitrary figure onto the page, with a white background
+        """
 
         # there must be a better way to do this!!!
         if dict.has_key('e'):
@@ -365,153 +575,153 @@ class Slide(Talk):
         else:
             obj.sw = P(0.0,0.0)
 
-	gutter = 0.1
-	back = Rectangle(width=obj.bbox().width+gutter,
-		    height=obj.bbox().height+gutter,
-		    bg=Color('white'))
-	back.sw = obj.bbox().sw-P(gutter/2.0,gutter/2.0)
-	self.figs.append(Group(back,obj))
+        gutter = 0.1
+        back = Rectangle(width=obj.bbox().width+gutter,
+                    height=obj.bbox().height+gutter,
+                    bg=Color('white'))
+        back.sw = obj.bbox().sw-P(gutter/2.0,gutter/2.0)
+        self.figs.append(Group(back,obj))
 
     def make_authors(self):
         return TeX(
-	    self.authors,fg=self.authors_fg
-	    ).scale(self.authors_scale,self.authors_scale)
+            self.authors,fg=self.authors_fg
+            ).scale(self.authors_scale,self.authors_scale)
 
     def make_title(self):
         return TeX(self.title,fg=self.title_fg).scale(self.title_scale,
                                                       self.title_scale)
 
     def add_heading(self,level,text):
-	temp = [ level, text ]
-	self.headings.append(temp)
+        temp = [ level, text ]
+        self.headings.append(temp)
 
     def make_headings(self):
-	heading_block = Group()
-	for heading in self.headings:
-	    heading_text = heading[1]
-	    heading_level = heading[0]
-	    if not self.headings_bullets.has_key(heading_level):
-		heading_level = "default"
-	    heading_bullet = self.headings_bullets[heading_level]
-	    heading_fg = self.headings_fgs[heading_level]
-	    heading_scale = self.headings_scales[heading_level]
-	    heading_indent = self.headings_indent[heading_level]
+        heading_block = Group()
+        for heading in self.headings:
+            heading_text = heading[1]
+            heading_level = heading[0]
+            if not self.headings_bullets.has_key(heading_level):
+                heading_level = "default"
+            heading_bullet = self.headings_bullets[heading_level]
+            heading_fg = self.headings_fgs[heading_level]
+            heading_scale = self.headings_scales[heading_level]
+            heading_indent = self.headings_indent[heading_level]
 
-	    tex = TeX(text=heading_bullet + ' ' + heading_text, 
-		    fg=heading_fg).scale(heading_scale,heading_scale)
-	    padding = Area(sw=tex.sw,width=heading_indent,height=0)
-	    heading_proper = Group(padding,tex)
-	    Align(heading_proper, a1="e", a2="w", angle=90, space=0)
-	    heading_block.append(heading_proper)
+            tex = TeX(text=heading_bullet + ' ' + heading_text, 
+                    fg=heading_fg).scale(heading_scale,heading_scale)
+            padding = Area(sw=tex.sw,width=heading_indent,height=0)
+            heading_proper = Group(padding,tex)
+            Align(heading_proper, a1="e", a2="w", angle=90, space=0)
+            heading_block.append(heading_proper)
 
-	Align(heading_block, a1="sw", a2="nw", angle=180, space=0.4)
-	return heading_block
-	    
+        Align(heading_block, a1="sw", a2="nw", angle=180, space=0.4)
+        return heading_block
+            
     def make_waitbar(self):
-	waitBarBack = Rectangle(se=self.paper.se+P(-0.8,0.4),
-			width=2.5,
-			height=0.5,
-			fg=self.waitbar_bg,
-			bg=self.waitbar_bg)
+        waitBarBack = Rectangle(se=self.paper.se+P(-0.8,0.4),
+                        width=2.5,
+                        height=0.5,
+                        fg=self.waitbar_bg,
+                        bg=self.waitbar_bg)
 
-	offset = 0.05
-	waitBarFront = Rectangle(w=waitBarBack.w+P(offset,0),
-			width=(waitBarBack.width-2*offset)*\
-				self.pageNumber/self.pages,
-			height=waitBarBack.height-2*offset,
-			fg=self.waitbar_fg,
-			bg=self.waitbar_fg)
-	waitBar = Group(waitBarBack,waitBarFront)
-	return  waitBar
+        offset = 0.05
+        waitBarFront = Rectangle(w=waitBarBack.w+P(offset,0),
+                        width=(waitBarBack.width-2*offset)*\
+                                self.pageNumber/self.pages,
+                        height=waitBarBack.height-2*offset,
+                        fg=self.waitbar_fg,
+                        bg=self.waitbar_fg)
+        waitBar = Group(waitBarBack,waitBarFront)
+        return  waitBar
 
     def make_footer(self,talk):
-	footerText = " - %s; page %i of %i" %  \
-			(talk.talkAuthor,self.pageNumber,self.pages)
-	
-	footerTeX = Group(
-		    TeX(text=talk.title,
-			fg=self.title_fg,
-			).scale(self.footerScale,self.footerScale),
-		    TeX(
-			text=footerText,
-			fg=self.title_fg
-			).scale(self.footerScale,self.footerScale),
-		    )
-	footer = Align(footerTeX, a1="e", a2="w", angle=90, space=0.1)
-	footer.sw = self.paper.sw+P(0.4,0.4)
-	return footer
+        footerText = " - %s; page %i of %i" %  \
+                        (talk.talkAuthor,self.pageNumber,self.pages)
+        
+        footerTeX = Group(
+                    TeX(text=talk.title,
+                        fg=self.title_fg,
+                        ).scale(self.footerScale,self.footerScale),
+                    TeX(
+                        text=footerText,
+                        fg=self.title_fg
+                        ).scale(self.footerScale,self.footerScale),
+                    )
+        footer = Align(footerTeX, a1="e", a2="w", angle=90, space=0.1)
+        footer.sw = self.paper.sw+P(0.4,0.4)
+        return footer
 
     def add_epsf(self,file="",**dict):
-	if dict.has_key('width'):
-	    picture = Epsf(file,width=dict['width'])
-	elif dict.has_key('height'):
-	    picture = Epsf(file,height=dict['height'])
-	elif dict.has_key('width') and dict.has_key('height'):
-	    picture = Epsf(file,width=dict['width'],height=dict['height'])
-	else:
-	    picture = Epsf(file)
+        if dict.has_key('width'):
+            picture = Epsf(file,width=dict['width'])
+        elif dict.has_key('height'):
+            picture = Epsf(file,height=dict['height'])
+        elif dict.has_key('width') and dict.has_key('height'):
+            picture = Epsf(file,width=dict['width'],height=dict['height'])
+        else:
+            picture = Epsf(file)
 
-	# there must be a better way to do this!!!
-	if dict.has_key('e'):
-	    picture.e = dict['e']
-	elif dict.has_key('se'):
-	    picture.se = dict['se']
-	elif dict.has_key('s'):
-	    picture.s = dict['s']
-	elif dict.has_key('sw'):
-	    picture.sw = dict['sw']
-	elif dict.has_key('w'):
-	    picture.w = dict['w']
-	elif dict.has_key('nw'):
-	    picture.nw = dict['nw']
-	elif dict.has_key('n'):
-	    picture.n = dict['n']
-	elif dict.has_key('ne'):
-	    picture.ne = dict['nw']
-	else:
-	    picture.sw = P(0.0,0.0)
+        # there must be a better way to do this!!!
+        if dict.has_key('e'):
+            picture.e = dict['e']
+        elif dict.has_key('se'):
+            picture.se = dict['se']
+        elif dict.has_key('s'):
+            picture.s = dict['s']
+        elif dict.has_key('sw'):
+            picture.sw = dict['sw']
+        elif dict.has_key('w'):
+            picture.w = dict['w']
+        elif dict.has_key('nw'):
+            picture.nw = dict['nw']
+        elif dict.has_key('n'):
+            picture.n = dict['n']
+        elif dict.has_key('ne'):
+            picture.ne = dict['nw']
+        else:
+            picture.sw = P(0.0,0.0)
 
-	offset = 0.2
-	background = Rectangle(width=picture.bbox().width+offset,
-				height=picture.bbox().height+offset,
-				bg=Color('white'),
-				fg=Color('white'),
-				)
-	background.sw = picture.sw-P(offset/2.0,offset/2.0)
-	figure = Group(background,picture)
-	self.epsf.append(figure)
+        offset = 0.2
+        background = Rectangle(width=picture.bbox().width+offset,
+                                height=picture.bbox().height+offset,
+                                bg=Color('white'),
+                                fg=Color('white'),
+                                )
+        background.sw = picture.sw-P(offset/2.0,offset/2.0)
+        figure = Group(background,picture)
+        self.epsf.append(figure)
 
     def make_epsf(self):
-	pictures = Group()
-	for file in self.epsf:
-	    pictures.append(file)
-	return pictures
+        pictures = Group()
+        for file in self.epsf:
+            pictures.append(file)
+        return pictures
 
     def make_figs(self):
-	figs = Group()
-	for fig in self.figs:
-	    figs.append(fig)
-	return figs
+        figs = Group()
+        for fig in self.figs:
+            figs.append(fig)
+        return figs
 
     def make(self, talk, scale=1):
         
-	all = Group(self.make_logos(),self.make_title())
+        all = Group(self.make_logos(),self.make_title())
         
-	if self.authors is not None:
-	    all.append(self.make_authors())
+        if self.authors is not None:
+            all.append(self.make_authors())
         
         Align(all, a1="s", a2="n", angle=180, space=0.4)
 
-	if self.titlepage:
-	    all.c = self.paper.c + P(0.0,0.8)
-	else:
-	    all.n = self.paper.n - P(0,0.2)
+        if self.titlepage:
+            all.c = self.paper.c + P(0.0,0.8)
+        else:
+            all.n = self.paper.n - P(0,0.2)
 
-	# I'm aware that this isn't a good way to do this, but
-	# it's late at night, and I want to get *something* going
+        # I'm aware that this isn't a good way to do this, but
+        # it's late at night, and I want to get *something* going
 
-	headings = self.make_headings()
-	headings.nw = self.paper.nw + P(3.0,-3.0)
+        headings = self.make_headings()
+        headings.nw = self.paper.nw + P(3.0,-3.0)
     
         back = Rectangle(sw = self.paper.sw,
                         width = self.paper.width,
@@ -527,18 +737,18 @@ class Slide(Talk):
                             fg=self.bg*0.8
                         ).rotate(-90,p)
 
-	self.pages = len(talk.slides)
+        self.pages = len(talk.slides)
 
         All = Group(
-		back,
-		all,
-		headings,
-		self.make_epsf(),
-		self.make_figs(),
-		signature,
-		self.make_footer(talk),
-		self.make_waitbar()
-		).scale(scale,scale)
+                back,
+                all,
+                headings,
+                self.make_epsf(),
+                self.make_figs(),
+                signature,
+                self.make_footer(talk),
+                self.make_waitbar()
+                ).scale(scale,scale)
 
         return Group(All)
 
