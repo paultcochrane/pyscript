@@ -20,216 +20,237 @@ pyscript plotting functions
 from pyscript import *
 from Numeric import *
 
-class Plot(Area):
+class Graph(Group):
 
-    """
-    Plot object
-    """
+    def __init__(self):
 
-    def __init__(self,**dict):
+        # the bottom left hand corner of the graph is (0,0)
+        self.xGraphMin = 0.0
+        self.yGraphMin = 0.0
 
-        self.natives(
-            {"bg":None,
-             "fg":Color(0),
-             "linewidth":defaults.linewidth,
-             "dash":defaults.dash,
-             "width":10,
-             "height":10,
-             "border":0.5,
-             "offset":0.0,
-             "xlabel":None,
-             "ylabel":None,
-             "title":None,
-             }, dict)
+        # the top right hand corner of the graph is (10,10)
+        self.xGraphMax = 10.0
+        self.yGraphMax = 10.0
 
-        apply(Area.__init__,(self,),dict)
+    def plot(self,
+             xData,yData,
+             xMinVal=None, xMaxVal=None,
+             yMinVal=None, yMaxVal=None,
+             xTickSep=None, yTickSep=None):
 
-    def plot(self,x,y,xlabel="",ylabel="",title=""):
-        """
-        plot the thing
-        """
+        # check inputs for correct type!!
 
-        plotWidth = self['width']
-        plotHeight = self['height']
-        plotBorder = self['border']
-
-        # check that x and y have the same lengths
-        if len(x) != len(y):
-            raise "Input vectors must be the same length"
-            return
+        xGraphMin = self.xGraphMin
+        yGraphMin = self.yGraphMin
+        xGraphMax = self.xGraphMax
+        yGraphMax = self.yGraphMax
         
-        # find range of data
-        xMin = min(x)
-        xMax = max(x)
-        yMin = min(y)
-        yMax = max(y)
-        xRange = xMax - xMin
-        yRange = yMax - yMin
+        # the min and max parts of the curve
+        xMin = min(xData)
+        xMax = max(xData)
+        yMin = min(yData)
+        yMax = max(yData)
+
+        # sort of automatic settings for min and max axis values
+        # only really a stop-gap in case the relevant values are None
+        # need to improve!!
+        if xMinVal is None:
+            xMinVal = xMin
+        if xMaxVal is None:
+            xMaxVal = xMax
+        if yMinVal is None:
+            yMinVal = yMin
+        if yMaxVal is None:
+            yMaxVal = yMax
+
+        # sort of automatic settings for the tick separation values
+        # in case the relevant values are None
+        # need to improve!!
+        if xTickSep is None:
+            xTickSep = (xMaxVal - xMinVal)/11.0
+        if yTickSep is None:
+            yTickSep = (yMaxVal - yMinVal)/11.0
+            
+        # the x and y axes
+        xAxis = Path(P(xGraphMin,yGraphMin),P(xGraphMax,yGraphMin))
+        yAxis = Path(P(xGraphMin,yGraphMin),P(xGraphMin,yGraphMax))
         
-        # do it dodgily to get it going
-        # will need to add a bit so that the ranges are nice
+        # length of the ticks
+        xTickLen = 0.2 # in graph coordinates
+        yTickLen = 0.2
         
-        # shift all data so that minimum data point is at zero
-        xPlotData = x-xMin
-        yPlotData = y-yMin
+        # min and max number of ticks for the x and y axes
+        maxXTicks = 11
+        minXTick = 5
+        maxYTicks = 11
+        minYTicks = 5
 
-        # scale xMax and xMin to fit between 0+border and width-border
-        xScale = (plotWidth-2.0*plotBorder)/max(xPlotData)
-        # scale yMax and yMin to fit between 0+border and height-border
-        yScale = (plotHeight-2.0*plotBorder)/max(yPlotData)
-
-        # now scale the plotData
-        xPlotData = xPlotData*xScale
-        yPlotData = yPlotData*yScale
-
-        # the max and min of the axes needs to be just
-        # a bit longer than these limits
-        # also need to test to see if min and max limits are too
-        # close to one another to plot, and so use a default range
+        # somehow I need to work out the number of ticks to use
+        # and the values that are there.  In the interim, I'm going
+        # to define xNumTicks and xTickSep manually, and maybe have
+        # an automatic procedure for determining them if they aren't
+        # specified in the calling script
+        xNumTicks = round((xMaxVal - xMinVal)/xTickSep)
         
-        graph = Group()
+        if xTickSep is None:
+            # try and split x data up into maxXTicks equal points and see if the numbers look "nice"
+            xTickSep = (xMax - xMin)/xNumTicks
 
-        axes = self.defineAxes(xMin,xMax,yMin,yMax)
-        data = self.dataPlot(xPlotData,yPlotData)
-
-        graph.append(axes)
-        graph.append(data)
-
-        if xlabel is not "":
-            xlabelText = self.xlabelMake(xlabel)
-            graph.append(xlabelText)
+        xTicksVals = arrayrange(xMinVal,xMaxVal+xTickSep,xTickSep)
+        xTicksPos = (xGraphMax/xNumTicks)*arrayrange(0,xNumTicks+1,1)
+        # ### just for testing...
+        #xTicksVals = [-10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10]
+        #xTicksPos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        xTicks = Group()
+        for i in range(len(xTicksPos)):
+            xTicks.append(Path(P(xGraphMin+xTicksPos[i],yGraphMin),
+                               P(xGraphMin+xTicksPos[i],yGraphMin+xTickLen)))
         
-        if ylabel is not "":
-            ylabelText = self.ylabelMake(ylabel)
-            graph.append(ylabelText)
+        # try and split y data up into maxYTicks equal points and see if the numbers look "nice"
+        yNumTicks = round((yMaxVal - yMinVal)/yTickSep)
         
-        if title is not "":
-            titleText = self.titleMake(title)
-            graph.append(titleText)
+        if yTickSep is None:
+            # try and split x data up into maxXTicks equal points and see if the numbers look "nice"
+            yTickSep = (yMax - yMin)/yNumTicks
         
-        return graph
+        yTicksVals = arrayrange(yMinVal,yMaxVal+yTickSep,yTickSep)
+        yTicksPos = (yGraphMax/yNumTicks)*arrayrange(0,yNumTicks+1,1)
+        # ### just for testing...
+        #yTicksVals = [-1, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 0.10]
+        #yTicksPos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        yTicks = Group()
+        for i in range(len(yTicksPos)):
+            yTicks.append(Path(P(xGraphMin,yGraphMin+yTicksPos[i]),
+                               P(xGraphMin+yTickLen,xGraphMin+yTicksPos[i])))
 
-    def dataPlot(self,xPlotData,yPlotData):
-        """
-        plot the data
-        """
-        offset = self['offset']
-        border = self['border']
+        # ## now put the x values on the graph
+        # I need to work out the bounding box for all of the text area
+        # that the values take up
+        xTicksValsText = Group()
+        for i in range(len(xTicksVals)):
+            xTicksValsText.append(TeX(s=P(xGraphMin+xTicksPos[i],yGraphMin-1.0),
+                                      text=str(xTicksVals[i])))
 
-        # dumb question:  how do we plot this stuff?
-        # to get it going, I'm just going to do the whole thing as a path
-        # and later add in different plot styles
-        plottedData = Group()  # I really want this to be a path, and just add to it!!
-        for i in range(len(xPlotData)-1):
-            plottedData.append(Path(
-                P(offset+border+xPlotData[i],offset+border+yPlotData[i]),
-                P(offset+border+xPlotData[i+1],offset+border+yPlotData[i+1])))
+        # now grab the height of the text, subtract 2*(some padding)
+        # and translate the xTicksVals object down by that amount
+        xTicksValsHeight = xTicksValsText.bbox().height
+        xTicksValsPadding = 0.075
+        # this seems like a waste of time, but at least it will work
+        # I've made the text, found its bounding box and now
+        # I can properly position the text
+        xTicksValsText = Group()
+        for i in range(len(xTicksVals)):
+            xTicksValsText.append(TeX(s=P(xGraphMin+xTicksPos[i],yGraphMin-xTicksValsHeight-2.0*xTicksValsPadding),
+                                      text=("%0.2f" % xTicksVals[i])))
 
-        return plottedData
+        # ## now put the y values on the graph
+        # I need to work out the bounding box for all of the text area
+        # that the values take up
+        yTicksValsText = Group()
+        for i in range(len(yTicksVals)):
+            yTicksValsText.append(TeX(e=P(xGraphMin-1.0,yGraphMin+yTicksPos[i]),
+                                      text=("%0.2f" % yTicksVals[i])))
 
-    def xlabelMake(self,xlabel):
-        """
-        adds a label to the x-axis
-        """
-        plotWidth = self['width']
-        plotHeight = self['height']
-        border = self['border']
-        offset = self['offset']
-        textHeight = 0.8
-        horizCentre = (plotWidth - 2.0*border)/2.0  # want centred on x-axis
+        # now grab the width of the text, subtract 2*(some padding)
+        # and translate the yTicksVals object left by that amount
+        yTicksValsWidth = yTicksValsText.bbox().width
+        yTicksValsPadding = 0.1
+        # this seems like a waste of time, but at least it will work
+        # I've made the text, found its bounding box and now
+        # I can properly position the text
+        yTicksValsText = Group()
+        for i in range(len(yTicksVals)):
+            yTicksValsText.append(TeX(e=P(xGraphMin-2.0*yTicksValsPadding,yGraphMin+yTicksPos[i]),
+                                      text=("%0.2f" % yTicksVals[i])))
 
-        # doing this stuff would be a lot easier with a 'packing' mechanism
-        xlabelText = TeX(c=P(offset+border+horizCentre,offset-textHeight),text=xlabel)
+        # ### believe it or not, now we put the curve on
+
+        # the min and max parts of the curve
+        xMin = min(xData)
+        xMax = max(xData)
+        yMin = min(yData)
+        yMax = max(yData)
+
+        print "\nYou will probably need extrema values of about"
+        print "xMin = " + str(xMin) + ", xMax = " + str(xMax)
+        print "yMin = " + str(yMin) + ", yMax = " + str(yMax)
+        print ""
+
+        # now scale the x and y values to these extremes
+        xScale = xGraphMax/(xMaxVal - xMinVal)  # need to check if xMax - xMin is too small!!
+        yScale = yGraphMax/(yMaxVal - yMinVal)
+        xGraphData = xScale*(xData - xMinVal)
+        yGraphData = yScale*(yData - yMinVal)
         
-        return xlabelText
+        linecolour = 'blue'
+        curve = Group()
+        # curve.fg = Color('blue')   # this doesn't work !! why???
+        # curve.bg = Color('blue')
+        for i in range(len(yGraphData)-1):
+            # ## workaround for colour issue
+            segment = Path(P(xGraphData[i],yGraphData[i]),
+                           P(xGraphData[i+1],yGraphData[i+1]))
+            if linecolour is not None:
+                segment.fg = Color(linecolour)
+                
+            curve.append(segment)
+            # ## end of workaround
+            
+            # original code
+            #    curve.append(Path(P(xGraphData[i],yGraphData[i]),
+            #                      P(xGraphData[i+1],yGraphData[i+1])))
+            
+            
+            
+        self.objects = Group(xAxis, yAxis, xTicks, yTicks, curve,
+                        xTicksValsText, yTicksValsText)
+        self.graphArea = self.objects
+        self.axesArea = Group(xAxis, yAxis, xTicks, yTicks)
+        return self.objects, self.graphArea, self.axesArea
 
-    def ylabelMake(self,ylabel):
-        """
-        adds a label to the y-axis
-        """
-        plotWidth = self['width']
-        plotHeight = self['height']
-        border = self['border']
-        offset = self['offset']
-        textHeight = 0.2
-        vertCentre = (plotHeight - 2.0*border)/2.0  # want centred on y-axis
+    def xlabel(self,label):
+    
+        xGraphMin = self.xGraphMin
+        yGraphMin = self.yGraphMin
+        xGraphMax = self.xGraphMax
+        yGraphMax = self.yGraphMax
+        axesGraphDiff = self.graphArea.bbox().height - self.axesArea.bbox().height
 
-        # doing this stuff would be a lot easier with a 'packing' mechanism
-        ylabelText = TeX(c=P(offset-textHeight,offset+vertCentre),text=ylabel)
-        ylabelText.rotate(-90)
+        xLabelPadding = 0.075
+        # ## now put an xlabel on it
+        xLabelText = TeX(n=P((xGraphMax-xGraphMin)/2.0,yGraphMin-axesGraphDiff-xLabelPadding),
+                         text=label)
 
-        return ylabelText
+        return self.objects.append(xLabelText)
 
-    def titleMake(self,title):
-        """
-        adds a title to the graph
-        """
-        plotWidth = self['width']
-        plotHeight = self['height']
-        border = self['border']
-        offset = self['offset']
-        textHeight = 0.8
-        horizCentre = plotWidth/2.0  # want centred on graph
-        vertCentre = plotHeight
-
-        # doing this stuff would be a lot easier with a 'packing' mechanism
-        titleText = TeX(c=P(offset+horizCentre,offset+vertCentre),text=title)
-
-
-        return titleText
-
-    def defineAxes(self,xMin,xMax,yMin,yMax):
-        """
-        define the axes for the plot
-        """
-
-        width = self['width']
-        height = self['height']
-        border = self['border']
-        offset = self['offset']
-
-        majorTickLen = 0.2
-        textHeight = 0.5
-        textWidth = 0.8
-
-        xNumMajorTicks = 10.0
-        yNumMajorTicks = 10.0
-
-        xAxisBare = Path(P(offset+border,offset+border),
-                         P(width-border,offset+border))
-        yAxisBare = Path(P(offset+border,offset+border),
-                         P(offset+border,height-border))
+    def ylabel(self,label,angle=-90):
         
-        xMajorTickSep = (width-2.0*border)/(xNumMajorTicks-1)
-        yMajorTickSep = (height-2.0*border)/(yNumMajorTicks-1)
+        xGraphMin = self.xGraphMin
+        yGraphMin = self.yGraphMin
+        xGraphMax = self.xGraphMax
+        yGraphMax = self.yGraphMax
+        axesGraphDiff = self.graphArea.bbox().width - self.axesArea.bbox().width
 
-        xTickValueSep = (xMax - xMin)/xNumMajorTicks
-        yTickValueSep = (yMax - yMin)/yNumMajorTicks
-        xTickValueSep = round(xTickValueSep*xNumMajorTicks)/xNumMajorTicks
-        yTickValueSep = round(yTickValueSep*yNumMajorTicks)/yNumMajorTicks
+        yLabelPadding = 0.075
+        # ## now put an ylabel on it
+        yLabelText = TeX(e=P(xGraphMin-axesGraphDiff-yLabelPadding,(yGraphMax-yGraphMin)/2.0),
+                             text=label)
+        yLabelText.rotate(angle)
 
-        xTickValues = arrayrange(xMin,xMax+xTickValueSep,xTickValueSep)
-        yTickValues = arrayrange(yMin,yMax+yTickValueSep,yTickValueSep)
+        return self.objects.append(yLabelText)
 
-        # put the ticks and values on the axis
-        xMajorTicks = Group()
-        yMajorTicks = Group()
-        xTickText = Group()
-        yTickText = Group()
-        for i in range(0,xNumMajorTicks):
-            xMajorTicks.append(
-                Path(P(offset+border+i*xMajorTickSep,offset+border),
-                     P(offset+border+i*xMajorTickSep,offset+border+majorTickLen)))
-            xTickText.append(
-                Text(c=P(offset+border+i*xMajorTickSep,offset+border-textHeight),
-                     text="%.4g" % xTickValues[i]))
-            yMajorTicks.append(
-                Path(P(offset+border,offset+border+i*yMajorTickSep),
-                     P(offset+border+majorTickLen,offset+border+i*yMajorTickSep)))
-            yTickText.append(
-                Text(c=P(offset+border-textWidth,offset+border+i*yMajorTickSep),
-                     text="%.4g" % yTickValues[i]))
+    def title(self,label):
 
+        xGraphMin = self.xGraphMin
+        yGraphMin = self.yGraphMin
+        xGraphMax = self.xGraphMax
+        yGraphMax = self.yGraphMax
+        graphNorth = self.graphArea.bbox().n
 
-        return Group(xAxisBare,xMajorTicks,xTickText,yAxisBare,yMajorTicks,yTickText)
-        
+        titlePadding = 0.1
+        # ## now put an title on it
+        titleText = TeX(s=graphNorth + P(0.0,titlePadding),
+                        text=label)
+            
+        return self.objects.append(titleText)
+
