@@ -60,10 +60,12 @@ class Group(Area):
         
         if len(objects) == 1 and type(objects[0]) in (TupleType, ListType):
             apply(self.append, objects[0])
+            #self.append(objects[0])
         else:
             apply(self.append, objects)
+            #self.append(objects)
 
-        apply(Area.__init__, (self, ), options)
+        Area.__init__(self, **options)
 
     def __getitem__(self, i):
         """
@@ -731,7 +733,7 @@ class Eps(Group):
         @type options: dict
         '''
         args = (self, )+objects
-        Group.__init__(self)
+        Group.__init__(self, **options)
 
         b = self.bbox()
 
@@ -754,7 +756,7 @@ class Eps(Group):
 
         # initialise again since scaling must be applied BEFORE
         # any positioning args (width/height will be correct now)
-        apply(Group.__init__, args, options)
+        Group.__init__(*args, **options)
         
     
     def write(self, fp, title = "PyScriptEPS"):
