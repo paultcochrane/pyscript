@@ -264,8 +264,18 @@ class TeX(Area):
 # -------------------------------------------------------------------------
 
 class Text(Area):
+    '''
+    A single line text object within an Area object
+    '''
         
     def __init__(self,text="",**dict):
+        '''
+        @param text: the string to typeset
+        @param dict:
+         - font:one of the standard postscript fonts eg "Times-Roman"
+         - scale: a number giving the pointsize of the font
+         - fg: color object
+        '''
 
         # get the bbox
         # first need font and scale
@@ -305,6 +315,9 @@ class Text(Area):
 # Text class ... requires 'gs -sDEVICE=bbox'
 # -------------------------------------------------------------------------
 class Text_gs(Area):
+    '''
+    single line text object that requires "gs -sDEVICE=bbox"
+    '''
         
     def __init__(self,text="",**dict):
 
@@ -872,8 +885,61 @@ class Group(PsObject):
         return out.getvalue()
     
 
+class Paper(Area):
+    '''
+    returns an area object the size of one of the standard paper sizes
+    '''
 
+    # PAPERSIZES taken from gs man page (x cm,y cm)
+    PAPERSIZES={
+        "a0":         (83.9611   ,118.816),
+        "a1":         (59.4078   ,83.9611),
+        "a2":         (41.9806   ,59.4078),
+        "a3":         (29.7039   ,41.9806),
+        "a4":         (20.9903   ,29.7039),
+        "a5":         (14.8519   ,20.9903),
+        "a6":         (10.4775   ,14.8519),
+        "a7":         (7.40833   ,10.4775),
+        "a8":         (5.22111   ,7.40833),
+        "a9":         (3.70417   ,5.22111),
+        "a10":        (2.61056   ,3.70417),
+        "b0":         (100.048   ,141.393),
+        "b1":         (70.6967   ,100.048),
+        "b2":         (50.0239   ,70.6967),
+        "b3":         (35.3483   ,50.0239),
+        "b4":         (25.0119   ,35.3483),
+        "b5":         (17.6742   ,25.0119),
+        "archA":      (22.86     ,30.48),
+        "archB":      (30.48     ,45.72),
+        "archC":      (45.72     ,60.96),
+        "archD":      (60.96     ,91.44),
+        "archE":      (91.44     ,121.92),
+        "flsa":       (21.59     ,33.02),
+        "flse":       (21.59     ,33.02),
+        "halfletter": (13.97     ,21.59),
+        "note":       (19.05     ,25.4 ),
+        "letter":     (21.59     ,27.94),
+        "legal":      (21.59     ,35.56),
+        "11x17":      (27.94     ,43.18),
+        "ledger":     (43.18     ,27.94),
+        }
 
+    def __init__(self,size,**dict):
+        '''
+        @param size: eg "a4","letter" etc. See L{PAPERSIZES} for sizes
+        @return: An area object the size of the selected paper
+                 with the sw corner on P(0,0)
+        '''
+
+        
+        w,h=self.PAPERSIZES[size]
+        
+        self.natives(dict,
+                     width=w*UNITS['cm']/float(defaults.units),
+                     height=h*UNITS['cm']/float(defaults.units),
+                     )
+
+        apply(Area.__init__,(self,),dict)
 
 
 
