@@ -73,39 +73,101 @@ b4_Inc_state restore
 """
 
 import os,re
-def TeXdefs(text=""):
+##def TeXdefs(text=""):
+##    '''
+##    get font & stuff headers out of dvips
+##    '''
+
+##    file="temp.tex"
+##    fp=open(file,"w")
+##    fp.write(defaults.tex_head)
+##    fp.write(text)
+##    fp.write(defaults.tex_tail)
+##    fp.close()
+
+##    os.system(defaults.tex_command%file)
+
+##    os.system("dvips -E -o temp.eps temp.dvi")
+
+##    fp=open("temp.eps","r")
+##    eps=fp.read(-1)
+##    fp.close()
+
+##    # grab headers
+##    so=re.search("(\%\%BeginProcSet.*)\s*TeXDict begin \d",eps,re.S)
+##    defs=so.group(1)
+
+##    # remove showpage
+##    defs=re.sub("(?m)showpage","",defs)
+
+##    return "\n%s\n"%defs
+
+
+def TeXstuff(objects):
     '''
-    get font & stuff headers out of dvips
+    Get the actual postscript code and insert it into
+    the tex objects. Also grab fonts and defs
     '''
 
     file="temp.tex"
     fp=open(file,"w")
     fp.write(defaults.tex_head)
-    fp.write(text)
+    for tex in objects:
+        fp.write(tex.text)
+        fp.write('\\newpage\n')
     fp.write(defaults.tex_tail)
     fp.close()
 
     os.system(defaults.tex_command%file)
 
-    os.system("dvips -E -o temp.eps temp.dvi")
+    os.system("dvips -tunknown -o temp.ps temp.dvi")
 
-    fp=open("temp.eps","r")
-    eps=fp.read(-1)
+    fp=open("temp.ps","r")
+    ps=fp.read(-1)
     fp.close()
 
+    #grab tex
+    tt=re.findall('(?s)\%\%Page:.*?TeXDict(.*?)end',ps)
+
+    assert len(tt)==len(objects)
+
+    for ii in range(len(objects)):
+        objects[ii].bodyps="TeXDict %s end"%tt[ii]
+
     # grab headers
-    so=re.search("(\%\%BeginProcSet.*)\s*TeXDict begin \d",eps,re.S)
-    defs=so.group(1)
+    start=string.index(ps,"%DVIPSSource")
+    end=string.index(ps,"%%Page:")
+    defs=ps[start:end]
 
     # remove showpage
     defs=re.sub("(?m)showpage","",defs)
 
+    # Cant's seem to set a paper size of 0x0 without tinkering with
+    # dvips config files. We need this so it matches with -E offsets.
+    # the closest is the 'unknown' paper format which unfortunately
+    # introduces some postript code
+    # that uses 'setpageparams' and 'setpage' for size. Can't seem to overide
+    # those def easily so hunt out that code and kill it:
+    defs=re.sub("(?s)statusdict /setpageparams known.*?if } if","",defs)
+
     return "\n%s\n"%defs
 
-def collecttex(objects,tex):
+
+#def collecttex(objects,tex):
+#    for object in objects:
+#        if isinstance(object,TeX):
+#            tex=tex+object.text
+#        elif isinstance(object,Group):
+#            tex=collecttex(object.objects,tex)
+#    return tex
+
+def collecttex(objects,tex=[]):
+    '''
+    Collect the TeX objects in the order theyre rendered
+    '''
     for object in objects:
         if isinstance(object,TeX):
-            tex=tex+object.text
+            tex.append(object)
         elif isinstance(object,Group):
             tex=collecttex(object.objects,tex)
     return tex
@@ -114,6 +176,80 @@ def collecttex(objects,tex):
 # Create the actual postscript
 # ---------------------------------------------------------------------------
 
+##def render(*objects,**opts):
+##    '''
+##    render the file
+##    '''
+
+##    filetype=opts.get('type','eps')
+
+##    if not opts.has_key('file'):
+##        opts['file']=sys.argv[0]+".eps"
+        
+        
+##    if opts['file']=='-':
+##        out=sys.stdout
+##    else:
+##        print "Writing",opts['file']
+##        out=open(opts['file'],"w")
+
+##    # step through and accumulate postscript
+##    # and auxillary information
+
+##    tex=collecttex(objects,"")
+    
+##    defs=""
+##    if len(tex)>0:
+##        defs=TeXdefs(tex)
+
+
+##    # put all objects into group
+##    #if len(objects)>1:
+##    #    objects=Group(objects)
+
+##    if type(objects)==type(()):
+##        objects=apply(Group,objects)
+
+##    # Make the sw corner (0,0) since some brain-dead previewers 
+##    # don't understand bounding-boxes
+##    objects.sw=P(0,0)
+    
+##    bbox=objects.bbox()
+
+##    if not bbox.is_set():
+##        print "No objects to render!"
+##        return
+##    SW=bbox.sw
+##    NE=bbox.ne
+
+
+##    pad=5 # no. of points to pad bbox with
+##    # convert bbox to points
+##    SW[0]=round(SW[0]*defaults.units)-pad
+##    SW[1]=round(SW[1]*defaults.units)-pad
+##    NE[0]=round(NE[0]*defaults.units)+pad
+##    NE[1]=round(NE[1]*defaults.units)+pad
+
+
+##    if filetype=='ps':
+##        out.write(PSheader)
+
+##    else:
+##        out.write(EPSheader)
+##        out.write('%%%%BoundingBox: %d %d %d %d\n%%%%EndComments\n'%\
+##                  (SW[0],SW[1],NE[0],NE[1]))
+
+##    out.write(PSMacros)
+##    out.write('/uu {%f mul} def '%defaults.units)
+##    out.write('%f setlinewidth '%defaults.linewidth)
+##    out.write(defs)
+    
+##    out.write(str(objects))
+    
+##    if filetype=='ps':
+##        out.write('\nshowpage\n')
+
+##    out.close()
 
 def render(*objects,**opts):
     '''
@@ -135,11 +271,12 @@ def render(*objects,**opts):
     # step through and accumulate postscript
     # and auxillary information
 
-    tex=collecttex(objects,"")
-    
+    tex=collecttex(objects)
+
     defs=""
     if len(tex)>0:
-        defs=TeXdefs(tex)
+        defs=TeXstuff(tex)
+
 
     # put all objects into group
     #if len(objects)>1:
@@ -188,7 +325,6 @@ def render(*objects,**opts):
         out.write('\nshowpage\n')
 
     out.close()
-
 
 
 

@@ -349,27 +349,94 @@ class Area(AffineObj):
 
 ##        return Bbox(sw=P(x1,y1),width=x2-x1,height=y2-y1)
 
-# -------------------------------------------------------------------------
-# A TeX expression
-# parses the output of dvips
+### -------------------------------------------------------------------------
+### A TeX expression
+### parses the output of dvips
+### -------------------------------------------------------------------------
+##class TeX(Area):
+##    '''
+##    an Area object with a TeX expression within
+
+##    requires working latex and dvips systems
+    
+##    '''
+
+##    text=""
+##    fg=Color(0)
+
+##    def __init__(self,text="",**dict):
+
+##        self.text=text
+
+
+##        TMP="temp1"
+##        fp=open("%s.tex"%TMP,"w")
+##        fp.write(defaults.tex_head)
+##        fp.write(text)
+##        fp.write(defaults.tex_tail)
+##        fp.close()
+
+##        os.system(defaults.tex_command%TMP)
+
+##        os.system("dvips -h - -E -o %s.eps %s.dvi"%(TMP,TMP))
+    
+##        fp=open("%s.eps"%TMP,"r")
+##        eps=fp.read(-1)
+##        fp.close()
+    
+##        # grab boundingbox
+##        bbox_so=re.search("\%\%boundingbox:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)",
+##                          eps,re.I)
+##        bbox=[]
+##        for ii in bbox_so.groups():
+##            bbox.append(int(ii))
+
+##        self.width=(bbox[2]-bbox[0])/float(defaults.units)
+##        self.height=(bbox[3]-bbox[1])/float(defaults.units)
+
+##        apply(Area.__init__,(self,),dict)
+
+##        self.offset=-P(bbox[0],bbox[1])/float(defaults.units)
+##        # grab font encoding
+##        so=re.search("^(TeXDict begin \d.*?)\s*end",eps,re.S|re.M)
+##        fonts=so.group(1)
+        
+##        # grab body (ignoring procsets and fonts)
+##        so=re.search("\%\%EndSetup\s*(.*?)\s*\%\%Trailer",eps,re.S)
+##        body=so.group(1)
+##        # clean it up a bit and add fonts
+##        body="%s\nTeXDict begin\n%s\nend\n"%(fonts,string.strip(body))
+
+##        self.bodyps=body
+
+
+##    def body(self):
+##        out=cStringIO.StringIO()
+
+##        out.write("%s translate "%self.offset)
+##        out.write("%s\n"%self.fg)
+##        out.write("%s\n"%self.bodyps)
+##        return out.getvalue()
+
+
 # -------------------------------------------------------------------------
 class TeX(Area):
     '''
     an Area object with a TeX expression within
 
     requires working latex and dvips systems
-    
     '''
 
     text=""
     fg=Color(0)
+    bodyps=""
 
     def __init__(self,text="",**dict):
 
         self.text=text
 
 
-        TMP="temp"
+        TMP="temp1"
         fp=open("%s.tex"%TMP,"w")
         fp.write(defaults.tex_head)
         fp.write(text)
@@ -397,18 +464,6 @@ class TeX(Area):
         apply(Area.__init__,(self,),dict)
 
         self.offset=-P(bbox[0],bbox[1])/float(defaults.units)
-        # grab font encoding
-        so=re.search("^(TeXDict begin \d.*?)\s*end",eps,re.S|re.M)
-        fonts=so.group(1)
-        
-        # grab body (ignoring procsets and fonts)
-        so=re.search("\%\%EndSetup\s*(.*?)\s*\%\%Trailer",eps,re.S)
-        body=so.group(1)
-        # clean it up a bit and add fonts
-        body="%s\nTeXDict begin\n%s\nend\n"%(fonts,string.strip(body))
-
-        self.bodyps=body
-        
 
 
     def body(self):
