@@ -22,13 +22,9 @@ Create the actual postscript
 
 __revision__ = '$Revision$'
 
-import sys,os
-import cStringIO
-import os,re
-
-from defaults import *
-from objects import *
-from groups import Eps,Page,Pages
+from pyscript.defaults import defaults
+from pyscript.groups import Eps, Page, Pages
+from pyscript.vectors import P
 
 
 # ---------------------------------------------------------------------------
@@ -36,47 +32,53 @@ from groups import Eps,Page,Pages
 # ---------------------------------------------------------------------------
 
 
-def render(*objects,**opts):
+def render(*objects, **options):
     '''
     render the file
+
+    @param objects: list of objects to render
+    @type objects: list
+
+    @param options: dictionary of options to use when rendering
+    @type options: dict
     '''
 
-    if not opts.has_key('file'):
-        raise "No filename given"
+    if not options.has_key('file'):
+        raise LookupError, "No filename given"
 
-    out=open(opts['file'],"w")
+    out = open(options['file'], "w")
 
-    if len(objects)==0:
-        raise "No objects to render!"
-    elif len(objects)==1:
-        if isinstance(objects[0],Eps):
-            obj=objects[0]
-        elif isinstance(objects[0],Pages):
-            obj=objects[0]
-        elif isinstance(objects[0],Page):
+    if len(objects) == 0:
+        raise ValueError, "No objects to render!"
+    elif len(objects) == 1:
+        if isinstance(objects[0], Eps):
+            obj = objects[0]
+        elif isinstance(objects[0], Pages):
+            obj = objects[0]
+        elif isinstance(objects[0], Page):
             # wrap in Pages environment
-            obj=apply(Pages,objects)
+            obj = apply(Pages, objects)
         else:
             # assume it's an eps and wrap
-            obj=apply(Eps,objects)
+            obj = apply(Eps, objects)
     else:
-        if isinstance(objects[0],Page):
+        if isinstance(objects[0], Page):
             # assume we have pages
-            obj=apply(Pages,objects)
+            obj = apply(Pages, objects)
         else:
             # we have an eps
-            obj=apply(Eps,objects)
+            obj = apply(Eps, objects)
         
-    if isinstance(obj,Eps):
+    if isinstance(obj, Eps):
         # Make the sw corner (0,0) since some brain-dead previewers 
         # don't understand bounding-boxes
-        x1,y1,x2,y2=obj.bbox_pp()
-        obj.move( (P(0,0)-P(x1,y1))/float(defaults.units) )
+        x1, y1, x2, y2 = obj.bbox_pp()
+        obj.move( (P(0, 0) - P(x1, y1))/float(defaults.units) )
 
     obj.write(out)
     out.close()
 
-    print "Wrote",opts['file']
+    print "Wrote", options['file']
 
 
 # vim: expandtab shiftwidth=4:
