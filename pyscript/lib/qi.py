@@ -1,6 +1,7 @@
-# -----------------------------------------------------------------------------
-# QASM FORMAT SPECIFICATION:
-# 
+
+### = we have the equivalent
+#   = not yet implemented
+
 ###  def     - define a custom controlled single-qubit operation, with
 ###            opname  = name of gate operation
 ###            nctrl   = number of control qubits
@@ -24,11 +25,11 @@
 ###  T       - single qubit operator
 ###  nop     - single qubit operator, just a wire
 ###  space   - single qubit operator, just an empty space
-#  dmeter  - measure qubit, showing "D" style meter instead of rectangular box
+###  dmeter  - measure qubit, showing "D" style meter instead of rectangular box
 #  zero    - replaces qubit with |0> state
 #  discard - discard qubit (put "|" vertical bar on qubit wire)
 #  slash   - put slash on qubit wire
-#  measure - measurement of qubit, gives classical bit (double-wire) output
+###  measure - measurement of qubit, gives classical bit (double-wire) output
 ###  cnot    - two-qubit CNOT
 ###  c-z     - two-qubit controlled-Z gate
 ###  c-x     - two-qubit controlled-X gate
@@ -260,7 +261,86 @@ class Qasm(Group):
 	'''
         pass
 
+# -------------------------------------------------------------------------
+# misc other items
+# -------------------------------------------------------------------------
 
+class Meter(Group):
+    """
+    A meter object as in Mike'n'Ike
+     
+    """
+    height=1
+    width=1.8*height
 
+    angle=45
+    bg=Color(1)
+    mcolor=Color(.8)
+    
+    def __init__(self,**args):
+
+        Group.__init__(self,**args)
+
+        h=self.height
+        w=self.width
+		
+        
+        self.append(Rectangle(width=1.8*h,height=h,bg=self.bg))
+        
+        p=Path(
+                P(.1,.1),C(0,0),P(w-.1,.1),
+                P(w-.3,.1),C(0,0),P(.3,.1),
+                closed=1,bg=self.mcolor,fg=None)
+        
+        self.append(p,
+            Path(P(w/2.,.1),U(self.angle,h*.9)),
+            )
+
+# -------------------------------------------------------------------------
+class Detector(Group):
+    '''
+    A D shaped detector, can be given an object to surround
+    '''
+
+    height=.8
+    width=height/2.
+    bg=Color(1)
+    fg=Color(0)
+    pad=.1
+	
+    def __init__(self,object=None,**dict):
+		
+        if object is not None:
+            # use the objects boundingbox when width and height not supplied
+            bb=object.bbox()
+            w=bb.width+2*self.pad
+            h=bb.height+2*self.pad
+
+            self.width=dict.get("width",max(w,self.width))
+            self.height=dict.get("height",max(h,self.height))
+        Group.__init__(self,**dict)
+
+        if self.width>self.height:
+            p=Path(
+                P(0,0),P(0,self.height),
+                P(self.width-self.height/2.,self.height),C(90,0),
+                P(self.width,self.height/2.), C(180,90),
+                P(self.width-self.height/2.,0),
+                closed=1)
+        else:
+			
+            p=Path(
+                P(0,0),P(0,self.height),  C(90,0),
+                P(self.width,self.height/2.), C(180,90),
+                closed=1)
+		
+        p(bg=dict.get("bg",self.bg),fg=dict.get("fg",self.fg))
+
+        self.append(p)
+        if object is not None:
+            # object looks better if it's slightly off centre
+            # since one side is curved. pad/3 is about right
+            object.c=P(self.width/2.-self.pad/3.,self.height/2.)
+            self.append(object)
 
 
