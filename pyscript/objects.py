@@ -650,12 +650,16 @@ class Rectangle(Area):
     @cvar fg: line color
     @cvar bg: fill color or None for empty
     @cvar r: radius of corners
+    @cvar width: width of rectangle
+    @cvar height: height of rectangle
     """
     bg = None
     fg = Color(0)
     r = 0
     linewidth = None
     dash = None
+    width = 1.0
+    height = 1.0
 
     def __init__(self, obj = None, **options):
         '''
@@ -1039,14 +1043,11 @@ class Paper(Area):
         else:
             h, w = self.PAPERSIZES[size]
         
-        
         self.width = w*UNITS['cm']/float(defaults.units)
         self.height = h*UNITS['cm']/float(defaults.units)
 
         Area.__init__(self, **options)
 
-        
-        
 # -------------------------------------------------------------------------
 
 class Epsf(Area):
