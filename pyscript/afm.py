@@ -8,8 +8,9 @@ Module for reading and writing AFM files.
 
 import re,os,string,types,cPickle
 
+import pyscript
 
-FONTDIR="."
+FONTDIR=os.path.join(pyscript.__path__[0],"fonts")
 
 # every single line starts with a "word"
 identifierRE = re.compile("^([A-Za-z]+).*")
@@ -249,6 +250,51 @@ class AFM:
         else:
             return '<AFM object at %x>' % id(self)
 
+    def boundingbox(self,string,scale=1,kerning=0):
+        '''
+        Return a strings boundingbox in this font
+        at the scale provided (relative to 1 point?)
+        @param string: the string to measure
+        @param scale: the point size of the font (sort of)
+        @param kerning: wether to subtract off the kerning
+        @return: xl,yb,xr,yt
+        '''
+
+	chars=map(ord,list(string))
+
+	# order: width l b r t
+
+	# use 'reduce' and 'map' as they're written in C
+
+	# add up all the widths
+	width= reduce(lambda x, y: x+self[y][0],chars,0)
+
+	# subtract the kerning
+        if kerning==1:
+            if len(chars)>1:
+                kern=reduce(lambda x,y:x+y,
+                            map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:]))
+                width+=kern
+
+	# get rid of the end bits
+	start=self[chars[0]][1]
+	f=self[chars[-1]]
+	width = width-start-(f[0]-f[3])
+
+
+	# accumulate maximum height
+	top = reduce(lambda x, y: max(x,self[y][4]),chars,0)
+
+	# accumulate lowest point
+	bottom = reduce(lambda x, y: min(x,self[y][2]),chars,self[chars[0]][2])
+
+        sc=scale/1000.
+	xl=start*sc
+	yb=bottom*sc
+	xr=xl+width*sc
+	yt=top*sc
+
+        return xl,yb,xr,yt
 
 def load(fontname):
 
@@ -260,79 +306,15 @@ def load(fontname):
 
     return font
 
+def convert(infile,outfile):
+    afm=ConvertAFM(infile)
+    afm.write(outfile)
+
 if __name__ == "__main__":
 
-	str=" ... pretty good Ay! .. WA"
+    import sys
+    sys.path.insert(0,'../')
 
-        #c=ConvertAFM('Times-Roman.afm')
-        #c.write('Times-Roman.font')
-        #import sys
-        #sys.exit()
+    for fontname in sys.argv[1:]:
+        convert(fontname)
 
-	font=load('Times-Roman')
-
-        #cPickle.dump(font,open("Times-Roman.font","w"))
-
-        #font=cPickle.load(open("Times-Roman.font"))
-
-        print font
-
-	chars=map(ord,list(str))
-
-	#tot=0
-	#for cc in xrange(len(chars)):
-	#	tot+=font[chars[cc]][0]
-
-	# order: width l b r t
-
-	# use reduce as it's a built in function written in C
-
-	# add up all the widths
-	width= reduce(lambda x, y: x+font[y][0],chars,0)
-
-	# subtract the kerning
-	if len(chars)>1:
-	    kern=reduce(lambda x,y:x+y,
-		    map(lambda x,y:font[(x,y)] ,chars[:-1],chars[1:]))
-	    print kern
-	    #width+=kern
-
-	# get rid of the end bits
-	start=font[chars[0]][1]
-	f=font[chars[-1]]
-	width = width-start-(f[0]-f[3])
-
-
-	# accumulate maximum height
-	top = reduce(lambda x, y: max(x,font[y][4]),chars,0)
-
-	# accumulate lowest point
-	bottom = reduce(lambda x, y: min(x,font[y][2]),chars,font[chars[0]][2])
-
-	height=top-bottom
-	
-	print f
-	print f[1],f[2],f[3]-f[1],f[4]-f[2]
-	print start,bottom,width,height
-
-	sc=124/1000.
-
-	w2=width*sc
-	h2=height*sc
-	s=start*sc
-	b=bottom*sc
-
-	import sys
-	sys.path.insert(0,'../')
-	
-	from pyscript import *
-	t=Text(str,scale="124")
-	w,h=t['ne']-t['sw']
-
-	print s,b,w2,h2
-	render(
-		Rectangle(width=w,height=h,sw=t['sw'],fg=Color('green')),
-		Rectangle(width=w2,height=h2,sw=P(s,b),fg=Color('red')),
-		t,
-		file='tmp.eps',
-		)

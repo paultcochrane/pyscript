@@ -32,6 +32,8 @@ from base import *
 
 from functions import *
 
+import afm
+
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -260,26 +262,19 @@ class TeX(Area):
 
 
 # -------------------------------------------------------------------------
-# Text class ... requires 'gs -sDEVICE=bbox'
-# -------------------------------------------------------------------------
 
 class Text(Area):
         
     def __init__(self,text="",**dict):
 
-        # this is a bit ugly ... we need a
-        # minimal text object with no transformations
-        # in order to grab the bounding box
-        
-        font="Times-Roman"
-        scale="12"
-        if dict.has_key('font'): font=dict['font']
-        if dict.has_key('scale'): font=dict['scale']
-
-        temp=Text_nobbox(text=text,scale=scale,font=font)
-
         # get the bbox
-        SW,NE=gsbbox(temp)
+        # first need font and scale
+        fontname=dict.get('font',"Times-Roman")
+        scale=dict.get('scale',12)
+
+        font=afm.load(fontname)
+
+        x1,y1,x2,y2=font.boundingbox(text,scale=scale)
 
         # Now create the real text object
         self.natives(dict,
@@ -288,11 +283,11 @@ class Text(Area):
                      text=text,
                      font="Times-Roman",
                      scale="12",
-                     width=NE[0]-SW[0],
-                     height=NE[1]-SW[1],
+                     width=(x2-x1)/float(defaults.units),
+                     height=(y2-y1)/float(defaults.units),
                      )
 
-        self.offset=-SW
+        self.offset=-P(x1,y1)/float(defaults.units)
 
         apply(Area.__init__,(self,),dict)
 
@@ -307,6 +302,53 @@ class Text(Area):
         return out.getvalue()
 
 # -------------------------------------------------------------------------
+# Text class ... requires 'gs -sDEVICE=bbox'
+# -------------------------------------------------------------------------
+class Text_gs(Area):
+        
+    def __init__(self,text="",**dict):
+
+        # this is a bit ugly ... we need a
+        # minimal text object with no transformations
+        # in order to grab the bounding box
+        
+        font="Times-Roman"
+        scale=12
+        if dict.has_key('font'): font=dict['font']
+        if dict.has_key('scale'): font=dict['scale']
+
+        temp=Text_nobbox(text=text,scale=scale,font=font)
+
+        # get the bbox
+        SW,NE=gsbbox(temp)
+
+        # Now create the real text object
+        self.natives(dict,
+                     bg=None,
+                     fg=Color(0),
+                     text=text,
+                     font="Times-Roman",
+                     scale=12,
+                     width=NE[0]-SW[0],
+                     height=NE[1]-SW[1],
+                     )
+
+        self.offset=-SW
+
+        apply(Area.__init__,(self,),dict)
+
+
+    def body(self):
+        out=cStringIO.StringIO()
+        
+        out.write("%s moveto\n"%self.offset)
+        out.write("/%(font)s findfont\n%(scale)d scalefont setfont\n"%self)
+        out.write("%(fg)s (%(text)s) show\n"%self)
+        
+        return out.getvalue()
+
+
+# -------------------------------------------------------------------------
 # Text class with alternative calculation of bbox ....
 # doesn't rely on gs -bbox  but requires postscript level 2 ?
 # -------------------------------------------------------------------------
@@ -318,12 +360,12 @@ class Text_alt(Area):
         # get the bbox
         # first need font and scale
         font=dict.get("font","Helvetica")
-        scale=dict.get("scale","12")
+        scale=dict.get("scale",12)
 
 
         fp=open("temp.eps","w")
         fp.write('/%s findfont'%font +
-                 ' %s scalefont setfont'%scale +
+                 ' %d scalefont setfont'%scale +
                  ' 0 0 moveto (%s) '%text +
                  'false charpath flattenpath pathbbox stack')
         fp.close()
@@ -350,7 +392,7 @@ class Text_alt(Area):
         out=cStringIO.StringIO()
         
         out.write("0 0 moveto\n")
-        out.write("/%(font)s findfont\n%(scale)s scalefont setfont\n"%self)
+        out.write("/%(font)s findfont\n%(scale)d scalefont setfont\n"%self)
         out.write("%(fg)s (%(text)s) show\n"%self)
         
         return out.getvalue()
@@ -383,7 +425,7 @@ class Text_nobbox(PsObject):
                      o=P(0,0),
                      text=text,
                      font="Helvetica",
-                     scale="12"
+                     scale=12
                      )
         apply(PsObject.__init__,(self,),dict)
 
@@ -391,7 +433,7 @@ class Text_nobbox(PsObject):
         out=cStringIO.StringIO()
         
         out.write("0 0 moveto\n")
-        out.write("/%(font)s findfont\n%(scale)s scalefont setfont\n"%self)
+        out.write("/%(font)s findfont\n%(scale)d scalefont setfont\n"%self)
         out.write("%(fg)s (%(text)s) show\n"%self)
         
         return out.getvalue()
