@@ -212,8 +212,8 @@ class Talk(Paper):
     """
     A talk class
     """
-    bg = None
-    fg = Color('lavender')
+    bg = Color('RoyalBlue')
+    fg = bg
 
     thelogos = []
     logo_height = 0.8
@@ -231,8 +231,8 @@ class Talk(Paper):
     authors_fg = Color('GoldenRod')
     authors_scale = 3
 
-    mainAuthor = ""
-    mainAuthor_fg = Color(0)
+    talkAuthor = ""
+    talkAuthor_fg = Color(0)
     
     logos = None
 
@@ -304,10 +304,11 @@ class Slide(Talk):
 	self.fg = talk.fg
 	self.paper = talk.paper
 	self.footerScale = talk.footerScale
-	self.mainAuthor = talk.mainAuthor
+	self.talkAuthor = talk.talkAuthor
 	self.waitbar_fg = talk.waitbar_fg
 	self.headings = []
 	self.epsf = []
+	self.figs = []
 
     def logos(self,*files):
 	
@@ -339,6 +340,38 @@ class Slide(Talk):
 
 	return a
 
+    def add_fig(self,obj,**dict):
+	"""
+	Chuck an arbitrary figure onto the page, with a white background
+	"""
+
+        # there must be a better way to do this!!!
+        if dict.has_key('e'):
+            obj.e = dict['e']
+        elif dict.has_key('se'):
+            obj.se = dict['se']
+        elif dict.has_key('s'):
+            obj.s = dict['s']
+        elif dict.has_key('sw'):
+            obj.sw = dict['sw']
+        elif dict.has_key('w'):
+            obj.w = dict['w']
+        elif dict.has_key('nw'):
+            obj.nw = dict['nw']
+        elif dict.has_key('n'): 
+            obj.n = dict['n']
+        elif dict.has_key('ne'):
+            obj.ne = dict['nw']
+        else:
+            obj.sw = P(0.0,0.0)
+
+	gutter = 0.1
+	back = Rectangle(width=obj.bbox().width+gutter,
+		    height=obj.bbox().height+gutter,
+		    bg=Color('white'))
+	back.sw = obj.bbox().sw-P(gutter/2.0,gutter/2.0)
+	self.figs.append(Group(back,obj))
+
     def make_authors(self):
         return TeX(
 	    self.authors,fg=self.authors_fg
@@ -364,8 +397,8 @@ class Slide(Talk):
 	    heading_scale = self.headings_scales[heading_level]
 	    heading_indent = self.headings_indent[heading_level]
 
-	    tex = TeX(text=heading_bullet + ' ' + heading_text,
-			fg=heading_fg).scale(heading_scale,heading_scale)
+	    tex = TeX(text=heading_bullet + ' ' + heading_text, 
+		    fg=heading_fg).scale(heading_scale,heading_scale)
 	    padding = Area(sw=tex.sw,width=heading_indent,height=0)
 	    heading_proper = Group(padding,tex)
 	    Align(heading_proper, a1="e", a2="w", angle=90, space=0)
@@ -393,7 +426,7 @@ class Slide(Talk):
 
     def make_footer(self,talk):
 	footerText = " - %s; page %i of %i" %  \
-			(talk.mainAuthor,self.pageNumber,self.pages)
+			(talk.talkAuthor,self.pageNumber,self.pages)
 	
 	footerTeX = Group(
 		    TeX(text=talk.title,
@@ -454,6 +487,12 @@ class Slide(Talk):
 	    pictures.append(file)
 	return pictures
 
+    def make_figs(self):
+	figs = Group()
+	for fig in self.figs:
+	    figs.append(fig)
+	return figs
+
     def make(self, talk, scale=1):
         
 	all = Group(self.make_logos(),self.make_title())
@@ -495,6 +534,7 @@ class Slide(Talk):
 		all,
 		headings,
 		self.make_epsf(),
+		self.make_figs(),
 		signature,
 		self.make_footer(talk),
 		self.make_waitbar()
