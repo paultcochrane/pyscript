@@ -278,7 +278,6 @@ class Align(Group):
     '''
     Function to align a group of objects.
 
-     - anchor: The item number of the object that remain fixed
      - a1: The first anchor point to align to eg "e", "c"
      - a2: The second anchor point for aligning
      - space: the amount of space to enforce between the anchor points, 
@@ -288,7 +287,6 @@ class Align(Group):
     @rtype: Group
     '''
 
-    #anchor = dict.get('anchor', 0)
     a1 = 'c'
     a2 = 'c'
     space = None
@@ -306,10 +304,14 @@ class Align(Group):
         return self
 
 
-    def append(self,*objects):
+    def append(self,*objects,**dict):
 
-        a1=self.a1
-        a2=self.a2
+        # this allows temporary overiding of parameters:
+
+        a1=dict.get('a1',self.a1)
+        a2=dict.get('a2',self.a2)
+        space=dict.get('space',self.space)
+        angle=dict.get('angle',self.angle)
 
         assert a1 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
         assert a2 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
@@ -327,14 +329,14 @@ class Align(Group):
                     p1 = getattr(self.alignable[-1].bbox(), a1)
                     p2 = getattr(obj.bbox(), a2)
 
-                    if self.space is not None:
-                        obj.move(U(self.angle, self.space)-(p2-p1))
+                    if space is not None:
+                        obj.move(U(angle, space)-(p2-p1))
 
                     else:
                         # Don't touch the spacing in the angle direction
                         # adjust in othogonal direction instead
 
-                        obj.move((U(self.angle+90)*(p2-p1))*U(self.angle-90))
+                        obj.move((U(angle+90)*(p2-p1))*U(angle-90))
             
                     Group.append(self,obj)
                     self.alignable.append(obj)
