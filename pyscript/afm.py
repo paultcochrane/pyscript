@@ -218,6 +218,7 @@ class ConvertAFM:
         assert len(components) == ncomponents
         self._composites[charname] = components
 	
+# -------------------------------------------------------------------
 	
 class AFM:
 	
@@ -226,7 +227,9 @@ class AFM:
         fontname=string.lower(fontname)
         fontname=string.replace(fontname,"-","_")
 
-        f=__import__('%s'%fontname)
+        # the import statement seem a little bit of a hack
+        # but this will work for now.
+        f=__import__('pyscript.fonts.%s'%fontname,None,None,[fontname])
 
         self.f=f
 
@@ -245,9 +248,6 @@ class AFM:
 	
     def comments(self):
         return self.f.comments
-	
-    def addComment(self, comment):
-        self.f.comments.append(comment)
 	
     def __getattr__(self, attr):
         if self.f.attrs.has_key(attr):
@@ -318,103 +318,6 @@ class AFM:
 
         return xl,yb,xr,yt
 
-
-class AFM2:
-	
-    def __init__(self):
-
-        self._attrs = {}
-        self._chars = {}
-        self._kerning = {}
-        self._comments = []
-        self._composites = {}
-	
-    def has_kernpair(self, pair):
-        return self._kerning.has_key(pair)
-	
-    def kernpairs(self):
-        return self._kerning.keys()
-	
-    def has_char(self, char):
-        return self._chars.has_key(char)
-	
-    def chars(self):
-        return self._chars.keys()
-	
-    def comments(self):
-        return self._comments
-	
-    def addComment(self, comment):
-        self._comments.append(comment)
-	
-    def __getattr__(self, attr):
-        if self._attrs.has_key(attr):
-            return self._attrs[attr]
-        else:
-            raise AttributeError, attr
-		
-    def __getitem__(self, key):
-        if type(key) == types.TupleType:
-            # key is a tuple, return the kernpair
-            return self._kerning.get(key,0)
-        else:
-            # return the metrics instead
-            return self._chars[key]
-	
-    def __repr__(self):
-        if hasattr(self, "FullName"):
-            return '<AFM object for %s>' % self.FullName
-        else:
-            return '<AFM object at %x>' % id(self)
-
-    def bbox(self,string,size=1,kerning=0):
-        '''
-        Return a strings boundingbox in this font
-        at the scale provided (relative to 1 point?)
-        @param string: the string to measure
-        @param size: the point size of the font (sort of)
-        @param kerning: wether to subtract off the kerning
-        @return: xl,yb,xr,yt
-        '''
-
-	chars=map(ord,list(string))
-
-	# order: width l b r t
-
-	# use 'reduce' and 'map' as they're written in C
-
-	# add up all the widths
-	width= reduce(lambda x, y: x+self[y][0],chars,0)
-
-	# subtract the kerning
-        if kerning==1:
-            if len(chars)>1:
-                kk=map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:])
-                kern=reduce(lambda x,y:x+y,kk)
-                            
-                width+=kern
-        kk=map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:])
-        print kk
-
-	# get rid of the end bits
-	start=self[chars[0]][1]
-	f=self[chars[-1]]
-	width = width-start-(f[0]-f[3])
-
-
-	# accumulate maximum height
-	top = reduce(lambda x, y: max(x,self[y][4]),chars,0)
-
-	# accumulate lowest point
-	bottom = reduce(lambda x, y: min(x,self[y][2]),chars,self[chars[0]][2])
-
-        sc=size/1000.
-	xl=start*sc
-	yb=bottom*sc
-	xr=xl+width*sc
-	yt=top*sc
-
-        return xl,yb,xr,yt
 
 def load(fontname):
 

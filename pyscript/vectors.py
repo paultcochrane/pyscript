@@ -281,7 +281,7 @@ def Identity(p):
     return P(p[0],p[1])
 
 
-class Bbox(PsObj):
+class Bbox(object):
     """
     A Rectangular area defined by sw corner and width and height.
     which specifies a boundingbox.
@@ -299,6 +299,21 @@ class Bbox(PsObj):
     sw=None
     width=0
     height=0 
+
+    def __init__(self,**dict):
+        '''
+        can pass a dict of atributes to set
+        '''
+
+        # this will raise an exception if class doesn't have attribute
+        # I think this is good.
+        prop=[]
+        for key,value in dict.items():
+            if isinstance(eval('self.__class__.%s'%key),property):
+                prop.append((key,value))
+            else:
+                self.__class__.__setattr__(self,key,value)
+
 
     def _get_n(s):
         return s.sw+P(s.width/2.,s.height)

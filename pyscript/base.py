@@ -23,8 +23,6 @@ import string
 
 # -------------------------------------------------------------------------
 
-class PsDict: pass
-
 class PsObj(object):
     """
     Base Class that most pyscript objects should subclass
@@ -112,7 +110,7 @@ class PsObj(object):
     def bbox(self):
         """
         return objects bounding box
-        9this can be a Null Bbox() if object doesn't
+        this can be a Null Bbox() if object doesn't
         draw anything on the page.)
 
         NB that the bbox should be dynamically calculated and take
@@ -211,10 +209,10 @@ class Color(PsObj):
 
     def __init__(self,*col,**dict):
       
+        # some sanity checks
         if type(col[0])==types.StringType:
             col=self.COLORS[string.lower(col[0])]
 
-        # some sanity checks
         assert len(col)>0 and len(col)<5
         for ii in col: assert ii>=0 and ii<=1
         

@@ -37,8 +37,8 @@ from afm import AFM
 
 # -------------------------------------------------------------------------
 # XXX
-from base import PsDict
-class PsObject: pass
+#from base import PsDict
+#class PsObject: pass
 
 
 # -------------------------------------------------------------------------
@@ -181,62 +181,62 @@ class Area(AffineObj):
 
     #XXX allow the changing of sw corner away from origin eg Text
 
-    sw=P(0,0)
+    isw=P(0,0)
     width=0
     height=0
 
 
     # Dynamic locations
     def _get_n(s):
-        return s.itoe(P(s.width/2.,s.height))
+        return s.itoe(P(s.width/2.,s.height)+s.isw)
     def _set_n(s,pe):
         s.move(pe-s.n)
     n = property(_get_n,_set_n)
 
     def _get_ne(s):
-        return s.itoe(P(s.width,s.height))
+        return s.itoe(P(s.width,s.height)+s.isw)
     def _set_ne(s,pe):
         s.move(pe-s.ne)
     ne = property(_get_ne,_set_ne)
 
     def _get_e(s):
-        return s.itoe(P(s.width,s.height/2.))
+        return s.itoe(P(s.width,s.height/2.)+s.isw)
     def _set_e(s,pe):
         s.move(pe-s.e)
     e = property(_get_e,_set_e)
 
     def _get_se(s):
-        return s.itoe(P(s.width,0))
+        return s.itoe(P(s.width,0)+s.isw)
     def _set_se(s,pe):
         s.move(pe-s.se)
     se = property(_get_se,_set_se)
 
     def _get_s(s):
-        return s.itoe(P(s.width/2.,0))
+        return s.itoe(P(s.width/2.,0)+s.isw)
     def _set_s(s,pe):
         s.move(pe-s.s)
     s = property(_get_s,_set_s)
 
     def _get_sw(s):
-        return s.itoe(P(0,0))
+        return s.itoe(s.isw)
     def _set_sw(s,pe):
         s.move(pe-s.sw)
     sw = property(_get_sw,_set_sw)
 
     def _get_w(s):
-        return s.itoe(P(0,s.height/2.))
+        return s.itoe(P(0,s.height/2.)+s.isw)
     def _set_w(s,pe):
         s.move(pe-s.w)
     w = property(_get_w,_set_w)
 
     def _get_nw(s):
-        return s.itoe(P(0,s.height))
+        return s.itoe(P(0,s.height)+s.isw)
     def _set_nw(s,pe):
         s.move(pe-s.nw)
     nw = property(_get_nw,_set_nw)
 
     def _get_c(s):
-        return s.itoe(P(s.width/2.,s.height/2.))
+        return s.itoe(P(s.width/2.,s.height/2.)+s.isw)
     def _set_c(s,pe):
         s.move(pe-s.c)
     c = property(_get_c,_set_c)
@@ -253,6 +253,101 @@ class Area(AffineObj):
             y2=max(y2,p[1])
 
         return Bbox(sw=P(x1,y1),width=x2-x1,height=y2-y1)
+
+
+##class Area_old(AffineObj):
+##    """
+##    A Rectangular area defined by sw corner and width and height.
+    
+##    defines the following compass points that can be set and retrived::
+
+##          nw--n--ne
+##          |       |
+##          w   c   e
+##          |       |
+##          sw--s--se
+
+##    The origin is the sw corner and the others are calculated from the
+##    width and height attributes.
+
+##    If a subclass should have the origin somewhere other than sw then
+##    overide the sw attribute to make it a function
+##    """
+
+##    #XXX allow the changing of sw corner away from origin eg Text
+
+##    sw=P(0,0)
+##    width=0
+##    height=0
+
+
+##    # Dynamic locations
+##    def _get_n(s):
+##        return s.itoe(P(s.width/2.,s.height))
+##    def _set_n(s,pe):
+##        s.move(pe-s.n)
+##    n = property(_get_n,_set_n)
+
+##    def _get_ne(s):
+##        return s.itoe(P(s.width,s.height))
+##    def _set_ne(s,pe):
+##        s.move(pe-s.ne)
+##    ne = property(_get_ne,_set_ne)
+
+##    def _get_e(s):
+##        return s.itoe(P(s.width,s.height/2.))
+##    def _set_e(s,pe):
+##        s.move(pe-s.e)
+##    e = property(_get_e,_set_e)
+
+##    def _get_se(s):
+##        return s.itoe(P(s.width,0))
+##    def _set_se(s,pe):
+##        s.move(pe-s.se)
+##    se = property(_get_se,_set_se)
+
+##    def _get_s(s):
+##        return s.itoe(P(s.width/2.,0))
+##    def _set_s(s,pe):
+##        s.move(pe-s.s)
+##    s = property(_get_s,_set_s)
+
+##    def _get_sw(s):
+##        return s.itoe(P(0,0))
+##    def _set_sw(s,pe):
+##        s.move(pe-s.sw)
+##    sw = property(_get_sw,_set_sw)
+
+##    def _get_w(s):
+##        return s.itoe(P(0,s.height/2.))
+##    def _set_w(s,pe):
+##        s.move(pe-s.w)
+##    w = property(_get_w,_set_w)
+
+##    def _get_nw(s):
+##        return s.itoe(P(0,s.height))
+##    def _set_nw(s,pe):
+##        s.move(pe-s.nw)
+##    nw = property(_get_nw,_set_nw)
+
+##    def _get_c(s):
+##        return s.itoe(P(s.width/2.,s.height/2.))
+##    def _set_c(s,pe):
+##        s.move(pe-s.c)
+##    c = property(_get_c,_set_c)
+
+##    def bbox(self):
+
+##        x1,y1=self.sw
+##        x2,y2=self.ne
+
+##        for p in [self.sw,self.nw,self.ne,self.se]:
+##            x1=min(x1,p[0])
+##            y1=min(y1,p[1])
+##            x2=max(x2,p[0])
+##            y2=max(y2,p[1])
+
+##        return Bbox(sw=P(x1,y1),width=x2-x1,height=y2-y1)
 
 # -------------------------------------------------------------------------
 # A TeX expression
@@ -447,97 +542,6 @@ class Text(Area):
 
 
 # -------------------------------------------------------------------------
-# Text class ... requires 'gs -sDEVICE=bbox'
-# -------------------------------------------------------------------------
-##class Text_gs_XXX(Area):
-##    '''
-##    single line text object that requires "gs -sDEVICE=bbox"
-##    '''
-        
-##    def __init__(self,text="",**dict):
-
-##        # this is a bit ugly ... we need a
-##        # minimal text object with no transformations
-##        # in order to grab the bounding box
-        
-##        font="Times-Roman"
-##        scale=12
-##        if dict.has_key('font'): font=dict['font']
-##        if dict.has_key('scale'): font=dict['scale']
-
-##        temp=Text_nobbox(text=text,scale=scale,font=font)
-
-##        # get the bbox
-##        SW,NE=gsbbox(temp)
-
-##        # Now create the real text object
-##        self.natives(dict,
-##                     bg=None,
-##                     fg=Color(0),
-##                     text=text,
-##                     font="Times-Roman",
-##                     scale=12,
-##                     width=NE[0]-SW[0],
-##                     height=NE[1]-SW[1],
-##                     )
-
-##        self.offset=-SW
-
-##        apply(Area.__init__,(self,),dict)
-
-
-##    def body(self):
-##        out=cStringIO.StringIO()
-        
-##        out.write("%s moveto\n"%self.offset)
-##        out.write("/%(font)s findfont\n%(scale)d scalefont setfont\n"%self)
-##        out.write("%(fg)s (%(text)s) show\n"%self)
-        
-##        return out.getvalue()
-
-
-
-# -------------------------------------------------------------------------
-# Text class that has 1pp bounding box ...
-# (but doesn't rely on gs)
-# -------------------------------------------------------------------------
-
-##class Text_nobbox_XXX(PsObject):
-##    """
-##    Text class with broken bbox
-##    (doesn't require gs)
-##    """
-##    def __init__(self,text="",**dict):
-
-##        self.natives(dict,
-##                     bg=None,
-##                     fg=Color(0),
-##                     o=P(0,0),
-##                     text=text,
-##                     font="Helvetica",
-##                     scale=12
-##                     )
-##        apply(PsObject.__init__,(self,),dict)
-
-##    def body(self):
-##        out=cStringIO.StringIO()
-        
-##        out.write("0 0 moveto\n")
-##        out.write("/%(font)s findfont\n%(scale)d scalefont setfont\n"%self)
-##        out.write("%(fg)s (%(text)s) show\n"%self)
-        
-##        return out.getvalue()
-
-##    def bbox(self):
-##        "return objects bounding box"
-
-##        # return corners for now + 1point to take
-##        # into account the line widths
-##        sw = self["o"]-R(1,1)*(1/float(defaults.units))
-##        ne = self["o"]+R(1,1)*(1/float(defaults.units))
-##        return (sw,ne)
-
-# -------------------------------------------------------------------------
 # Rectangle
 # -------------------------------------------------------------------------
 class Rectangle(Area):
@@ -605,92 +609,92 @@ class Circle(AffineObj):
     dash=defaults.dash
     
 
-    def locus(self,angle):
+    def locus(self,angle,target=None):
         '''
-        return a point on the edge at a particular angle
-        (degrees, clockwise from vertical)
+        Set or get a point on the locus
+
+        @param angle: locus point in degrees
+                      (Degrees clockwise from north)
+        @param target: target point
+        @return: target is None: point on circumference at that angle
+                 else: set point to the target, and return reference
+                       to object
         '''
         r=self.r
         x=r*sin(angle/180.0*pi)
         y=r*cos(angle/180.0*pi)
+        l=P(x,y)
 
-        return self.itoe(P(x,y))
-
-    def __getitem__(self,i):
-        '''
-        Get a point on the circumference
-        
-        @param i: an angle in degrees
-        @return: point on circumference at that angle
-                       (degrees clockwise from north)
-        '''
-
-        return self.locus(i)  
+        if target is None:
+            return self.itoe(l)
+        else:
+            self.move(target-self.locus(angle))
+            return self
     
-    def __setitem__(self,i,other):
-        '''
-        Set a point on the circumference
-        '''
-
-        pcurrent=self.locus(i)
-
-        self.move(other-pcurrent)
-        return self
-
     # some named locations
-    def _get_n(s):
-        return s[0]
-    def _set_n(s,pe):
-        s[0]=pe
-    n = property(_get_n,_set_n)
-
-    def _get_ne(s):
-        return s[45]
-    def _set_ne(s,pe):
-        s[45]=pe
-    ne = property(_get_ne,_set_ne)
-
-    def _get_e(s):
-        return s[90]
-    def _set_e(s,pe):
-        s[90]=pe
-    e = property(_get_e,_set_e)
-
-    def _get_se(s):
-        return s[135]
-    def _set_se(s,pe):
-        s[135]=pe
-    se = property(_get_se,_set_se)
-
-    def _get_s(s):
-        return s[180]
-    def _set_s(s,pe):
-        s[180]=pe
-    s = property(_get_s,_set_s)
-
-    def _get_sw(s):
-        return s[235]
-    def _set_sw(s,pe):
-        s[235]=pe
-    sw = property(_get_sw,_set_sw)
-
-    def _get_w(s):
-        return s[270]
-    def _set_w(s,pe):
-        s[270]=pe
-    w = property(_get_w,_set_w)
-
-    def _get_nw(s):
-        return s[315]
-    def _set_nw(s,pe):
-        s[315]=pe
-    nw = property(_get_nw,_set_nw)
-
     def _get_c(s):
         return s.o
     def _set_c(s,pe):
         s.move(pe-s.o)
     c = property(_get_c,_set_c)
+
+    def _get_n(s):
+        return s.locus(0)
+    def _set_n(s,pe):
+        s.locus(0,pe)
+    n = property(_get_n,_set_n)
+
+    def _get_e(s):
+        return s.locus(90)
+    def _set_e(s,pe):
+        s.locus(90,pe)
+    e = property(_get_e,_set_e)
+
+    def _get_s(s):
+        return s.locus(180)
+    def _set_s(s,pe):
+        s.locus(180,pe)
+    s = property(_get_s,_set_s)
+
+    def _get_w(s):
+        return s.locus(270)
+    def _set_w(s,pe):
+        s.locus(270,pe)
+    w = property(_get_w,_set_w)
+
+    # these are of the square that holds the circle
+    def _get_ne(s):
+        return s.itoe(P(s.r,s.r))
+        #return s.locus(45)
+    def _set_ne(s,pe):
+        #s.locus(45,pe)
+        s.move(pe-s.ne)
+    ne = property(_get_ne,_set_ne)
+
+    def _get_nw(s):
+        return s.itoe(P(-s.r,s.r))
+        #return s.locus(315)
+    def _set_nw(s,pe):
+        s.locus(315,pe)
+        s.move(pe-s.nw)
+    nw = property(_get_nw,_set_nw)
+
+    def _get_se(s):
+        return s.itoe(P(s.r,-s.r))
+        #return s.locus(135)
+    def _set_se(s,pe):
+        s.locus(135,pe)
+        s.move(pe-s.se)
+    se = property(_get_se,_set_se)
+
+    def _get_sw(s):
+        return s.itoe(P(-s.r,-s.r))
+        #return s.locus(235)
+    def _set_sw(s,pe):
+        s.locus(235,pe)
+        s.move(pe-s.sw)
+    sw = property(_get_sw,_set_sw)
+
 
     def body(self):
 
@@ -747,9 +751,16 @@ class Dot(Circle):
     bg=Color(0)
     fg=None
 
-    def __init__(self,c,**dict):
+    def __init__(self,c=P(0,0),**dict):
         apply(Circle.__init__,(self,),dict)
         self.c=c
+
+    def bbox(self):
+        """
+        Returns a Null Bbox ... a point doesn't have extent  
+        """
+        
+        return Bbox()
 
 # -------------------------------------------------------------------------
 # Path elements
@@ -830,6 +841,7 @@ class Path(Area):
     def _get_start(self):
         "return start point"
         return self.path[0]
+    start = property(_get_start)
 
     def _get_end(self):
         "return end point"
@@ -838,6 +850,7 @@ class Path(Area):
         if isinstance(p,C):
             p=P[0]
         return p
+    end = property(_get_end)
         
     def body(self):
 
@@ -935,18 +948,22 @@ class Path(Area):
 
 # -------------------------------------------------------------------------
 
-class Group(AffineObj):
+class Group(Area):
     """
     Groups together a list of objects
     """
-    
-    def __init__(self,*objects,**dict):
-        if len(objects)==1 and type(objects[0]) in (TupleType,ListType):
-            self.objects=list(objects[0])
-        else:
-            self.objects=list(objects)
 
-        apply(PsObj.__init__,(self,),dict)
+    def __init__(self,*objects,**dict):
+
+        self.objects=[]
+        self.objbox=Bbox()
+        
+        if len(objects)==1 and type(objects[0]) in (TupleType,ListType):
+            apply(self.append,objects[0])
+        else:
+            apply(self.append,objects)
+
+        apply(Area.__init__,(self,),dict)
 
     def __getitem__(self,i):
         return self.objects[i]
@@ -965,11 +982,59 @@ class Group(AffineObj):
         append object(s) to group
         '''
 	for obj in objs:
+            self.objbox.union(obj.bbox())
 	    self.objects.append(obj)
+
+        # update size
+        if self.objbox.is_set():
+            self.isw=self.objbox.sw
+            self.width=self.objbox.width
+            self.height=self.objbox.height
+
+    def apply(self,**dict):
+        '''
+        apply attributes to all objects
+        '''
+        # do this by attributes since they 
+        # might not all get accepted
+
+        for key,value in dict.items():
+            dict1={key:value}
+            for obj in self.objects:
+                try:
+                    apply(obj,(),dict1)            
+                except AttributeError:
+                    # skip objects that don't have the attribute
+                    pass
+        # we don't know if the sizes where changes so recalculate them
+        self.recalc_size()
+
+    def recalc_size(self):
+        '''
+        recalculate internal container size based on objects within
+        '''
+        self.objbox=Bbox()
+	for obj in self.objects:
+            self.objbox.union(obj.bbox())
+
+        if self.objbox.is_set():
+            self.isw=self.objbox.sw
+            self.width=self.objbox.width
+            self.height=self.objbox.height
+        
+            
+    def body(self):
+        out=cStringIO.StringIO()
+        for obj in self.objects:
+            out.write(str(obj))
+        return out.getvalue()
+
 
     def bbox(self):
         """
         Gather together common bounding box for group
+        Don't use Area's bbox as transformations may
+        mean a tighter bbox (eg a circle)
         """
 
         # We need to do the calculation in the 
@@ -984,12 +1049,80 @@ class Group(AffineObj):
 
         return bbox
 
-    def body(self):
-        out=cStringIO.StringIO()
-        for obj in self.objects:
-            out.write(str(obj))
-        return out.getvalue()
     
+##class Group_old(AffineObj):
+##    """
+##    Groups together a list of objects
+##    """
+    
+##    def __init__(self,*objects,**dict):
+
+##        self.objects=[]
+        
+##        if len(objects)==1 and type(objects[0]) in (TupleType,ListType):
+##            apply(self.append,objects[0])
+##        else:
+##            apply(self.append,objects)
+
+##        apply(AffineObj.__init__,(self,),dict)
+
+##    def __getitem__(self,i):
+##        return self.objects[i]
+        
+##    def __setitem__(self,i,other):
+##        self.objects[i]=other
+
+##    def __getslice__(self,i,j):
+##        return self.objects[i:j]
+
+##    def __setslice__(self,i,j,wert):
+##        self.objects[i:j]=wert
+
+##    def append(self,*objs):
+##        '''
+##        append object(s) to group
+##        '''
+##	for obj in objs:
+##	    self.objects.append(obj)
+
+##    def apply(self,**dict):
+##        '''
+##        apply attributes to all objects
+##        '''
+##        # do this by attributes since they 
+##        # might not all get accepted
+
+##        for key,value in dict.items():
+##            dict1={key:value}
+##            for obj in self.objects:
+##                try:
+##                    apply(obj,(),dict1)            
+##                except AttributeError:
+##                    # skip objects that don't have the attribute
+##                    pass
+            
+##    def bbox(self):
+##        """
+##        Gather together common bounding box for group
+##        """
+
+##        # We need to do the calculation in the 
+##        # external co-ordinates (that's where the
+##        # bounding box will be used)
+
+##        # first a null Bbox
+##        bbox=Bbox()
+        
+##        for obj in self.objects:
+##            bbox.union(obj.bbox(),self.itoe)
+
+##        return bbox
+
+##    def body(self):
+##        out=cStringIO.StringIO()
+##        for obj in self.objects:
+##            out.write(str(obj))
+##        return out.getvalue()
 
 class Paper(Area):
     '''

@@ -88,7 +88,7 @@ def cbox(obj,x,yt,yc):
     g=Group(
         Path(P(x,yt),P(x,yc)),
         Boxed(obj,c=P(x,yt),bg=Color(1)),
-        dot(P(x,yc)),
+        Dot(P(x,yc)),
         )
     return g
 
