@@ -12,6 +12,7 @@
 \author{Alexei Gilchrist\\
 Paul Cochrane\\[3cm]}
 
+
 \maketitle
 
 \tableofcontents
@@ -23,17 +24,65 @@ Paul Cochrane\\[3cm]}
 
 \section{Overview}
 
+\Verb|Pyscript| is a python package for creating high-quality postscript drawings.
+It bagan from the frustration of trying to create some good figures for publication
+that contained some abritrary \LaTeX expressions, and has been largely inspired
+by \Verb|mpost|. What began as some quick-n-dirty hacks has evolved into a really 
+useful tool (after several rewrites). Essentially a figure is scripted using python
+and some pre-defined objects such as rectanglesl, lines, text etc. This approach
+allows for a precise placement of all the components of a figure.
+
+Some of the key features are
+\begin{itemize}
+\item All scipting is done in python, which is a high level, easy to
+  learn, well developed scripting language.
+\item All the objects can be translated, scaled, rotated, ... in fact any affine transformation.
+\item The plain text object is automatically kerned.
+\item You can place abritrary latex expressions on your figures.
+\item You can create your own objects, and develop a library of
+  figure primitives. 
+\item Output is publication quality.
+\end{itemize}
+
 
 \section{Instalation}
 \label{sec:instalation}
 
+The whole package is a python module so install it as you would any
+python module.
 
-\section{Conventions}
+\begin{itemize}
+\item \emph{Global instalation}: The easiest way is to use distutils.
+  As root use \Verb|python setup.py install|.
+\item \emph{Local Instalation}:
+\end{itemize}
+
+\section{Conventions and Pitfalls}
 \label{sec:conventions}
 
+Just to be clear from the outset, some conventions that are followed, and 
+some common pitfalls to be aware of ...
 
-Angles are in degrees and proceed clockwise from the top ... just
-like your clock
+\begin{itemize}
+\item The co-ordinate system is as you learned at school in maths ...
+  the $x$ axis extends to the right, the $y$ axis extends upwards. I know, this is
+  obvious, but suprising number of graphics libraries invert the $y$ axis.
+\item Angles are in degrees and proceed clockwise from the top ...
+  just like your clock. Often, key points are labeled by the compass
+  points: n,ne,e,se,s,sw,w,nw.
+\item The default units are postscript points,
+  $1\mathrm{pp}=28.346\mathrm{cm}$. For a figure the default can
+  easily be changed with the command
+  \Verb|defaults.units=UNITS['cm']|.
+\item In python, an integer divided by an integer is truncated to an
+  integer, To avoid this use floating point numbers, e.g. \Verb|2/3 = 0|
+  but \Verb|2/3. = 0.6666|.
+\item Backslashes in strings have special significance, such as
+  denoting newlines (\Verb|"\n"|). This can be frustrating for
+  entering \LaTeX{} expresions. You can turn off this interpretation by
+  using raw strings: just prepend an ``r'' to the string e.g.
+  \Verb|g=r"$\alpha$"|
+\end{itemize}
 
 
 \section{Tutorial}
@@ -48,7 +97,7 @@ These are the basic \Verb|pyscript| objects and functions. At the begining
 of each class there is a brief description of the structure of the class
 showing the relevant methods and members.
 
-\begin{figure}
+\begin{figure}[h]
   \begin{center}
    \includegraphics{class_structure}
   \end{center}
@@ -62,13 +111,6 @@ These are classes which add layers of functionality to pyscript objects.
 Normally you wouldn't use these classes directly unless you're creating new 
 pyscript objects. We'll decribe them here because they summarise what
 you can do with pyscript objects.
-
-\titleformat{\subsection}[leftmargin]
-{\normalfont\titlerule*[.6em]{\bfseries.}%
-\vspace{6pt}%
-\sffamily\bfseries\filleft}
-{}{.5em}{}
-\titlespacing*{\subsection}{4pc}{1.5ex plus .1ex minus .2ex}{1pc}
 
 %--------------------------------------------------------------------------
 \subsection{PsObj()}
@@ -304,7 +346,9 @@ render(t1,t2)
 \chapter{Development}
 
 The aim of this section is to document some of the internals of
-\Verb|pyscript| to enable developers to modify and extend it.
+\Verb|pyscript| to enable developers to modify and extend it. 
+It should also help in solving some of the trickier problems.
+
 
 %--------------------------------------------------------------------------
 \section{Object Attributes}
@@ -383,9 +427,9 @@ the object. Co-ordinates can be converted from \emph{internal} to
 \emph{external} using the member function \Verb|itoe(point)| and vice-versa
 with \Verb|etoi(point)|.
 
-Points that are returned from an object (eg \Verb|area['nw']|) should
+Points that are returned from an object (eg \Verb|area.nw|) should
 always be in the \emph{external} co-ordinates. Inparticular the origin,
-\Verb|obj['o']| is always in \emph{external} co-ordinates [internally it
+\Verb|obj.o| is always in \emph{external} co-ordinates [internally it
 just the point (0,0)]
 
 %--------------------------------------------------------------------------
