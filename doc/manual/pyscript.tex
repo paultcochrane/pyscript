@@ -294,7 +294,22 @@ The main thing to keep in mind is that the named point is for the
 the object, it will also be applied to all the named points.
 \begin{example}
   As the following example shows, the named point always stays the same 
-  in the objects coordinate system.
+  in the objects coordinate system (watch the dot).
+\begin{python}
+r=Rectangle(width=2,height=2)
+g=Group()
+
+for a in [0,20,40]:
+    p=P(a/7.,0)
+    r2=r.copy(c=p).rotate(a,p)
+    g.append(r2,Dot(r2.nw))
+
+render(g,file=...)
+\end{python}
+produces
+\begin{center}
+  \includegraphics[width=.25\textwidth]{figs/fig_position_eg1}
+\end{center}
 \end{example}
 
 %--------------------------------------------------------------------------
@@ -302,7 +317,32 @@ the object, it will also be applied to all the named points.
 
 An objects boundingbox is a rectangle in the \emph{current} coordinate
 system that completely contains the object. The bounding box for an object
-can be obtained with the \Verb|bbox()| method.
+can be obtained with the \Verb|bbox()| method. The bounding box is calculated
+after all the co-ordinate transformations are applied to the objects.
+
+Bounding boxes have the same named point as rectangles, but these are
+read-only, and you can't apply transformations to bounding boxes.
+
+\begin{example}
+  A variation of the previous example, where we'll put a dot at the
+  nw corner of the bounding box
+\begin{python}
+r=Rectangle(width=2,height=2)
+g=Group()
+
+for a in [0,20,40]:
+    p=P(a/7.,0)
+    r2=r.copy(c=p).rotate(a,p)
+    g.append(r2,Dot(r2.bbox().nw))
+
+render(g,file=...)
+\end{python}
+produces
+\begin{center}
+  \includegraphics[width=.25\textwidth]{figs/fig_position_eg2}
+\end{center}
+\end{example}
+
 
 %--------------------------------------------------------------------------
 \subsection{Using Align()}
