@@ -19,12 +19,6 @@ See http://pyscript.sourceforge.net
  Instalation
 --------------------------------------------------------------------
 
-copy the subdirectory "pyscript" (the one with __init__.py in it) to
-somewhere on your python search path,
-
-eg $cp -a pyscript /usr/lib/python2.1/site-packages/
-
-now pyscript should by available from within python by
->> from pyscript import *
+python setup.py install
 
 
