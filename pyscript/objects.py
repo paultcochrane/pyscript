@@ -457,12 +457,12 @@ class TeX(Area):
             raise "Latex Error"
 
 
-        fi,foe = os.popen4("dvips -h - -E -o %s.eps %s.dvi"%(TMP,TMP))
-        sys.stderr.write(foe.read(-1))
+        fi,foe = os.popen4("dvips -q -E -o %s.eps %s.dvi"%(TMP,TMP))
+        err=foe.read(-1)
+        sys.stderr.write(err)
         sys.stderr.write('\n')
         fi.close()
-        if foe.close():
-            # this doesn't work ...
+        if len(err)>0:
             raise "dvips Error"
     
         fp=open("%s.eps"%TMP,"r")

@@ -70,6 +70,10 @@ count op_count sub {pop} repeat
 countdictstack dict_count sub {end} repeat
 b4_Inc_state restore
 } bind def
+
+/PyScriptStart {} def
+/PyScriptEnd {} def
+/showpage {} def
 """
 
 import os,re
@@ -87,7 +91,9 @@ def TeXstuff(objects):
     fp=open(file,"w")
     fp.write(defaults.tex_head)
     for tex in objects:
+        fp.write('\\special{ps:PyScriptStart}\n')
         fp.write(tex.text)
+        fp.write('\n\\special{ps:PyScriptEnd}\n')
         fp.write('\\newpage\n')
     fp.write(defaults.tex_tail)
     fp.close()
@@ -112,37 +118,55 @@ def TeXstuff(objects):
     if foe.close() is not None:
         raise "Latex Error"
     
-    (fi,foe) = os.popen4("dvips -tunknown %s -o temp.ps temp.dvi"%defaults.dvips_options)
+    (fi,foe) = os.popen4("dvips -q -tunknown %s -o temp.ps temp.dvi"%defaults.dvips_options)
     fi.close()
-    sys.stderr.write(foe.read(-1))
+    err=foe.read(-1)
+    sys.stderr.write(err)
     sys.stderr.write('\n')
     foe.close()
+    if len(err)>0:
+        raise "dvips Error"
 
     fp=open("temp.ps","r")
     ps=fp.read(-1)
     fp.close()
 
     #grab tex
-    tt=re.findall('(?s)\%\%Page: \d+ \d+(.*?)(?=\%\%)',ps)
-
-    assert len(tt)==len(objects)
-
-    for ii in range(len(objects)):
-        objects[ii].bodyps=tt[ii]
+    #tt=re.findall('(?s)\%\%Page: \d+ \d+(.*?)(?=\%\%)',ps)
 
     # grab headers
     start=string.index(ps,"%DVIPSSource")
     end=string.index(ps,"%%Page:")
     defs=ps[start:end]
 
+    #grab tex
+    #tt=re.findall('(?s)\%\%Page: \d+ \d+(.*?)(?=\%\%)',ps)
+
+    tt=[]
+    pos1=end
+    while 1:
+        pos1=string.find(ps,"PyScriptStart",pos1)
+        if pos1 <0:break
+        pos2=string.find(ps,"PyScriptEnd",pos1)
+        
+        tt.append("TeXDict begin 1 0 bop\n%s\neop end"%ps[pos1+14:pos2])
+        pos1=pos2
+    
+    assert len(tt)==len(objects)
+
+    for ii in range(len(objects)):
+        objects[ii].bodyps=tt[ii]
+
+
     # remove showpage
-    defs=re.sub("(?m)showpage","",defs)
+    # no we don't ... this kills some things
+    #defs=re.sub("(?m)showpage","",defs)
 
     # Cant's seem to set a paper size of 0x0 without tinkering with
     # dvips config files. We need this so it matches with -E offsets.
     # the closest is the 'unknown' paper format which unfortunately
-    # introduces some postript code
-    # that uses 'setpageparams' and 'setpage' for size. Can't seem to overide
+    # introduces some postript code that uses 'setpageparams' and 
+    # 'setpage' for size. Can't seem to overide
     # those def easily so hunt out that code and kill it:
     defs=re.sub("(?s)statusdict /setpageparams known.*?if } if","",defs)
 

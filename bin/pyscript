@@ -13,7 +13,7 @@ def usage():
 #---------------------------------------------------------------------
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "ho:l:", ["help","output=",
+    opts, args = getopt.getopt(sys.argv[1:], "ho:l:d", ["help","output=",
                                                        "logfile="])
 except getopt.GetoptError:
     # print help information and exit:
@@ -22,6 +22,7 @@ except getopt.GetoptError:
 
 logFile = "pyscript.log"
 
+DEBUG=False
 globals={}
 for o, a in opts:
     if o in ("-h", "--help"):
@@ -31,6 +32,9 @@ for o, a in opts:
         globals['output']=a
     elif o in ("-l","--logfile"):
         logFile=a
+    elif o in ("-d",):
+        DEBUG=True
+        
 if len(args) != 1:
     usage()
     sys.exit(s)
@@ -98,8 +102,9 @@ else:
     sys.stderr = save_err
     if logFile!="-":
         log.close()
-        print "Removing log file"
-        os.remove(logFile)
+        if not DEBUG:
+            print "Removing log file"
+            os.remove(logFile)
 
     print "Done!"
     
