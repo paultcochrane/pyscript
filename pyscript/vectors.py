@@ -332,20 +332,12 @@ class R(P):
     def __div__(self, o):
         # only for numbers!
         if isinstance(o, (float, int)):
-            #n = float(o)
-            return R(self[0]/o, self[1]/o)
+            return R(self[0]/float(o), self[1]/float(o))
         else:
             raise TypeError, "Only division by numbers implemented"
     def __neg__(self):
         return R(-self[0], -self[1])
 
-#def R(*args, **dict):
-#    """
-#    Exactly the same as a P() but some functions interpret
-#    this as a relative direction
-#    """
-
-#return apply(P,args,{'relative':1})
 # -------------------------------------------------------------------------
 # Unit vector
 # -------------------------------------------------------------------------

@@ -59,8 +59,6 @@ class PsObj(object):
         can pass a dict of atributes to set
         '''
         object.__init__(self)
-        #print "PsObj(object) options: " + str(options)
-        #apply(self, (), options)
         self(**options)
 
     def __call__(self, **options):
@@ -104,7 +102,6 @@ class PsObj(object):
         # here for convenience
         obj = copy.deepcopy(self)
 
-        #apply(obj, (), options)
         obj(**options)
 
         return obj
@@ -395,7 +392,6 @@ class Color(PsObj):
         newcol = []
         for ii in self.color:
             newcol.append(min(1, ii*other))
-        #return apply(Color, tuple(newcol))
         return Color(tuple(newcol))
 
 # -------------------------------------------------------------------------
@@ -444,24 +440,6 @@ class Dash(PsObj):
         pat = pat + "] %g setdash " % self.offset
 
         return pat
-
-# -------------------------------------------------------------------------
-# XXX fix!
-
-##class Postscript(PsObj):
-##    """
-##    Insert a raw postcript command in output
-##    """
-##    type="Postscript"
-
-##    def __init__(self,postscript,**dict):
-
-##        self.natives(dict,postscript=postscript)
-##        apply(PsObj.__init__,(self,),dict)
-
-
-##    def __str__(self):
-##        return " %(postscript)s "%self
 
 
 # vim: expandtab shiftwidth=4:

@@ -304,7 +304,6 @@ class C(object):
         # anything supplied in keywords will override
         # the above points eg C(P(0, 0), c1=45)
         object.__init__(self)
-        #apply(self, (), options)
         self(**options)
 
     def __call__(self, **options):
@@ -336,12 +335,6 @@ class C(object):
 
         # for convenience return a reference to us
         return self
-
-#    def copy(self):
-#        """
-#        Copy the object????
-#        """
-#        return copy.deepcopy(self)
 
     def _get_fullyspecified(self):
         '''
@@ -491,7 +484,6 @@ class Path(AffineObj):
         cp = path.pop(0) # current point
 
         while 1:
-            #print len(path)
             if len(path) == 0: 
                 break
 
@@ -506,7 +498,6 @@ class Path(AffineObj):
             elif isinstance(p, C):
                 c = p
                 # Get the next point
-                #p=path[0]
                 p = path.pop(0)
                 if isinstance(p, R):
                     p = cp+p

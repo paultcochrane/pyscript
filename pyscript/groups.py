@@ -251,85 +251,6 @@ class Group(Area):
         return bbox
 
 # -------------------------------------------------------------------------
-#def Align(*items, **dict):
-#    '''
-#    Function to align a group of objects.
-#
-#     - anchor: The item number of the object that remain fixed
-#     - a1: The first anchor point to align to eg "e", "c"
-#     - a2: The second anchor point for aligning
-#     - space: the amount of space to enforce between the anchor points, 
-#       if None then only movement perpendicular to angle is possible
-#     - angle: the angle of the line between anchor points
-#    @return: a reference to the group containing the objects
-#    @rtype: Group
-#    '''
-#
-#    anchor = dict.get('anchor', 0)
-#    a1 = dict.get('a1', 'c')
-#    a2 = dict.get('a2', 'c')
-#    space = dict.get('space', None)
-#    angle = dict.get('angle', 0)
-#    
-#    if len(items) == 1:
-#        if not isinstance(items[0], Group):
-#            # Nothing to do here ...
-#            return apply(Group, items) 
-#        # assume: single item which is a group 
-#        #  - user wants to align group members
-#        objects = items[0]
-#        if len(objects) <= 1:
-#            # Nothing to do here ...		
-#            return objects
-#    else:
-#        # create a group around the objects
-#        objects = Group(items)
-#
-#    assert a1 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
-#    assert a2 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
-#
-#    # filter out non-alignable objects
-#    alignable=[]
-#    for obj in objects:
-#        if obj.bbox().sw is not None:
-#            alignable.append(obj)
-#			
-#    # keep a reference to the anchor ... we'll
-#    # move it back later
-#    anchor_bbox_sw=alignable[anchor].bbox().sw
-#
-#    # need to implement a length for group
-#    for ii in range(1,len(alignable)):
-#
-#        obj = alignable[ii]
-#        p1 = getattr(alignable[ii-1].bbox(), a1)
-#        p2 = getattr(obj.bbox(), a2)
-#
-#        if space is not None:
-#            obj.move(U(angle, space)-(p2-p1))
-#
-#        else:
-#            # Don't touch the spacing in the angle direction
-#            # adjust in othogonal direction instead
-#
-#            obj.move((U(angle+90)*(p2-p1))*U(angle-90))
-#
-#        
-#        p1 = p2
-#
-#    offset = anchor_bbox_sw-alignable[anchor].bbox().sw
-#
-#    # Can't really move group since it might be fake
-#    # and not actually processed during write (hence no move)
-#    # move individual items instead
-#    for obj in alignable:
-#        obj.move(offset)
-#
-#    # for convenience return a group ..
-#    objects.recalc_size()
-#    return objects
-    
-# -------------------------------------------------------------------------
 class Align(Group):
     '''
     Function to align a group of objects.
@@ -373,7 +294,7 @@ class Align(Group):
         @param objects: list of objects to append
         @type objects: list
 
-        @param options: dictionary of attributes
+        @param options: dictionary of attributes to temporarily overide
         @type options: dict
         """
 
