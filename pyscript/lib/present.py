@@ -39,8 +39,8 @@ class Box(Group, Rectangle):
     height = None
 
     def __init__(self, obj, **options):
-        Rectangle.__init__self, **options)
-        Group.__init__self, **options)
+        Rectangle.__init__(self, **options)
+        Group.__init__(self, **options)
 
         bbox = obj.bbox()
 
