@@ -23,6 +23,8 @@ Default settings for TeX and PyScript
 __revision__ = '$Revision$'
 
 from pyscript.base import UNITS  # , Color
+#from pyscript.arrowheads import *
+
 
 class defaults:
     """
@@ -52,6 +54,10 @@ class defaults:
     miterlimit = 10  
 
     dash = None
+
+    # the default arrow head to use in Arrow and DoubleArrow
+    # this causes import recursiveness at the moment... 
+    #arrowhead=ArrowHead()
 
     # a 'color' of None is transparent 
     #fg=Color(0)

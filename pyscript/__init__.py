@@ -28,8 +28,8 @@ from pyscript.objects \
         import AffineObj, Area, TeX, Text, Rectangle, Circle, \
         Dot, Paper, Epsf
 from pyscript.render import render
-from pyscript.path import C, Path, Arrowhead, \
-            Arrowhead1, Arrowhead2, Arrowhead3, Arrowhead4, Arrow
+from pyscript.path import C, Path, Arrow, DoubleArrow
+from pyscript.arrowheads import *
 from pyscript.base \
         import PsObj, Dash, UNITS, Color, PyScriptError, FontError, Dash
 from pyscript.vectors import P, Matrix, R, U, Cusp, Identity, Bbox
