@@ -623,7 +623,7 @@ It should also help in solving some of the trickier problems.
 \begin{figure}[h]
   \begin{center}
     \begin{sideways}
-      %\includegraphics[height=.9\textwidth]{class_structure}
+      \includegraphics[height=.9\textwidth]{class_structure}
     \end{sideways}
   \end{center}
   \caption{Class structure of pyscript}
@@ -631,104 +631,104 @@ It should also help in solving some of the trickier problems.
 \end{figure}
 
 %--------------------------------------------------------------------------
-\section{Object Attributes}
-\label{sec:attributes}
-
-
-\subsection{Native vs Dynamic}
-\label{sec:native-vs-dynamic}
-
-Initialisation and setting of the attributes is somewhat complicated.  We
-want to be able to set attributes \`{a} la
-\Verb|Text('font'='Helvetica',sw=P(0,-1))|, but to give full functionality
-some attributes may need to be set on the fly, depending and affecting
-others.  This is done with two types of attributes, \emph{native} which are
-just dict entries and don't depend on anything else; and \emph{dynamic}
-which are actually functions which return or set the native attibutes.
-
-All classes that inherit from \Verb|PsDict| are dictionaries. 
-The following functions are special and implement the dynamic attributes:
-\begin{itemize}
-\item \Verb|_get_name(self)|: the returned value of this function is what is
-  returned from the call \Verb|obj['name']|
-\item \Verb|_set_name(self,value)|: This function is executed by
-  \Verb|obj['name']='bob'|
-
-\end{itemize}
-So, to provide some dynamical attribute, it is only neccessary to define 
-the appropriately named functions. All classes in \Verb|pyscript|
-should use this mechanism to provide a consistent feel to the user.
-
-\subsection{Initialisation}
-\label{sec:initialisation}
-
-The class initialisation mechanism is motivated by the following
-requirements:
-
-\begin{itemize}
-\item Each class should set all its defaults for its native attributes
-\item Dynamic attributes can only be calculated/set after \emph{all} native
-  attributes have been set, including base classes!
-\item Supplied attributes override the defaults \ldots duh.
-\end{itemize}
-
-To initialise the attributes correctly, classes should first call
-\Verb|native(defaults,param)| to initialise all default native values, then
-call the initialisation of the parent class e.g.:
-\begin{python}
-def __init__(self,**dict):
-   
-   ...code to calculate native attributes...
-
-   self.natives({"width":0,"height":0},dict)
-   apply(PsObject.__init__,(self,),dict)
-
-   ...further initialisation...
-\end{python}
-
-
-
-%--------------------------------------------------------------------------
-\section{Co-ordinates and Affine Transformations}
-\label{sec:co-ordinates-affine}
-
-Abritrary affine transformations (e.g. rotations, scaling, shearing,
-reflection) can be applied to any object that is a subclass of 
-\Verb|PsObject|. The way it is implemented in postscript is that the 
-transformation is applied to the co-ordinate system \emph{before}
-the object is drawn. Hence the placement of the object on the page
-is actually a displacement of the \emph{internal} origin.
-
-There are two co-ordinate systems for each object. An \emph{internal}
-co-ordinate system in which the object is drawn. Usualy the origin (0,0) is
-somewhere convenient on the object. There is also an \emph{external}
-co-ordinate system which takes into account the placement, scaling etc. of
-the object. Co-ordinates can be converted from \emph{internal} to
-\emph{external} using the member function \Verb|itoe(point)| and vice-versa
-with \Verb|etoi(point)|.
-
-Points that are returned from an object (e.g. \Verb|area.nw|) should
-always be in the \emph{external} co-ordinates. In particular the origin,
-\Verb|obj.o| is always in \emph{external} co-ordinates [internally it
-just the point (0,0)]
-
-%--------------------------------------------------------------------------
-\section{Bounding Box}
-\label{sec:bounding-box}
-
-All objects subclassing \Verb|PsObject| must provide a \Verb|boundingbox()|
-function which returns the SW and NE points of a tight bounding box for the
-object (in \emph{external} co-ordinates). The bounding box will be used
-to calculate the bounding box for the entire drawing as way to allow
-the precise placement of objects.
-
-
-%--------------------------------------------------------------------------
-\section{Postscript Objects}
-\label{sec:postscript-objects}
-
-The basic class for implementing an object drawn directly in postscript
-is \Verb|PsObject|. 
+%\section{Object Attributes}
+%\label{sec:attributes}
+%
+%
+%\subsection{Native vs Dynamic}
+%\label{sec:native-vs-dynamic}
+%
+%Initialisation and setting of the attributes is somewhat complicated.  We
+%want to be able to set attributes \`{a} la
+%\Verb|Text('font'='Helvetica',sw=P(0,-1))|, but to give full functionality
+%some attributes may need to be set on the fly, depending and affecting
+%others.  This is done with two types of attributes, \emph{native} which are
+%just dict entries and don't depend on anything else; and \emph{dynamic}
+%which are actually functions which return or set the native attibutes.
+%
+%All classes that inherit from \Verb|PsDict| are dictionaries. 
+%The following functions are special and implement the dynamic attributes:
+%\begin{itemize}
+%\item \Verb|_get_name(self)|: the returned value of this function is what is
+%returned from the call \Verb|obj['name']|
+%\item \Verb|_set_name(self,value)|: This function is executed by
+%  \Verb|obj['name']='bob'|
+%
+%\end{itemize}
+%So, to provide some dynamical attribute, it is only neccessary to define 
+%the appropriately named functions. All classes in \Verb|pyscript|
+%should use this mechanism to provide a consistent feel to the user.
+%
+%\subsection{Initialisation}
+%\label{sec:initialisation}
+%
+%The class initialisation mechanism is motivated by the following
+%requirements:
+%
+%\begin{itemize}
+%\item Each class should set all its defaults for its native attributes
+%\item Dynamic attributes can only be calculated/set after \emph{all} native
+%  attributes have been set, including base classes!
+%\item Supplied attributes override the defaults \ldots duh.
+%\end{itemize}
+%
+%To initialise the attributes correctly, classes should first call
+%\Verb|native(defaults,param)| to initialise all default native values, then
+%call the initialisation of the parent class e.g.:
+%\begin{python}
+%def __init__(self,**dict):
+%   
+%   ...code to calculate native attributes...
+%
+%   self.natives({"width":0,"height":0},dict)
+%   apply(PsObject.__init__,(self,),dict)
+%
+%   ...further initialisation...
+%\end{python}
+%
+%
+%
+%%--------------------------------------------------------------------------
+%\section{Co-ordinates and Affine Transformations}
+%\label{sec:co-ordinates-affine}
+%
+%Abritrary affine transformations (e.g. rotations, scaling, shearing,
+%reflection) can be applied to any object that is a subclass of 
+%\Verb|PsObject|. The way it is implemented in postscript is that the 
+%transformation is applied to the co-ordinate system \emph{before}
+%the object is drawn. Hence the placement of the object on the page
+%is actually a displacement of the \emph{internal} origin.
+%
+%There are two co-ordinate systems for each object. An \emph{internal}
+%co-ordinate system in which the object is drawn. Usualy the origin (0,0) is
+%somewhere convenient on the object. There is also an \emph{external}
+%co-ordinate system which takes into account the placement, scaling etc. of
+%the object. Co-ordinates can be converted from \emph{internal} to
+%\emph{external} using the member function \Verb|itoe(point)| and vice-versa
+%with \Verb|etoi(point)|.
+%
+%Points that are returned from an object (e.g. \Verb|area.nw|) should
+%always be in the \emph{external} co-ordinates. In particular the origin,
+%\Verb|obj.o| is always in \emph{external} co-ordinates [internally it
+%just the point (0,0)]
+%
+%%--------------------------------------------------------------------------
+%\section{Bounding Box}
+%\label{sec:bounding-box}
+%
+%All objects subclassing \Verb|PsObject| must provide a \Verb|boundingbox()|
+%function which returns the SW and NE points of a tight bounding box for the
+%object (in \emph{external} co-ordinates). The bounding box will be used
+%to calculate the bounding box for the entire drawing as way to allow
+%the precise placement of objects.
+%
+%
+%%--------------------------------------------------------------------------
+%\section{Postscript Objects}
+%\label{sec:postscript-objects}
+%
+%The basic class for implementing an object drawn directly in postscript
+%is \Verb|PsObject|. 
 
 \appendix
 

@@ -11,7 +11,7 @@ view: $(FIGS) $(MAIN).pdf
 $(FIGS) : %.eps : %.py
 	./$<
 
-%.pdf:  %.tex $(FIGS) pyscript_defs.tex
+%.pdf:  %.tex $(FIGS) pyscript_defs.tex pyscriptPlot.tex pyscriptElectronics.tex pyscriptOptics.tex
 	pdflatex $<
 	-bibtex $*
 	pdflatex $<
