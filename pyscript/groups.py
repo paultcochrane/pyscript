@@ -330,7 +330,7 @@ def Distribute(*items,**dict):
 
 # -------------------------------------------------------------------------
 
-PSMacros="""%%BeginProcSet: pyscript
+PSMacros="""%%BeginResource: procset pyscript
 /PyScriptDict 10 dict def PyScriptDict begin
 %%show text with kerning if supplied
 /kernshow { 0 2 2 counttomark 2 sub { -2 roll } for
@@ -361,7 +361,7 @@ b4_Inc_state restore
 /PyScriptEnd {} def
 /showpage {} def
 end
-%%EndProcSet
+%%EndResource
 """
 
 
@@ -716,17 +716,21 @@ class Page(Group):
         assert self.orientation in ("Portrait","Landscape")
         fp.write("%%%%PageOrientation: %s\n"%self.orientation)
 
-        d1,d2,w,h=self.bbox_pp()
+        w,h=self.PAPERSIZES[self.size]
         fp.write("%%%%PageBoundingBox: %d %d %d %d\n"%\
                  (0,0,w,h))
 
         # --- Setup ---
         fp.write("%%BeginPageSetup\n")
         fp.write("%%%%BeginFeature: *PageSize %s\n"%self.size)
+        # The orientation of w & h should make no diff here acording to specs
         fp.write("<</PageSize [%d %d] /ImagingBBox null>> setpagedevice\n"%(w,h))
         fp.write("%%EndFeature\n")
         # remember the page graphics state
         fp.write("/pgsave save def\n")
+        # rotate if we're landscape 
+        if self.orientation=="Landscape":
+            fp.write("90 rotate 0 -%d translate\n"%w)
         fp.write("%%EndPageSetup\n")
     
         fp.write("PyScriptDict begin\n")
