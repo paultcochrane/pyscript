@@ -42,40 +42,49 @@ class Matrix:
         self.data = [a, b, c, d]
  
 
-    def body(self, s):
+    def body(self):
         """
         Return the postscript body
         """
-        d = s.data
+        d = self.data
         
         #NB postscript uses transpose
         return "[%g %g %g %g]" % (d[0], d[2], d[1], d[3])
 
-    def __add__(self, s, o):
+    def __add__(self, o):
         if isinstance(o, Matrix):
-            return Matrix(s[0]+o[0], s[1]+o[1], s[2]+o[2], s[3]+o[3])
+            return Matrix(self[0]+o[0], 
+                    self[1]+o[1], 
+                    self[2]+o[2], 
+                    self[3]+o[3])
         else:
             raise TypeError, "non-matrix (%s) in matrix addition"\
                      % type(o)
 
     __radd__ = __add__
   
-    def __sub__(self, s, o):
+    def __sub__(self, o):
         if isinstance(o, Matrix):
-            return Matrix(s[0]-o[0], s[1]-o[1], s[2]-o[2], s[3]-o[3])
+            return Matrix(self[0]-o[0], 
+                    self[1]-o[1], 
+                    self[2]-o[2], 
+                    self[3]-o[3])
         else:
             raise TypeError, "non-matrix (%s) in matrix subtraction"\
                     % type(o)
 
-    def __rsub__(self, s, o):
+    def __rsub__(self, o):
         if isinstance(o, Matrix):
-            return Matrix(o[0]-s[0], o[1]-s[1], o[2]-s[2], o[3]-s[3])
+            return Matrix(o[0]-self[0], 
+                    o[1]-self[1], 
+                    o[2]-self[2], 
+                    o[3]-self[3])
         else:
             raise TypeError, "non-matrix (%s) in right matrix subtraction"\
                     % type(o)
 
-    def __neg__(self, s):
-        return Matrix(-s[0], -s[1], -s[2], -s[3])
+    def __neg__(self):
+        return Matrix(-self[0], -self[1], -self[2], -self[3])
         
     def __len__(self):
         return 4
@@ -140,17 +149,17 @@ class Matrix:
         else:
             raise TypeError, "error in right matrix multiplication"
 
-    def det(self, s):
-        return s[0]*s[3]-s[1]*s[2]
+    def det(self):
+        return self[0]*self[3]-self[1]*self[2]
 
-    def inverse(self, s):
+    def inverse(self):
 
-        d = s.det()
+        d = self.det()
 
         if d == 0 : 
             raise ValueError, "determinant=0, cannot calc inverse"
 
-        return Matrix(s[3], -s[1], -s[2], s[0])/float(d)
+        return Matrix(self[3], -self[1], -self[2], self[0])/float(d)
 
 
     def __div__(self, n):
