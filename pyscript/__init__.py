@@ -24,7 +24,8 @@ from pyscript.defaults import defaults
 from pyscript.groups import *
 from pyscript.objects import *
 from pyscript.render import render
-from pyscript.path import C, Path
+from pyscript.path import C, Path, Arrowhead, \
+            Arrowhead1,Arrowhead2,Arrowhead3,Arrowhead4
 from pyscript.base import Dash, UNITS
 
 __revision__ = '$Revision$'
