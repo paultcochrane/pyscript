@@ -310,6 +310,68 @@ can be obtained with the \Verb|bbox()| method.
 %--------------------------------------------------------------------------
 \subsection{Using Distribute()}
 
+%--------------------------------------------------------------------------
+\section{Trouble Shooting}
+
+\subsection{\LaTeX Stuff}
+
+One of the useful features of \pyscript{} is the ability to use \LaTeX.
+The process is kind of complicated though so things can break. It helps
+to know how it all works if you're going to find some of the subtle bugs,
+so here's a synopsis:
+\begin{enumerate}
+\item You create some \LaTeX{} with the \Verb|TeX()| object (you are using
+  raw strings arent you?).
+\item \pyscript{} writes the text to a temporary file sandwiched
+  between \Verb|defaults.tex_head| and \Verb|defaults.tex_tail|. 
+\item \Verb|defaults.tex_command| is excecuted on the file
+\item \Verb|dvips| is executed on the resulting DVI file.
+\item \pyscript{} reads the BoundingBox comment and throws the rest away!
+\item Finally, within \Verb|render| \emph{all} the \Verb|TeX()|
+  objects are collected together. A temporary file with all the \LaTeX{}
+  is generated with the individual objects delimited by postscript
+  tags (inserted via specials) and pagebreaks.
+\item As before, \Verb|defaults.tex_command| is executed (twice this
+  time) on the file, followed by \Verb|dvips|.
+\item The resulting code is parsed and divided up into sections on
+  fonts and procedures, and the individual postscript code for each
+  object. These are then used within the final document.
+\end{enumerate}
+The reason it's so complicated is for efficiency --- you don't want all the
+header and font info for every single piece of \TeX{} you put on the page.
+
+This is \emph{not} the way \LaTeX{} was designed to be used and it
+shows --- you have to jump through a number of hoops to get it all to
+work. The \Verb|defaults.tex_command| should have a
+\Verb|-interaction=batchmode| flag or errors won't get picked up. For
+the same reason, \emph{any} output from \Verb|dvips| is treated as an
+error, so it needs a \emph{-q} flag. There are a number of tweaks that
+have to be made to the postscript code so that it is viable and the
+boundingboxes work \ldots
+
+Despite all this it works suprisingly well. You can even include
+figures in the \LaTeX{} code and input other files etc. Take care
+though, use \Verb|\input| rather than \Verb|\include| as the latter
+seems to invoke some weird things in \Verb|dvips| that result in the
+postscript tags not getting placed in the file. Also, don't use a figure
+or table environment --- they're floats \ldots think about it.
+
+Right, that enough of a rant. The useful stuff:
+\begin{itemize}
+\item output from the commands goes to the log file --- you did look
+  at it right?
+\item For each \Verb|TeX| object the temporary file thats created is
+  called \Verb|temp1.tex|.  \Verb|defaults.tex_command| and
+  \Verb|dvips -E| execute on it to produce \Verb|temp1.eps|. All these
+  should be valid files which you can examine. You can also run the
+  commands by hand to see whats going on.
+\item The final temp file with all the objects is \Verb|temp.tex|
+  which ends up producing \Verb|temp.ps| which will have one object
+  per page. Again you can examine these files by hand.
+\end{itemize}
+
+%--------------------------------------------------------------------------
+\section{Transformations and Things}
 
 
 %==========================================================================

@@ -913,7 +913,7 @@ class Path(Area):
                 
     def _get_start(self):
         "return start point"
-        return self.path[0]
+        return self.itoe(self.path[0])
     start = property(_get_start)
 
     def _get_end(self):
@@ -922,7 +922,7 @@ class Path(Area):
         p=P[-1]
         if isinstance(p,C):
             p=P[0]
-        return p
+        return self.itoe(p)
     end = property(_get_end)
         
     def body(self):

@@ -7,6 +7,8 @@ all: $(FIGS) $(MAIN).pdf
 view: $(FIGS) $(MAIN).pdf
 	gv $(MAIN).pdf
 
+acro: $(FIGS) $(MAIN).pdf
+	acroread $(MAIN).pdf
 
 $(FIGS) : %.eps : %.py
 	./$<

@@ -439,4 +439,3 @@ class Page(Group):
         '''
         return Group.prebody(self)+out
 
-    
