@@ -283,31 +283,39 @@ class Poster_1(Page):
         return self
 
 
-class Talk(Paper):
+class Talk(Pages):
     """
     A talk class
     """
-    bg = Color('RoyalBlue')
+    bg = Color('RoyalBlue')*0.9
     fg = bg
 
     thelogos = []
     logo_height = 0.8
     
     title = ""
-    title_fg = Color('yellow')
+    title_fg = Color('white')
     title_scale = 5
+
+    slide_title = ""
+    slide_title_fg = Color('white')
+    slide_title_scale = 5
 
     footerScale = 1
 
-    waitbar_fg = Color('red')
+    waitbar_fg = Color('orangered')
     waitbar_bg = Color('black')
     
     authors = ""
-    authors_fg = Color('GoldenRod')
+    authors_fg = Color('white')
     authors_scale = 3
 
     talkAuthor = ""
     talkAuthor_fg = Color(0)
+
+    address = ""
+    address_fg = Color('white')
+    address_scale = 2
     
     logos = None
 
@@ -316,22 +324,25 @@ class Talk(Paper):
     box_border = 2
     
     headings_fgs = {
-            1 : Color('yellow'), 
-            2 : Color('yellow'), 
-            3 : Color('yellow'),
-            "default" : Color('yellow'),
+            1 : Color('white'), 
+            2 : Color('white'), 
+            3 : Color('white'),
+            "default" : Color('white'),
+	    "space" : fg,
             }
     headings_scales = { 
             1 : 3, 
             2 : 2.5, 
             3 : 2.2,
             "default" : 1.5,
+	    "space" : 3,
             }
     headings_bullets = {
-            1 : r"$\bullet$", 
-            2 : r"--", 
-            3 : r"$\gg$",
-            "default" : r"$\cdot$",
+            1 : Epsf(file="redbullet.eps").scale(0.15,0.15),#TeX(r"$\bullet$"), 
+            2 : Epsf(file="greenbullet.eps").scale(0.1,0.1),#TeX(r"--"), 
+            3 : TeX(r"$\gg$"),
+            "default" : TeX(r"$\cdot$"),
+	    "space" : Rectangle(height=1,fg=bg,bg=bg),
             }
 
     headings_indent = {
@@ -339,32 +350,47 @@ class Talk(Paper):
             2 : 0.5,
             3 : 1,
             "default" : 2,
+	    "space" : 0,
             }
 
-    def __init__(self):
-        
-        self.paper = Paper("a4r")
-        
     def tex(self, text, width=9, fg=None):
         if fg is None:
             fg = Color(0)
         return TeX(r'\begin{minipage}{%fcm}%s\end{minipage}' % 
                     (width,text), fg=fg)
 
-    def make(self, *slides):
+    def make_authors(self):
+        return TeX(
+            self.authors,fg=self.authors_fg
+            ).scale(self.authors_scale,self.authors_scale)
+
+    def make_address(self):
+	print 'In make_address, self.address_fg =', self.address_fg
+        return TeX(
+            self.address,fg=self.address_fg
+            ).scale(self.address_scale,self.address_scale)
+
+    def make(self, *slides, **opts):
         
         self.slides = slides
-        numPages = len(slides)
+        # numPages = len(slides)
         i = 1
+	temp = Pages()
         for slide in slides:
             slide.pageNumber = i
-            temp = slide.make(self)
-            fname = '%s%02d%s' % ("slide",i,".eps")
-            render(temp,file=fname)
+	    print 'Adding slide:', str(i), '...'
+            temp.append(slide.make(self))
+            # fname = '%s%02d%s' % ("slide",i,".eps")
+            # render(temp,file=fname)
             i += 1
-        print "%i slides produced" % (i-1,)
+        # print "%i slides produced" % (i-1,)
+	if not opts.has_key('file'):
+	    raise "No filename given"
+	file = opts['file']
+	
+	render(temp, file=file)
 
-class Slide(Talk):
+class Slide(Page,Talk):
     """
     A slide class
     """
@@ -372,18 +398,31 @@ class Slide(Talk):
     pageNumber = None
     authors = None
     titlepage = False
+    size = "screen"
+    orientation = "Landscape"   
 
     def __init__(self,talk):
+
+	Page.__init__(self)
         
-        self.bg = talk.bg
-        self.fg = talk.fg
-        self.paper = talk.paper
-        self.footerScale = talk.footerScale
-        self.talkAuthor = talk.talkAuthor
-        self.waitbar_fg = talk.waitbar_fg
+        # self.bg = talk.bg
+        # self.fg = talk.fg
+	self.title_fg = talk.slide_title_fg
+	self.title_scale = talk.slide_title_scale
+        # self.paper = talk.paper
+        # self.footerScale = talk.footerScale
+        # self.talkAuthor = talk.talkAuthor
+        # self.waitbar_fg = talk.waitbar_fg
+        # self.waitbar_bg = talk.waitbar_bg
+	# self.headings_bullets = talk.headings_bullets
+	# self.headings_fgs = talk.headings_fgs
+	# self.headings_scales = talk.headings_scales
+	# self.headings_indent = talk.headings_indent
         self.headings = []
         self.epsf = []
         self.figs = []
+        self.thelogos = []
+	self.area = self.area()
 
     def logos(self,*files):
         
@@ -398,11 +437,11 @@ class Slide(Talk):
             return Area(width=0, height=0)
         elif len(self.thelogos) == 1:
             return Group(
-                Area(width=self.paper.width, height=0, nw=P(0,0)),
+                Area(width=self.area.width, height=0, nw=P(0,0)),
                 self.thelogos[0]
                 )
 
-        width = self.paper.width -\
+        width = self.area.width -\
                 self.thelogos[0].bbox().width -\
                 self.thelogos[-1].bbox().width -\
                 0.2
@@ -436,26 +475,33 @@ class Slide(Talk):
         elif dict.has_key('n'): 
             obj.n = dict['n']
         elif dict.has_key('ne'):
-            obj.ne = dict['nw']
+            obj.ne = dict['ne']
+        elif dict.has_key('c'):
+            obj.c = dict['c']
         else:
             obj.sw = P(0.0,0.0)
+
+	if dict.has_key('bg'):
+	    backColor = dict['bg']
+	else:
+	    backColor = Color('white')
+
+	if dict.has_key('fg'):
+	    frontColor = dict['fg']
+	else:
+	    frontColor = None
 
         gutter = 0.1
         back = Rectangle(width=obj.bbox().width+gutter,
                     height=obj.bbox().height+gutter,
-                    bg=Color('white'))
+                    bg=backColor,fg=frontColor)
         back.sw = obj.bbox().sw-P(gutter/2.0,gutter/2.0)
         self.figs.append(Group(back,obj))
 
-    def make_authors(self):
-        return TeX(
-            self.authors,fg=self.authors_fg
-            ).scale(self.authors_scale,self.authors_scale)
-
     def make_title(self):
-        return TeX(self.title,fg=self.title_fg).scale(self.title_scale,
+        return TeX(self.title,fg=self.title_fg).scale(self.title_scale*0.8,
                                                       self.title_scale)
-
+    
     def add_heading(self,level,text):
         temp = [ level, text ]
         self.headings.append(temp)
@@ -472,20 +518,25 @@ class Slide(Talk):
             heading_scale = self.headings_scales[heading_level]
             heading_indent = self.headings_indent[heading_level]
 
-            tex = TeX(text=heading_bullet + ' ' + heading_text, 
-                    fg=heading_fg).scale(heading_scale,heading_scale)
+	    tex = Group(heading_bullet)
+	    tex.append(TeXBox(text=heading_text,
+			    fixed_width=self.area.width-5,
+			    fg=heading_fg,
+			    tex_scale=heading_scale))
+	    Align(tex, a1='ne', a2='nw', angle=90, space=0.2)
             padding = Area(sw=tex.sw,width=heading_indent,height=0)
             heading_proper = Group(padding,tex)
             Align(heading_proper, a1="e", a2="w", angle=90, space=0)
             heading_block.append(heading_proper)
 
-        Align(heading_block, a1="sw", a2="nw", angle=180, space=0.4)
+        Align(heading_block, a1="sw", a2="nw", angle=180, space=0.5)
         return heading_block
             
     def make_waitbar(self):
-        waitBarBack = Rectangle(se=self.paper.se+P(-0.8,0.4),
+        waitBarBack = Rectangle(se=self.area.se+P(-0.8,0.4),
                         width=2.5,
                         height=0.5,
+			r=0.2,
                         fg=self.waitbar_bg,
                         bg=self.waitbar_bg)
 
@@ -494,14 +545,19 @@ class Slide(Talk):
                         width=(waitBarBack.width-2*offset)*\
                                 self.pageNumber/self.pages,
                         height=waitBarBack.height-2*offset,
+			r=0.2,
                         fg=self.waitbar_fg,
                         bg=self.waitbar_fg)
         waitBar = Group(waitBarBack,waitBarFront)
         return  waitBar
 
     def make_footer(self,talk):
-        footerText = " - %s; page %i of %i" %  \
+	pageOf = False
+	if pageOf:
+	    footerText = " - %s; page %i of %i" %  \
                         (talk.talkAuthor,self.pageNumber,self.pages)
+	else:
+	    footerText = " - %s" % (talk.talkAuthor,)
         
         footerTeX = Group(
                     TeX(text=talk.title,
@@ -513,7 +569,7 @@ class Slide(Talk):
                         ).scale(self.footerScale,self.footerScale),
                     )
         footer = Align(footerTeX, a1="e", a2="w", angle=90, space=0.1)
-        footer.sw = self.paper.sw+P(0.4,0.4)
+        footer.sw = self.area.sw+P(0.4,0.4)
         return footer
 
     def add_epsf(self,file="",**dict):
@@ -542,7 +598,9 @@ class Slide(Talk):
         elif dict.has_key('n'):
             picture.n = dict['n']
         elif dict.has_key('ne'):
-            picture.ne = dict['nw']
+            picture.ne = dict['ne']
+	elif dict.has_key('c'):
+	    picture.c = dict['c']
         else:
             picture.sw = P(0.0,0.0)
 
@@ -568,34 +626,78 @@ class Slide(Talk):
             figs.append(fig)
         return figs
 
+    def make_titlepage(self, talk):
+	titlepage = Group(self.make_logos())
+        titlepage.append(TeX(talk.title,
+			    fg=talk.title_fg)\
+			    .scale(talk.title_scale,talk.title_scale))
+        if talk.authors is not None:
+            titlepage.append(talk.make_authors())
+	if talk.address is not None:
+	    titlepage.append(talk.make_address())
+	Align(titlepage, a1="s", a2="n", angle=180, space=0.4)
+
+	return titlepage
+
+    def make_background(self, talk):
+	back = Group()
+        back.append(Rectangle(sw = self.area.sw,
+                        width = self.area.width,
+                        height = self.area.height,
+                        fg = None,
+                        bg = self.bg,
+                        )
+		    )
+	back.append(Rectangle(sw = self.area.sw,
+			width = 2.5,
+			height = self.area.height,
+			fg = None,
+			bg = self.bg*0.5,
+			)
+		    )
+	back.append(Rectangle(sw = self.area.sw,
+			width = self.area.width,
+			height = 1.5,
+			fg = None,
+			bg = self.bg*0.5,
+			)
+		    )
+	back.append(Rectangle(nw = self.area.nw,
+			width = self.area.width,
+			height = 2.5,
+			fg = None,
+			bg = self.bg*0.5,
+			)
+		    )
+	back.append(Rectangle(nw = self.area.nw,
+			width = 2.5,
+			height = 2.5,
+			fg = None,
+			bg = Color('firebrick'),
+			)
+		    )
+
+	return back
+	
     def make(self, talk, scale=1):
         
-        all = Group(self.make_logos(),self.make_title())
-        
-        if self.authors is not None:
-            all.append(self.make_authors())
-        
-        Align(all, a1="s", a2="n", angle=180, space=0.4)
-
         if self.titlepage:
-            all.c = self.paper.c + P(0.0,0.8)
+	    all = self.make_titlepage(talk)
+            all.c = self.area.c + P(0.0,0.8)
         else:
-            all.n = self.paper.n - P(0,0.2)
+	    all = Group(self.make_logos(),self.make_title())
+	    Align(all, a1="s", a2="n", angle=180, space=0.4)
+            all.nw = self.area.nw + P(2.5,-0.2)
 
         # I'm aware that this isn't a good way to do this, but
         # it's late at night, and I want to get *something* going
 
         headings = self.make_headings()
-        headings.nw = self.paper.nw + P(3.0,-3.0)
+        headings.nw = self.area.nw + P(3.0,-3.0)
     
-        back = Rectangle(sw = self.paper.sw,
-                        width = self.paper.width,
-                        height = self.paper.height,
-                        fg = None,
-                        bg = self.bg
-                        )
-        
-        p = self.paper.se + P(-0.1,0.1)
+        back = self.make_background(talk)
+
+        p = self.area.se + P(-0.1,0.1)
         signature = Text('Created with PyScript',
                             size=15,
                             sw=p,
@@ -615,5 +717,5 @@ class Slide(Talk):
                 self.make_waitbar()
                 ).scale(scale,scale)
 
-        return Group(All)
+        return Page(All,orientation="Landscape")
 
