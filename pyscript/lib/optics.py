@@ -62,13 +62,13 @@ def PBS(c=P(0,0), h=1.0, angle=0):
 
 
 # line beam splitter
-def BSLine(c=P(0,0), label=None, w=1.0, h=0.1, angle=0, anchor=None):
+def BSLine(c=P(0,0), label=None, w=1.0, h=0.1, angle=0, anchor=None, fg=Color(0), bg=Color(0)):
     """
     Line beam splitter
     """
     sw = c-P(w/2.0,h/2.0)
     beamSplitter = Path(sw, sw+P(0,h), sw+P(w,h), sw+P(w,0), sw,
-             fg=Color("black"), bg=Color("black"))
+             fg=fg, bg=bg)
     beamSplitter.rotate(angle,p=c)
     if label is not None:
         label.w = sw+P(h,0)+P(-h/4,h/2)
@@ -93,7 +93,7 @@ def PhaseShifter(sw=P(0,0), label=None, w=0.5, h=0.7, angle=0):
 
 
 # mirror
-def Mirror(c=P(0,0), label=None, length=1.0, thickness=0.1, angle=0, anchor=None):
+def Mirror(c=P(0,0), label=None, length=1.0, thickness=0.1, angle=0, anchor=None, fg=Color(0), bg=Color(0)):
     """
     Mirror
     """
@@ -103,12 +103,12 @@ def Mirror(c=P(0,0), label=None, length=1.0, thickness=0.1, angle=0, anchor=None
     mirror = Group()
     mirror.append(Path(sw, sw+P(0,thickness),
                   sw+P(length,thickness), sw+P(length,0), sw,
-                  fg=Color("black"), bg=Color("black")))
+                  fg=fg, bg=bg))
     flickLen = 0.15
     flicks = Group()
     for i in range(10):
         flicks.append(Path(sw+P((i+1.0)*length/10.0,thickness),
-                           sw+P(i*length/10.0,thickness+flickLen)))
+                           sw+P(i*length/10.0,thickness+flickLen),fg=fg,bg=bg))
 
     mirror.append(flicks)
     mirror.rotate(angle, p=c)
