@@ -41,6 +41,12 @@ PSheader="""%%!PS-Adobe-2.0
 %%%%Page: 1 1
 """%(VERSION,time.ctime(time.time()))
 
+PSMacros="""%% show text with kerning if supplied
+/kernshow { 0 2 2 counttomark 2 sub { -2 roll } for
+counttomark 2 idiv { exch show 0 rmoveto} repeat pop
+} bind def
+"""
+
 import os,re
 def TeXdefs(text=""):
     '''
@@ -144,6 +150,7 @@ def render(*objects,**opts):
         out.write('%%%%BoundingBox: %d %d %d %d\n%%%%EndComments\n'%\
                   (SW[0],SW[1],NE[0],NE[1]))
 
+    out.write(PSMacros)
     out.write('/uu {%f mul} def '%defaults.units)
     out.write('%f setlinewidth '%defaults.linewidth)
     out.write(defs)

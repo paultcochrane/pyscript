@@ -274,8 +274,6 @@ class TeX(Area):
 
         self.text=text
 
-        apply(Area.__init__,(self,),dict)
-        
 
         TMP="temp"
         fp=open("%s.tex"%TMP,"w")
@@ -302,6 +300,7 @@ class TeX(Area):
         self.width=(bbox[2]-bbox[0])/float(defaults.units)
         self.height=(bbox[3]-bbox[1])/float(defaults.units)
 
+        apply(Area.__init__,(self,),dict)
 
         self.offset=-P(bbox[0],bbox[1])/float(defaults.units)
         # grab font encoding
@@ -315,6 +314,7 @@ class TeX(Area):
         body="%s\nTeXDict begin\n%s\nend\n"%(fonts,string.strip(body))
 
         self.bodyps=body
+        
 
 
     def body(self):
@@ -338,6 +338,7 @@ class Text(Area):
     size=12
     fg=Color(0)
     bg=None
+    kerning=1
     
     def __init__(self,text="",**dict):
         '''
@@ -350,21 +351,81 @@ class Text(Area):
 
         self.text=text
 
-        apply(Area.__init__,(self,),dict)
-
 
         # get the bbox
         # first need font and scale
-        fontname=self.font
-        size=self.size
+        # Can't use base mechanism ... property items might get called
+        self.font=dict.get('font',self.font)
+        self.size=dict.get('size',self.size)
+        self.kerning=dict.get('kerning',self.kerning)
 
-        font=afm.load(fontname)
+        settext,x1,y1,x2,y2=self._typeset(text)
 
-        x1,y1,x2,y2=font.bbox(text,size=size)
-
+        self.settext=settext
         self.offset=-P(x1,y1)/float(defaults.units)
         self.width=(x2-x1)/float(defaults.units)
         self.height=(y2-y1)/float(defaults.units)
+
+        apply(Area.__init__,(self,),dict)
+
+    def _typeset(self,string):
+        
+        font=afm.load(self.font)
+        size=self.size
+        sc=size/1000.
+
+
+	chars=map(ord,list(string))
+
+	# order: width l b r t
+
+	# use 'reduce' and 'map' as they're written in C
+
+	# add up all the widths
+	width= reduce(lambda x, y: x+font[y][0],chars,0)
+
+	# subtract the kerning
+        if self.kerning==1:
+            if len(chars)>1:
+                kerns=map(lambda x,y:font[(x,y)] ,chars[:-1],chars[1:])
+                
+                charlist=list(string)
+
+                out="("
+                for ii in kerns:
+                    if ii!=0:
+                        out+=charlist.pop(0)+") %s ("%str(ii*sc)
+                    else:
+                        out+=charlist.pop(0)
+                out+=charlist.pop(0)+")"
+                
+                settext=out
+
+                kern=reduce(lambda x,y:x+y,kerns)
+                            
+                width+=kern
+
+        else:
+            settext="("+string+")"
+
+	# get rid of the end bits
+	start=font[chars[0]][1]
+	f=font[chars[-1]]
+	width = width-start-(f[0]-f[3])
+
+	# accumulate maximum height
+	top = reduce(lambda x, y: max(x,font[y][4]),chars,0)
+
+	# accumulate lowest point
+	bottom = reduce(lambda x, y: min(x,font[y][2]),chars,font[chars[0]][2])
+
+	xl=start*sc
+	yb=bottom*sc
+	xr=xl+width*sc
+	yt=top*sc
+
+        return settext,xl,yb,xr,yt
+        
 
     def body(self):
         out=cStringIO.StringIO()
@@ -372,12 +433,12 @@ class Text(Area):
         ATTR={'font':self.font,
               'size':self.size,
               'fg':self.fg,
-              'text':self.text,
+              'settext':self.settext,
               'offset':self.offset}
         
         out.write("%(offset)s moveto\n"%ATTR)
-        out.write("/%(font)s findfont\n%(size)s scalefont setfont\n"%ATTR)
-        out.write("%(fg)s (%(text)s) show\n"%ATTR)
+        out.write("/%(font)s %(size)s selectfont %(fg)s \n"%ATTR)
+        out.write("mark %(settext)s kernshow\n"%ATTR)
         
         return out.getvalue()
 
@@ -385,51 +446,51 @@ class Text(Area):
 # -------------------------------------------------------------------------
 # Text class ... requires 'gs -sDEVICE=bbox'
 # -------------------------------------------------------------------------
-class Text_gs_XXX(Area):
-    '''
-    single line text object that requires "gs -sDEVICE=bbox"
-    '''
+##class Text_gs_XXX(Area):
+##    '''
+##    single line text object that requires "gs -sDEVICE=bbox"
+##    '''
         
-    def __init__(self,text="",**dict):
+##    def __init__(self,text="",**dict):
 
-        # this is a bit ugly ... we need a
-        # minimal text object with no transformations
-        # in order to grab the bounding box
+##        # this is a bit ugly ... we need a
+##        # minimal text object with no transformations
+##        # in order to grab the bounding box
         
-        font="Times-Roman"
-        scale=12
-        if dict.has_key('font'): font=dict['font']
-        if dict.has_key('scale'): font=dict['scale']
+##        font="Times-Roman"
+##        scale=12
+##        if dict.has_key('font'): font=dict['font']
+##        if dict.has_key('scale'): font=dict['scale']
 
-        temp=Text_nobbox(text=text,scale=scale,font=font)
+##        temp=Text_nobbox(text=text,scale=scale,font=font)
 
-        # get the bbox
-        SW,NE=gsbbox(temp)
+##        # get the bbox
+##        SW,NE=gsbbox(temp)
 
-        # Now create the real text object
-        self.natives(dict,
-                     bg=None,
-                     fg=Color(0),
-                     text=text,
-                     font="Times-Roman",
-                     scale=12,
-                     width=NE[0]-SW[0],
-                     height=NE[1]-SW[1],
-                     )
+##        # Now create the real text object
+##        self.natives(dict,
+##                     bg=None,
+##                     fg=Color(0),
+##                     text=text,
+##                     font="Times-Roman",
+##                     scale=12,
+##                     width=NE[0]-SW[0],
+##                     height=NE[1]-SW[1],
+##                     )
 
-        self.offset=-SW
+##        self.offset=-SW
 
-        apply(Area.__init__,(self,),dict)
+##        apply(Area.__init__,(self,),dict)
 
 
-    def body(self):
-        out=cStringIO.StringIO()
+##    def body(self):
+##        out=cStringIO.StringIO()
         
-        out.write("%s moveto\n"%self.offset)
-        out.write("/%(font)s findfont\n%(scale)d scalefont setfont\n"%self)
-        out.write("%(fg)s (%(text)s) show\n"%self)
+##        out.write("%s moveto\n"%self.offset)
+##        out.write("/%(font)s findfont\n%(scale)d scalefont setfont\n"%self)
+##        out.write("%(fg)s (%(text)s) show\n"%self)
         
-        return out.getvalue()
+##        return out.getvalue()
 
 
 
@@ -438,40 +499,40 @@ class Text_gs_XXX(Area):
 # (but doesn't rely on gs)
 # -------------------------------------------------------------------------
 
-class Text_nobbox_XXX(PsObject):
-    """
-    Text class with broken bbox
-    (doesn't require gs)
-    """
-    def __init__(self,text="",**dict):
+##class Text_nobbox_XXX(PsObject):
+##    """
+##    Text class with broken bbox
+##    (doesn't require gs)
+##    """
+##    def __init__(self,text="",**dict):
 
-        self.natives(dict,
-                     bg=None,
-                     fg=Color(0),
-                     o=P(0,0),
-                     text=text,
-                     font="Helvetica",
-                     scale=12
-                     )
-        apply(PsObject.__init__,(self,),dict)
+##        self.natives(dict,
+##                     bg=None,
+##                     fg=Color(0),
+##                     o=P(0,0),
+##                     text=text,
+##                     font="Helvetica",
+##                     scale=12
+##                     )
+##        apply(PsObject.__init__,(self,),dict)
 
-    def body(self):
-        out=cStringIO.StringIO()
+##    def body(self):
+##        out=cStringIO.StringIO()
         
-        out.write("0 0 moveto\n")
-        out.write("/%(font)s findfont\n%(scale)d scalefont setfont\n"%self)
-        out.write("%(fg)s (%(text)s) show\n"%self)
+##        out.write("0 0 moveto\n")
+##        out.write("/%(font)s findfont\n%(scale)d scalefont setfont\n"%self)
+##        out.write("%(fg)s (%(text)s) show\n"%self)
         
-        return out.getvalue()
+##        return out.getvalue()
 
-    def bbox(self):
-        "return objects bounding box"
+##    def bbox(self):
+##        "return objects bounding box"
 
-        # return corners for now + 1point to take
-        # into account the line widths
-        sw = self["o"]-R(1,1)*(1/float(defaults.units))
-        ne = self["o"]+R(1,1)*(1/float(defaults.units))
-        return (sw,ne)
+##        # return corners for now + 1point to take
+##        # into account the line widths
+##        sw = self["o"]-R(1,1)*(1/float(defaults.units))
+##        ne = self["o"]+R(1,1)*(1/float(defaults.units))
+##        return (sw,ne)
 
 # -------------------------------------------------------------------------
 # Rectangle
@@ -526,15 +587,11 @@ class Circle(AffineObj):
                      - r: radius
                      - start: starting angle for arc
                      - end: end angle for arc
-                     - c, n, ne, ... as for L{Area.__init__}
-                     - 0-360: point on circumference at that angle
-                       (degrees clockwise from n)
+                     - c, n, ne, ... as for L{Area.__init__} but on circumference
                      - fg,bg:  foreground and background colors
-                     - linewidth, dash:
+                     - linewidth, dash: usual
     """
 
-    namedangles={'n':0,'ne':45,'e':90,'se':135,
-                 's':180,'sw':235,'w':270,'nw':315}
 
     bg=None
     fg=Color(0)
@@ -557,21 +614,74 @@ class Circle(AffineObj):
         return self.itoe(P(x,y))
 
     def __getitem__(self,i):
-
-        if self.namedangles.has_key(i):
-            return self.locus(self.namedangles[i])
+        '''
+        Get a point on the circumference
+        
+        @param i: an angle in degrees
+        @return: point on circumference at that angle
+                       (degrees clockwise from north)
+        '''
 
         return self.locus(i)  
     
     def __setitem__(self,i,other):
-
-        if self.namedangles.has_key(i):
-            pcurrent=self.locus(self.namedangles[i])
-            self.move(other-pcurrent)
+        '''
+        Set a point on the circumference
+        '''
 
         pcurrent=self.locus(i)
 
         self.move(other-pcurrent)
+        return self
+
+    # some named locations
+    def _get_n(s):
+        return s[0]
+    def _set_n(s,pe):
+        s[0]=pe
+    n = property(_get_n,_set_n)
+
+    def _get_ne(s):
+        return s[45]
+    def _set_ne(s,pe):
+        s[45]=pe
+    ne = property(_get_ne,_set_ne)
+
+    def _get_e(s):
+        return s[90]
+    def _set_e(s,pe):
+        s[90]=pe
+    e = property(_get_e,_set_e)
+
+    def _get_se(s):
+        return s[135]
+    def _set_se(s,pe):
+        s[135]=pe
+    se = property(_get_se,_set_se)
+
+    def _get_s(s):
+        return s[180]
+    def _set_s(s,pe):
+        s[180]=pe
+    s = property(_get_s,_set_s)
+
+    def _get_sw(s):
+        return s[235]
+    def _set_sw(s,pe):
+        s[235]=pe
+    sw = property(_get_sw,_set_sw)
+
+    def _get_w(s):
+        return s[270]
+    def _set_w(s,pe):
+        s[270]=pe
+    w = property(_get_w,_set_w)
+
+    def _get_nw(s):
+        return s[315]
+    def _set_nw(s,pe):
+        s[315]=pe
+    nw = property(_get_nw,_set_nw)
 
     def _get_c(s):
         return s.o
@@ -630,7 +740,7 @@ class Dot(Circle):
     '''
     draw a dot at the given location
     '''
-    r=.1
+    r=.05
     bg=Color(0)
     fg=None
 
@@ -927,15 +1037,73 @@ class Paper(Area):
         
         w,h=self.PAPERSIZES[size]
         
-        self.natives(dict,
-                     width=w*UNITS['cm']/float(defaults.units),
-                     height=h*UNITS['cm']/float(defaults.units),
-                     )
+        self.width=w*UNITS['cm']/float(defaults.units)
+        self.height=h*UNITS['cm']/float(defaults.units)
 
         apply(Area.__init__,(self,),dict)
 
 
+class Epsf(Area):
 
+    bbox_so=re.compile("\%\%boundingbox:\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)",re.I|re.S)
+
+    linewidth=defaults.linewidth
+    dash=defaults.dash
+    fg=Color(0)
+
+
+    def __init__(self,file,**dict):
+        '''
+        @param file: path to epsf file
+        @return: The eps figure as an area object
+        '''
+
+        self.file=file
+
+        fp=open(file,'r')
+        self.all=fp.read(-1)
+        fp.close()
+
+        so=self.bbox_so.search(self.all)
+        x1s,y1s,x2s,y2s=so.groups()
+
+        d=float(defaults.units)
+        x1=float(x1s)/d
+        y1=float(y1s)/d
+        x2=float(x2s)/d
+        y2=float(y2s)/d
+
+        print x1,y1,x2,y2
+        self.offset=-P(x1,y1)
+        print self.offset
+        
+        self.width=x2-x1
+        self.height=y2-y1
+        print self.width,self.height
+
+        apply(Area.__init__,(self,),dict)
+    
+
+    def body(self):
+        
+        out=cStringIO.StringIO()
+        
+        if self.linewidth!=defaults.linewidth:
+            out.write("%f setlinewidth "%self.linewidth)
+
+        if self.dash!=defaults.dash:
+            out.write("%s setdash "%self.dash)
+        
+        
+        if self.fg is not None:
+            out.write("%s\n"%self.fg)
+            
+        out.write("%s translate \n\n"%self.offset)
+
+        out.write("%%%%BeginDocument: %s\n"%self.file)
+        out.write(self.all)
+        
+        return out.getvalue()
 
 
 

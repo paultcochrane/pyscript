@@ -272,9 +272,12 @@ class AFM:
 	# subtract the kerning
         if kerning==1:
             if len(chars)>1:
-                kern=reduce(lambda x,y:x+y,
-                            map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:]))
+                kk=map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:])
+                kern=reduce(lambda x,y:x+y,kk)
+                            
                 width+=kern
+        kk=map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:])
+        print kk
 
 	# get rid of the end bits
 	start=self[chars[0]][1]
