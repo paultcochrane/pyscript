@@ -785,11 +785,12 @@ class Group(PsObject):
     def __setslice__(self,i,j,wert):
         self.objects[i:j]=wert
 
-    def append(self,obj):
+    def append(self,*objs):
         '''
-        append object to group
+        append object(s) to group
         '''
-        self.objects.append(obj)
+	for obj in objs:
+	    self.objects.append(obj)
 
     def boundingbox(self):
         """

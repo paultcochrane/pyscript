@@ -115,12 +115,13 @@ def render(*objects,**opts):
     if not SW or not NE:
         print "No objects to render!"
         return
-    
+
+    pad=5 # no. of points to pad bbox with
     # convert bbox to points
-    SW[0]=round(SW[0]*defaults.units)
-    SW[1]=round(SW[1]*defaults.units)
-    NE[0]=round(NE[0]*defaults.units)
-    NE[1]=round(NE[1]*defaults.units)
+    SW[0]=round(SW[0]*defaults.units)-pad
+    SW[1]=round(SW[1]*defaults.units)-pad
+    NE[0]=round(NE[0]*defaults.units)+pad
+    NE[1]=round(NE[1]*defaults.units)+pad
 
     out.write(EPSheader)
     out.write('%%%%BoundingBox: %d %d %d %d\n%%%%EndComments\n'%\
