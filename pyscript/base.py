@@ -58,8 +58,10 @@ class PsObj(object):
         '''
         can pass a dict of atributes to set
         '''
-        #object.__init__(self)
-        apply(self, (), options)
+        object.__init__(self)
+        #print "PsObj(object) options: " + str(options)
+        #apply(self, (), options)
+        self(**options)
 
     def __call__(self, **options):
         '''
@@ -87,11 +89,9 @@ class PsObj(object):
         for key, value in prop:
             self.__class__.__setattr__(self, key, value)
                 
-
         # for convenience return a reference to us
         return self
         
-
     def copy(self, **options):
         '''
         return a copy of this object
@@ -104,7 +104,8 @@ class PsObj(object):
         # here for convenience
         obj = copy.deepcopy(self)
 
-        apply(obj, (), options)
+        #apply(obj, (), options)
+        obj(**options)
 
         return obj
     
@@ -357,8 +358,7 @@ class Color(PsObj):
         
         self.color = col
             
-        #apply(PsObj.__init__, (self, ), options)
-        PsObj.__init__(self)
+        PsObj.__init__(self, **options)
         
         
     def body(self):
@@ -395,7 +395,8 @@ class Color(PsObj):
         newcol = []
         for ii in self.color:
             newcol.append(min(1, ii*other))
-        return apply(Color, tuple(newcol))
+        #return apply(Color, tuple(newcol))
+        return Color(tuple(newcol))
 
 # -------------------------------------------------------------------------
 class Dash(PsObj):
