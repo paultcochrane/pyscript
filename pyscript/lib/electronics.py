@@ -34,10 +34,21 @@ def AndGate(
     labelPinOut=None
     ):
     """
-    AND gate
+    Generates an AND gate
+    @param sw: the position of the sw reference point
+    @param direction: the direction of the gate
+    @param height: vertical extent of gate
+    @param width: horizontal extent of gate (equivalent to length)
+    @param pinLength: length of pins into and out of gate
+    @param label: overall label
+    @param labelPinIn1: label for input pin 1 (the top one for default
+	direction)
+    @param labelPinIn2: label for input pin 2 (th bottom one for default
+	direction)
+    @param labelPinOut: label for output pin
+    @return: a Group() object of the gate
     """
     
-    # should it be direction or dir?
     buff = 0
     pinEdgeDist = 0.1*height
     bodyHeight = height
@@ -86,7 +97,19 @@ def NandGate(
 	labelPinOut=None,
 	):
     """
-    NAND gate
+    Generates a NAND gate
+    @param sw: the position of the sw reference point
+    @param direction: the direction of the gate
+    @param height: vertical extent of gate
+    @param width: horizontal extent of gate (equivalent to length)
+    @param pinLength: length of pins into and out of gate
+    @param label: overall label
+    @param labelPinIn1: label for input pin 1 (the top one for default
+        direction)
+    @param labelPinIn2: label for input pin 2 (th bottom one for default
+        direction)
+    @param labelPinOut: label for output pin
+    @return: a Group() object of the gate
     """
 
     buff = 0
@@ -139,7 +162,19 @@ def OrGate(
 	labelPinIn2=None, 
 	labelPinOut=None):
     """
-    OR gate
+    Generates an OR gate
+    @param sw: the position of the sw reference point
+    @param direction: the direction of the gate
+    @param height: vertical extent of gate
+    @param width: horizontal extent of gate (equivalent to length)
+    @param pinLength: length of pins into and out of gate
+    @param label: overall label
+    @param labelPinIn1: label for input pin 1 (the top one for default
+        direction)
+    @param labelPinIn2: label for input pin 2 (th bottom one for default
+        direction)
+    @param labelPinOut: label for output pin
+    @return: a Group() object of the gate
     """
     # should it be direction or dir?
     pinEdgeDist = 0.1*height
@@ -191,7 +226,19 @@ def NorGate(
         labelPinIn2=None,
         labelPinOut=None):
     """
-    NOR gate
+    Generates a NOR gate
+    @param sw: the position of the sw reference point
+    @param direction: the direction of the gate
+    @param height: vertical extent of gate
+    @param width: horizontal extent of gate (equivalent to length)
+    @param pinLength: length of pins into and out of gate
+    @param label: overall label
+    @param labelPinIn1: label for input pin 1 (the top one for default
+        direction)
+    @param labelPinIn2: label for input pin 2 (th bottom one for default
+        direction)
+    @param labelPinOut: label for output pin
+    @return: a Group() object of the gate
     """
     pinEdgeDist = 0.1*height
     pinBackDist = -0.08*width
@@ -245,7 +292,19 @@ def XorGate(
         labelPinIn2=None,
         labelPinOut=None):
     """
-    XOR gate
+    Generates an XOR gate
+    @param sw: the position of the sw reference point
+    @param direction: the direction of the gate
+    @param height: vertical extent of gate
+    @param width: horizontal extent of gate (equivalent to length)
+    @param pinLength: length of pins into and out of gate
+    @param label: overall label
+    @param labelPinIn1: label for input pin 1 (the top one for default
+        direction)
+    @param labelPinIn2: label for input pin 2 (th bottom one for default
+        direction)
+    @param labelPinOut: label for output pin
+    @return: a Group() object of the gate
     """
     pinEdgeDist = 0.1*height
     pinBackDist = -0.08*width
@@ -303,7 +362,19 @@ def NxorGate(
         labelPinIn2=None,
         labelPinOut=None):
     """ 
-    NXOR gate
+    Generates a NXOR gate
+    @param sw: the position of the sw reference point
+    @param direction: the direction of the gate
+    @param height: vertical extent of gate
+    @param width: horizontal extent of gate (equivalent to length)
+    @param pinLength: length of pins into and out of gate
+    @param label: overall label
+    @param labelPinIn1: label for input pin 1 (the top one for default
+        direction)
+    @param labelPinIn2: label for input pin 2 (th bottom one for default
+        direction)
+    @param labelPinOut: label for output pin
+    @return: a Group() object of the gate
     """
     pinEdgeDist = 0.1*height
     pinBackDist = -0.08*width
@@ -365,10 +436,21 @@ def NotGate(
         labelPinOut=None,
         ):
     """
-    NOT gate
+    Generates a NOT gate
+    @param sw: the position of the sw reference point
+    @param direction: the direction of the gate
+    @param height: vertical extent of gate
+    @param width: horizontal extent of gate (equivalent to length)
+    @param pinLength: length of pins into and out of gate
+    @param label: overall label
+    @param labelPinIn1: label for input pin 1 (the top one for default
+        direction)
+    @param labelPinIn2: label for input pin 2 (th bottom one for default
+        direction)
+    @param labelPinOut: label for output pin
+    @return: a Group() object of the gate
     """
 
-    # should it be direction or dir?
     buff = 0
     pinEdgeDist = 0.1*height
     bodyHeight = height
@@ -418,7 +500,16 @@ def Resistor(
 	labelPinOut=None,
 	):
     """
-    Resistor
+    Generates a box resistor
+    @param w: the position of the sw reference point
+    @param direction: the direction of the resistor (ew is horizontal)
+    @param resLength: length of resistor
+    @param resWidth: width of resistor
+    @param pinLength: length of pins into and out of resistor
+    @param label: overall label
+    @param labelPinIn: label for input pin
+    @param labelPinOut: label for output pin
+    @return: a Group() object
     """
 
     pinIn = Path(w,w+P(pinLength,0))
@@ -452,7 +543,16 @@ def Capacitor(
         labelPinOut=None,
         ):
     """
-    Capacitor
+    Generates a capacitor
+    @param w: the position of the sw reference point
+    @param direction: the direction of the capacitor (ew is horizontal)
+    @param capHeight: height of capacitor
+    @param capSep: separation of the plates of the capacitor
+    @param pinLength: length of pins into and out of capacitor
+    @param label: overall label
+    @param labelPinIn: label for input pin
+    @param labelPinOut: label for output pin
+    @return: a Group() object
     """
 
     pinIn = Path(w,w+P(pinLength,0))
