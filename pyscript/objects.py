@@ -115,6 +115,46 @@ class AffineObj(PsObj):
         
         return self
 
+    def reflect(self,angle,p=None):
+        '''
+        reflect object in mirror
+        @param angle: angle of mirror (deg clockwise from top)
+        @param p: origin of reflection
+        @return: reference to self
+        '''
+        # convert angle to radians, clockwise from top
+        angle=angle/180.0*pi-pi/2 
+
+        t=Matrix(
+            cos(angle)**2-sin(angle)**2,
+            -2*sin(angle)*cos(angle),
+            -2*sin(angle)*cos(angle),
+            sin(angle)**2-cos(angle)**2
+            )
+        
+        self.concat(t,p)
+        
+        return self
+
+
+    def shear(self,s,angle,p=None):
+        '''
+        shear object
+        @param s: amount of shear
+        @param angle: direction of shear (deg clockwise from top)
+        @param p: origin of shear
+        @return: reference to self
+        '''
+
+        self.rotate(angle,p)
+        
+        t=Matrix(1,0,-s,1)
+        self.concat(t,p)
+        
+        self.rotate(-angle,p)
+        
+        return self
+    
         
     def itoe(self,p_i):
         '''
@@ -626,13 +666,33 @@ class Rectangle(Area):
                      - dash: the dash pattern to use (string ala postscript)
                      - fg: line color
                      - bg: fill color or None for empty
+                     - r: radius of corners
 
     """
     bg=None
     fg=Color(0)
+    r=0
     linewidth=defaults.linewidth
     dash=defaults.dash
 
+    def __init__(self,obj=None,**dict):
+        '''
+        @param obj:
+            for Area() or Bbox(), the size and position will
+            be taken from obj
+        @param r: 
+            radius of corners. Will saturate at min(width/2,height/2)
+        '''
+
+        if isinstance(obj,Area) or isinstance(obj,Bbox):
+            dict['sw']=obj.sw
+            dict['width']=obj.width
+            dict['height']=obj.height
+            
+            
+        apply(Area.__init__,(self,),dict)
+
+    
     def body(self):
         
         out=cStringIO.StringIO()
@@ -643,16 +703,48 @@ class Rectangle(Area):
         if self.dash!=defaults.dash:
             out.write("%s setdash "%self.dash)
         
+        # make sure we have a sensible radius
+        r=min(self.width/2.,self.height/2.,self.r)
+        w=self.width
+        h=self.height
+        
         ATTR={'bg':self.bg,
               'fg':self.fg,
-              'width':self.width,
-              'height':self.height}
-        
+              'width':w,
+              'height':h,
+              'r':r,
+              'ne':P(w,h),
+              'n':P(w/2.,h),
+              'nw':P(0,h),
+              'w':P(0,h/2.),
+              'sw':P(0,0),
+              's':P(w/2.,0),
+              'se':P(w,0),
+              'e':P(w,h/2.),
+              }
+                
         if self.bg is not None:
-            out.write("%(bg)s 0 0 %(width)g uu %(height)g uu rectfill\n"%ATTR)
+            if self.r==0:
+                out.write("%(bg)s 0 0 %(width)g uu %(height)g uu rectfill\n"%ATTR)
+            else:
+                out.write("%(bg)s newpath %(w)s moveto\n"%ATTR)
+                out.write("%(nw)s %(n)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
+                out.write("%(ne)s %(e)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
+                out.write("%(se)s %(s)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
+                out.write("%(sw)s %(w)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
+                out.write("closepath fill\n")
+                
         if self.fg is not None:
-            out.write("%(fg)s 0 0 %(width)g uu %(height)g uu rectstroke\n"%ATTR)
-                        
+            if self.r==0:
+                out.write("%(fg)s 0 0 %(width)g uu %(height)g uu rectstroke\n"%ATTR)
+            else:
+                out.write("%(fg)s newpath %(w)s moveto\n"%ATTR)
+                out.write("%(nw)s %(n)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
+                out.write("%(ne)s %(e)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
+                out.write("%(se)s %(s)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
+                out.write("%(sw)s %(w)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
+                out.write("closepath stroke\n")
+                
         return out.getvalue()
 
 
@@ -1163,8 +1255,8 @@ class Epsf(Area):
         #if self.fg is not None:
         #    out.write("%s\n"%self.fg)
 
-        out.write("%s translate \n\n"%self.offset)
         out.write("BeginEPSF\n")
+        out.write("%s translate \n"%self.offset)
 
         out.write("%%%%BeginDocument: %s\n"%self.file)
         out.write(self.all)

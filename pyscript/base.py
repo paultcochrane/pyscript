@@ -282,7 +282,7 @@ class Color(PsObj):
       
         # some sanity checks
         if type(col[0])==types.StringType:
-	    col = col[0].lower()
+            col = col[0].lower()
             col=self.COLORS[col]
             # renormalise so that values are in [0,1]
             col = (col[0]/255.,col[1]/255.,col[2]/255.)

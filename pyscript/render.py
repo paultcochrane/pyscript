@@ -18,8 +18,6 @@
 Create the actual postscript
 """
 
-VERSION="0.3"
-
 import sys,os
 import cStringIO
 import time
@@ -28,19 +26,20 @@ from defaults import *
 from util import *
 from objects import *
 from groups import *
+from version import version
 
 # we need to double up the comment %'s
 # The BoundingBox and EndComments will be added later
 EPSheader="""%%!PS-Adobe-2.0 EPSF-2.0
-%%%%Creator: pyscript v%s
+%%%%Creator: PyScript %s
 %%%%CreationDate: %s
-"""%(VERSION,time.ctime(time.time()))
+"""%(version,time.ctime(time.time()))
 
 PSheader="""%%!PS-Adobe-2.0
-%%%%Creator: pyscript v%s
+%%%%Creator: PyScript %s
 %%%%CreationDate: %s
 %%%%Page: 1 1
-"""%(VERSION,time.ctime(time.time()))
+"""%(version,time.ctime(time.time()))
 
 # NB and 'end' was added to EndEPSF
 PSMacros="""%% show text with kerning if supplied
@@ -263,7 +262,7 @@ def render(*objects,**opts):
     out.write('\nend\n')
 
     
-    out.write('showpage\n')
+    out.write('showpage\n%%Trailer\nend\n%%EOF\n')
 
     out.close()
 
