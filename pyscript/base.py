@@ -34,7 +34,6 @@ class PsObj(object):
         can pass a dict of atributes to set
         '''
         apply(self,(),dict)
-        
 
     def __call__(self,**dict):
         '''
@@ -46,8 +45,21 @@ class PsObj(object):
         @return: self 
         '''
 
+        # first do non-property ones
+        # this will raise an exception if class doesn't have attribute
+        # I think this is good.
+        prop=[]
         for key,value in dict.items():
+            if isinstance(eval('self.__class__.%s'%key),property):
+                prop.append((key,value))
+            else:
+                self.__class__.__setattr__(self,key,value)
+
+        # now the property ones
+        # (which are functions of the non-property ones)
+        for key,value in prop:
             self.__class__.__setattr__(self,key,value)
+                
 
         # for convenience return a reference to us
         return self

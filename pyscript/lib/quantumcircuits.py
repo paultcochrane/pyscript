@@ -94,7 +94,7 @@ def classicalpath(*paths):
 
     # reuse these paths
     for path in paths:
-        g.append(path.set(linewidth=1,fg=Color(1)))
+        g.append(path(linewidth=1,fg=Color(1)))
 
     return g
 
