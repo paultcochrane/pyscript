@@ -25,6 +25,7 @@
   (next part is to choose curvature automatically in unspecified curves)
 - last point of a closed path can be skipped (added automatically)
 - P now has 'arg' attribute (in degrees), return angle of P relative to origin
+- there is now a --version argument when running PyScript
 
 0.5
 ~~~
