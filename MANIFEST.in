@@ -5,3 +5,4 @@ include TODO
 include BUGS
 include setup.py
 recursive-include pyscript/*.py
+

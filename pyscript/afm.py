@@ -6,7 +6,7 @@ Module for reading and writing AFM files.
 # File Format Specification). Still, it should read most "common" AFM files.
 # Taken and adapted from afmLib.py in fonttools by Just van Rossum
 
-import re,os,string,types,cPickle
+import re,os,string,types,cPickle,rexec,sys
 
 import pyscript
 
@@ -125,6 +125,23 @@ class ConvertAFM:
 
     def write(self,filename):
 
+        out=open(filename,"w")
+
+        out.write("attrs=%s"%repr(self._attrs))
+        out.write("\n")
+        out.write("chars=%s"%repr(self._chars))
+        out.write("\n")
+        out.write("kerning=%s"%repr(self._kerning))
+        out.write("\n")
+        out.write("comments=%s"%repr(self._comments))
+        out.write("\n")
+        out.write("composites=%s"%repr(self._composites))
+        out.write("\n")
+
+        out.close()
+
+    def write2(self,filename):
+
         afm=AFM()
 
         afm._attrs=self._attrs
@@ -203,6 +220,106 @@ class ConvertAFM:
 	
 	
 class AFM:
+	
+    def __init__(self,fontname):
+
+        fontname=string.lower(fontname)
+        fontname=string.replace(fontname,"-","_")
+
+        f=__import__('%s'%fontname)
+
+        self.f=f
+
+        
+    def has_kernpair(self, pair):
+        return self.f.kerning.has_key(pair)
+	
+    def kernpairs(self):
+        return self.f.kerning.keys()
+	
+    def has_char(self, char):
+        return self.f.chars.has_key(char)
+	
+    def chars(self):
+        return self.f.chars.keys()
+	
+    def comments(self):
+        return self.f.comments
+	
+    def addComment(self, comment):
+        self.f.comments.append(comment)
+	
+    def __getattr__(self, attr):
+        if self.f.attrs.has_key(attr):
+            return self.f.attrs[attr]
+        else:
+            raise AttributeError, attr
+		
+    def __getitem__(self, key):
+        if type(key) == types.TupleType:
+            # key is a tuple, return the kernpair
+            return self.f.kerning.get(key,0)
+        else:
+            # return the metrics instead
+            return self.f.chars[key]
+	
+    def __repr__(self):
+        if hasattr(self, "FullName"):
+            return '<AFM object for %s>' % self.FullName
+        else:
+            return '<AFM object at %x>' % id(self)
+
+    def bbox(self,string,size=1,kerning=0):
+        '''
+        Return a strings boundingbox in this font
+        at the scale provided (relative to 1 point?)
+        @param string: the string to measure
+        @param size: the point size of the font (sort of)
+        @param kerning: wether to subtract off the kerning
+        @return: xl,yb,xr,yt
+        '''
+
+	chars=map(ord,list(string))
+
+	# order: width l b r t
+
+	# use 'reduce' and 'map' as they're written in C
+
+	# add up all the widths
+	width= reduce(lambda x, y: x+self[y][0],chars,0)
+
+	# subtract the kerning
+        if kerning==1:
+            if len(chars)>1:
+                kk=map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:])
+                kern=reduce(lambda x,y:x+y,kk)
+                            
+                width+=kern
+        kk=map(lambda x,y:self[(x,y)] ,chars[:-1],chars[1:])
+        print kk
+
+	# get rid of the end bits
+	start=self[chars[0]][1]
+	f=self[chars[-1]]
+	width = width-start-(f[0]-f[3])
+
+
+	# accumulate maximum height
+	top = reduce(lambda x, y: max(x,self[y][4]),chars,0)
+
+	# accumulate lowest point
+	bottom = reduce(lambda x, y: min(x,self[y][2]),chars,self[chars[0]][2])
+
+        sc=size/1000.
+	xl=start*sc
+	yb=bottom*sc
+	xr=xl+width*sc
+	yt=top*sc
+
+        return xl,yb,xr,yt
+
+
+class AFM2:
 	
     def __init__(self):
 
@@ -309,15 +426,24 @@ def load(fontname):
 
     return font
 
-def convert(infile,outfile):
-    afm=ConvertAFM(infile)
-    afm.write(outfile)
-
 if __name__ == "__main__":
+    # utility for converting afm files to pyscripts
+    # font modules
 
-    import sys
-    sys.path.insert(0,'../')
+    import os
 
-    for fontname in sys.argv[1:]:
-        convert(fontname)
+    for filename in sys.argv[1:]:
+
+        afm=ConvertAFM(filename)
+
+        dir,file=os.path.split(filename)
+
+        base,ext=os.path.splitext(file)
+
+        base=string.lower(base)
+        base=string.replace(base,"-","_")
+        
+        outfile=os.path.join(dir,base+".py")
+
+        afm.write(outfile)
 

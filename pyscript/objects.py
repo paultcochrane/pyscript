@@ -31,10 +31,9 @@ from vectors import *
 from base import PsObj,Color
 
 
-
 from functions import *
 
-import afm
+from afm import AFM
 
 # -------------------------------------------------------------------------
 # XXX
@@ -370,7 +369,7 @@ class Text(Area):
 
     def _typeset(self,string):
         
-        font=afm.load(self.font)
+        font=AFM(self.font)
         size=self.size
         sc=size/1000.
 
