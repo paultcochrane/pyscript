@@ -395,6 +395,7 @@ class Text_nobbox(PsObject):
         return (sw,ne)
 
 # -------------------------------------------------------------------------
+# Rectangle
 # -------------------------------------------------------------------------
 class Rectangle(Area):
     """
@@ -421,6 +422,106 @@ class Rectangle(Area):
                         
         return out.getvalue()
 
+# -------------------------------------------------------------------------
+# Circle
+# -------------------------------------------------------------------------
+
+class Circle(PsObject):
+    """
+    Draw a circle
+
+    'r' = radius
+
+    'o' = 'c' = center
+    'n','ne' ... points on circumference
+    0-360 point on circumference at that angle (degrees clockwise from n)
+
+    'fg','bg'  foreground and background colors
+
+    get ellipses by scaling
+    
+    """
+    type="Circle"
+
+    namedangles={'n':0,'ne':45,'e':90,'se':135,
+                 's':180,'sw':235,'w':270,'nw':315}
+
+    def __init__(self, **dict):
+
+        self.natives({"bg": None,
+                      "fg": Color(0),
+                      "r": 1.0},dict)
+        apply(PsObject.__init__, (self,), dict)
+
+    def locus(self,angle):
+        '''
+        return a point on the edge at a particular angle
+        (degrees, clockwise from vertical)
+        '''
+        r=self['r']
+        x=r*sin(angle/180.0*pi)
+        y=r*cos(angle/180.0*pi)
+
+        return self.itoe(P(x,y))
+
+    def __getitem__(self,i):
+
+        if self.namedangles.has_key(i):
+            return self.locus(self.namedangles[i])
+
+        if type(i)==type(""):
+            return PsObject.__getitem__(self,i)
+        
+        return self.locus(i)  
+    
+    def __setitem__(self,i,other):
+
+        if self.namedangles.has_key(i):
+            pcurrent=self.locus(self.namedangles[i])
+            self.move(other-pcurrent)
+
+        if type(i)==type(""):
+            return PsObject.__setitem__(self,i,other)
+
+        pcurrent=self.locus(i)
+
+        self.move(other-pcurrent)
+
+    def _get_c(s):
+        return s['o']
+
+    def _set_c(s,pe):
+        s.move(pe-s['o'])
+
+    def body(self):
+
+        out = cStringIO.StringIO()
+
+        if self["bg"] is not None:
+            out.write("%(bg)s 0 0 %(r)g uu 0 360 arc fill\n" % self)
+
+        out.write("%(fg)s 0 0 %(r)g uu 0 360 arc stroke\n" % self)
+
+        return out.getvalue()
+
+
+
+    def boundingbox(self):
+
+        #grab a tight boundingbox by zipping around circumference
+
+        SW=self.locus(0)
+        NE=self.locus(0)
+        for ii in xrange(0,360,10):
+            p=self.locus(ii)
+
+            SW[0]=min(SW[0],p[0])
+            SW[1]=min(SW[1],p[1])
+            NE[0]=max(NE[0],p[0])
+            NE[1]=max(NE[1],p[1])
+
+
+        return SW,NE
 
 # -------------------------------------------------------------------------
 # Path
@@ -651,31 +752,6 @@ class Group(PsObject):
             out.write(str(obj))
         return out.getvalue()
     
-class Circle(Area):
-    """
-    Draw a circle
-    """
-    type="Circle"
-
-    def __init__(self, **dict):
-
-        setkeys(dict,
-                {"bg": None,
-                 "fg": Color(0),
-                 "radius": 1.0})
-        apply(Area.__init__, (self,), dict)
-
-    def body(self):
-
-        out = cStringIO.StringIO()
-
-        if self["bg"] is not None:
-            out.write("%(bg)s 0 0 %(radius)s uu 0 360 arc fill\n" % self)
-
-        out.write("%(fg)s 0 0 %(radius)s uu 0 360 arc stroke\n" % self)
-
-        return out.getvalue()
-
 
 class Arc(Area):
     """
