@@ -72,7 +72,13 @@ class Group(Area):
         '''
         if isinstance(obj,Page) or isinstance(obj,Pages):
             raise "Can't add a Page to %s"%str(self.__class__)
+
+    def reverse(self):
+        self.objects.reverse()
         
+        # for convenience return reference to group
+        return self
+
     def insert(self,idx,obj):
         '''
         insert object
@@ -83,6 +89,9 @@ class Group(Area):
         self.validate(obj)
         self.objbox.union(obj.bbox())
         self.objects.insert(idx,obj)
+
+        # for convenience return reference to group
+        return self
 
     def append(self,*objs):
         '''
@@ -99,6 +108,9 @@ class Group(Area):
             self.width=self.objbox.width
             self.height=self.objbox.height
 
+        # for convenience return reference to group
+        return self
+
     def apply(self,**dict):
         '''
         apply attributes to all objects
@@ -111,6 +123,9 @@ class Group(Area):
         for key,value in dict.items():
             dict1={key:value}
             for obj in self.objects:
+                if isinstance(obj,Group):
+                    # recurse
+                    apply(obj.apply,(),dict)
                 try:
                     apply(obj,(),dict1)            
                 except AttributeError:
@@ -188,7 +203,7 @@ def Align(*items,**dict):
     if len(items)==1:
         if not isinstance(items[0],Group):
             # Nothing to do here ...
-            return apply(Group,objects) 
+            return apply(Group,items) 
         objects=items[0]
         if len(objects) <= 1:
             return objects

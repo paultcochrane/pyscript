@@ -1,3 +1,10 @@
+
+- object reference returned from group's append, insert and reverse
+  This makes for convenient one liners
+- Group() now has a reverse() function
+- Pages now produces global BoundinBox and Orientation comments
+- Fixed minor bug in Align, when passed single object
+
 0.4
 ~~~
 

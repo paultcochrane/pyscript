@@ -55,7 +55,8 @@ class  TeXBox(Group):
         Align(t,a,a1=self.align,a2=self.align,space=0)
 
         self.append(a,t)
-        
+        apply(self,(),dict)
+
 
 class Box_1(Group):
     '''
