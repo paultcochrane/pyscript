@@ -26,7 +26,7 @@ import time
 
 from defaults import *
 from util import *
-from objects import Group
+from objects import *
 
 # we need to double up the comment %'s
 # The BoundingBox and EndComments will be added later
@@ -73,9 +73,9 @@ def TeXdefs(text=""):
 
 def collecttex(objects,tex):
     for object in objects:
-        if pstype(object)==TeXType:
+        if isinstance(object,TeX):
             tex=tex+object.text
-        elif pstype(object)==GroupType:
+        elif isinstance(object,Group):
             tex=collecttex(object.objects,tex)
     return tex
 
@@ -119,11 +119,14 @@ def render(*objects,**opts):
     if type(objects)==type(()):
         objects=apply(Group,objects)
 
-    SW,NE=objects.boundingbox()
-    
-    if not SW or not NE:
+    bbox=objects.bbox()
+
+    if not bbox.is_set():
         print "No objects to render!"
         return
+    SW=bbox.sw
+    NE=bbox.ne
+
 
     pad=5 # no. of points to pad bbox with
     # convert bbox to points

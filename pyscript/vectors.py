@@ -18,9 +18,9 @@
 # Originally written by Mario Chemnitz (ucla@hrz.tu-chemnitz.de)
 # Cut back and reworked to suit pyscript
 
-from math import sqrt,acos,sin,cos
+from math import sqrt,acos,sin,cos,pi
 from util import *
-from base import PsDict
+from base import PsObj
 
 
 class Matrix:
@@ -34,14 +34,8 @@ class Matrix:
         # \ c d /
         self.data=[a,b,c,d]
  
-    def __repr__(s):
-        return s.type+'('+repr(s[0])+","+repr(s[1])\
-               +","+repr(s[2])+","+repr(s[3])+')'
 
-    def __str__(s):
-        '''
-        print as postscript
-        '''
+    def body(s):
         d=s.data
         
         #NB postscript uses transpose
@@ -101,20 +95,20 @@ class Matrix:
 
     #E matrix multiplication (self*other): -> matrix or vector
     def __mul__(self,other):
-        if pstype(other)==MatrixType:
+        if isinstance(other,Matrix):
             tmp=Matrix()
             for i in range(2):
                 for j in range(2):
                     for k in range(2):
                         tmp[i:j]=tmp[i:j]+self[i:k]*other[k:j]
             return tmp
-        elif pstype(other) in (PType,RType):
+        elif isinstance(other,P):
             tmp=P()
             for i in range(2):
                 for k in range(2):
                     tmp[i]=tmp[i]+self[i:k]*other[k]
             return tmp      
-        elif pstype(other) in (FloatType,IntType):
+        elif isinstance(other,(int,float)):
             tmp=Matrix()
             for i in range(len(self)):
                 tmp[i]=self[i]*other
@@ -125,7 +119,7 @@ class Matrix:
     # E operand for matrix multiplication is on the right (other*self):
     # -> matrix
     def __rmul__(self,other):
-        if pstype(other)==MatrixType:
+        if isinstance(other,Matrix):
             tmp=Matrix()
             for i in range(len(self)):
                 tmp[i]=other*self[i]
@@ -147,6 +141,7 @@ class Matrix:
 
     def __div__(self,n):
         # only for numbers!
+        assert isinstance(n,(int,float)), "only division by numbers implemented"
         n=float(n)
         tmp=Matrix()
         for i in range(len(self)):
@@ -158,48 +153,42 @@ class Matrix:
 # -------------------------------------------------------------------------
 # P = Vector (relative to origin) ie a point
 # -------------------------------------------------------------------------
-class P(PsDict):
+class P(PsObj):
     """
     A Vector (or point)
     operations always return type 'P' vectors
     """
-    type='P'
+
+    point=[0,0]
+    relative=0
 
     def __init__(self,x=0.0,y=0.0,**dict):
+
         self.point=[x,y]
 
-        self.natives(dict,relative=0)
-        apply(PsDict.__init__,(self,),dict)
-        
-    def __repr__(self):
-        return self.type+'('+repr(self[0])+","+repr(self[1])+')'
+        #apply(list.__init__,(self,(x,y)))
 
+        apply(PsObj.__init__,(self,),dict)
+        
     def __len__(self):
         return 2
 
     def __getitem__(self,i):
-
-        if type(i)==type(""):
-            return PsDict.__getitem__(self,i)
-        
         if i < (len(self)):
             return self.point[i]
         else:
             raise IndexError,"index reading error"
     
     def __setitem__(self,i,other):
-        if type(i)==type(""):
-            return PsDict.__setitem__(self,i,other)
-
         if i < (len(self)):
             self.point[i]=other
         else:
             raise IndexError,"index writing error"
 
     def __add__(s,o):
-        if pstype(o) in (PType,RType):
+        if isinstance(o,P):
             return P(s[0]+o[0],s[1]+o[1])
-        elif pstype(o) in (FloatType,IntType):
+        elif isinstance(o,(float,int)):
             return P(s[0]+o,s[1]+o)
         else:
             raise TypeError, "non-vector in vector addition"
@@ -207,13 +196,13 @@ class P(PsDict):
     __radd__=__add__
 
     def __sub__(s,o):
-        if pstype(o) in (PType,RType):
+        if isinstance(o,P):
             return P(s[0]-o[0],s[1]-o[1])
         else:
             raise TypeError, "non-vector in vector subtraction"
 
     def __rsub__(s,o):
-        if pstype(o) in (PType,RType):
+        if isinstance(o,P):
             return P(o[0]-s[0],o[1]-s[1])
         else:
             raise TypeError, "non-vector in right vector subtraction"
@@ -222,10 +211,10 @@ class P(PsDict):
         return P(-s[0],-s[1])
 
     def __mul__(s,o):
-        if pstype(o) in (PType,RType):
+        if isinstance(o,P):
             # Dot product
             return s[0]*o[0]+s[1]*o[1]
-        elif pstype(o)==MatrixType:
+        elif isinstance(o,Matrix):
             raise TypeError, "other must not be a matrix"
         else:
             return P(s[0]*o,s[1]*o)
@@ -233,13 +222,13 @@ class P(PsDict):
     def __rmul__(s,o):
         return P(s[0]*o,s[1]*o)
 
-    def __str__(self):
+    def body(self):
         "return postscript as string"
-        return "%g uu %g uu"%tuple(self.point)
+        return "%g uu %g uu"%tuple(self)
 
     def __div__(self,o):
         # only for numbers!
-        if pstype(o) in (FloatType,IntType):
+        if isinstance(o,(float,int)):
             n=float(o)
             return P(self[0]/o,self[1]/o)
         else:
@@ -249,7 +238,7 @@ class P(PsDict):
         return sqrt(self*self)
 
     def cross(self,other):
-        if pstype(o) in (PType,RType):
+        if isinstance(o,P):
             tmp=P()
             tmp[0]=self[1]*other[2]-self[2]*other[1]
             tmp[1]=self[2]*other[0]-self[0]*other[2]
@@ -269,8 +258,116 @@ def R(*args,**dict):
     this as a relative direction
     """
 
-    dict['relative']=1
-
-    return apply(P,args,dict)
+    return apply(P,args,{'relative':1})
 
 #E base vectors
+
+def E(angle,r=1):
+    '''
+    return a relative vector of length r in the given direction
+    '''
+    x=r*sin(angle/180.0*pi)
+    y=r*cos(angle/180.0*pi)
+
+    return R(x,y)
+
+# -------------------------------------------------------------------------
+
+def Identity(p):
+    '''
+    function which does nothing
+    '''
+    # do it this way so we return a copy
+    return P(p[0],p[1])
+
+
+class Bbox(PsObj):
+    """
+    A Rectangular area defined by sw corner and width and height.
+    which specifies a boundingbox.
+
+    Has the same attributes (but read only) as Area::
+    
+          nw--n--ne
+          |       |
+          w   c   e
+          |       |
+          sw--s--se
+
+    """
+
+    sw=None
+    width=0
+    height=0 
+
+    def _get_n(s):
+        return s.sw+P(s.width/2.,s.height)
+    n = property(_get_n)
+
+    def _get_ne(s):
+        return s.sw+P(s.width,s.height)
+    ne = property(_get_ne)
+
+    def _get_e(s):
+        return s.sw+P(s.width,s.height/2.)
+    e = property(_get_e)
+
+    def _get_se(s):
+        return s.sw+P(s.width,0)
+    se = property(_get_se)
+
+    def _get_s(s):
+        return s.sw+P(s.width/2.,0)
+    s = property(_get_s)
+
+    def _get_w(s):
+        return s.sw+P(0,s.height/2.)
+    w = property(_get_w)
+
+    def _get_nw(s):
+        return s.sw+P(0,s.height)
+    nw = property(_get_nw)
+
+    def _get_c(s):
+        return s.sw+P(s.width/2.,s.height/2.)
+    c = property(_get_c)
+
+    def is_set(self):
+        '''
+        Is the bounding box set with a value?
+        '''
+        if self.sw is None:
+            return 0
+        else:
+            return 1
+
+    def union(self,bbox,itoe=Identity):
+        '''
+        Expand this boundingbox to include bbox,
+        passing bbox through itoe if supplied
+        '''
+
+        if not bbox.is_set():
+            # if the supplied bbox is not set we have
+            # nothing to do
+            return
+
+        
+        ne=itoe(bbox.ne)
+        sw=itoe(bbox.sw)
+
+        if self.is_set():
+
+            x1=min(self.sw[0],sw[0])
+            y1=min(self.sw[1],sw[1])
+            x2=max(self.ne[0],ne[0])
+            y2=max(self.ne[1],ne[1])
+
+            self.sw=P(x1,y1)
+            self.width=x2-x1
+            self.height=y2-y1
+            
+        else:
+
+            self.sw=sw
+            self.width,self.height=ne-sw

@@ -17,86 +17,41 @@
 """
 Base objects
 """
-import UserDict,copy
+import copy
 import types
-
-from util import *
 
 # -------------------------------------------------------------------------
 
-class PsDict(UserDict.UserDict):
+class PsDict: pass
+
+class PsObj(object):
     """
-    An extended dictionary with dynamic elements,
-    this is the base class of may pyscript classes
+    Base Class that most pyscript objects should subclass
     """
-    type="PsDict"
 
     def __init__(self,**dict):
+        '''
+        can pass a dict of atributes to set
+        '''
+        apply(self,(),dict)
+        
 
-        self.natives(dict)
+    def __call__(self,**dict):
+        '''
+        Set a whole lot of attributes in one go
+        
+        eg::
+          obj.set(bg=Color(.3),linewidth=2)
 
-        # create the dict structures
-        UserDict.UserDict.__init__(self)
+        @return: self 
+        '''
 
-        # set native attributes
-        for key,value in self._natives.items():
-            self[key]=value
-
-        # Add rest
-        natives=self._natives.keys()
         for key,value in dict.items():
-            if key not in natives:
-                self[key]=value
-            
-    def natives(self,dict={},**newnatives):
-        '''
-        this function allows the setting of default values
-        NB: set native attributes MUST be done BEFORE initialisation
-        of parent class!
-        '''
-        # need to set natives attribute (may not be initialised yet!)
-        if not self.__dict__.has_key('_natives'):
-            self._natives={}
+            self.__class__.__setattr__(self,key,value)
+
+        # for convenience return a reference to us
+        return self
         
-        # first accumulated the natives...
-        # Add old natives to new since old will
-        # be higher up inheritance tree
-        # (accumulated overide defaults)
-        for key,value in self._natives.items():
-            newnatives[key]=value
-
-        # override defaults with user supplied values
-        for key in dict.keys():
-            if newnatives.has_key(key):
-                newnatives[key]=dict[key]
-        # store natives
-        self._natives=newnatives
-        
-
-    def __getitem__(self, key):
-        '''extended getitem to allow dynamic attributes
-             1. first check internal dict for key
-             2. second, return ._get_key() if method exists
-             3. else raise KeyError
-            
-        '''
-        if self.data.has_key(key):
-            return self.data[key]
-        try:
-            return getattr(self,"_get_%s"%key)()
-        except AttributeError:
-            raise KeyError,key
-
-    def __setitem__(self, key, item):
-        '''extended setitem to allow dynamic attributes
-             1. call ._set_key(item) if method exists
-             2. else return data[key]
-          
-        '''
-        try:
-            getattr(self,"_set_%s"%key)(item)
-        except AttributeError:
-            self.data[key] = item        
 
     def copy(self,**dict):
         '''
@@ -109,32 +64,54 @@ class PsDict(UserDict.UserDict):
         # here for convenience
         obj=copy.deepcopy(self)
 
-        for key,value in dict.items():
-            obj[key]=value
+        apply(obj,(),dict)
+
         return obj
     
     def __repr__(self):
-        return self.type+"("+str(self.data)+")"
+        return str(self.__class__)
 
-    def set(self,**dict):
+    def __str__(self):
         '''
-        Set a whole lot of attributes in one go
-
-        eg::
-          obj.set(bg=Color(.3),linewidth=2)
-
-        @return: self 
+        return actual postscript string to generate object
         '''
+        return self.prebody()+self.body()+self.postbody()
 
-        for key,value in dict.items():
-            self[key]=value
+    def prebody(self):
+        '''
+        convenience function to allow clean subclassing
+        '''
+        return ''
 
-        # for convenience return a reference to us
-        return self
+    def body(self):
+        '''
+        subclasses should overide this for generating postscipt code
+        '''
+        return ''
+
+    def postbody(self):
+        '''
+        convenience function to allow clean subclassing
+        '''
+        return ''
+
+
+    def bbox(self):
+        """
+        return objects bounding box
+        9this can be a Null Bbox() if object doesn't
+        draw anything on the page.)
+
+        NB that the bbox should be dynamically calculated and take
+        into account the transformation matrix if it applies
+        """
+
+        return Bbox()
+
 
 # -------------------------------------------------------------------------
 
-class Color(PsDict):
+class Color(PsObj):
     """
     Class to encode a postscript color
  
@@ -145,7 +122,6 @@ class Color(PsDict):
      - Color(G) = Gray
      - Color('yellow') etc, see L{COLORS}
     """
-    type="Color"
 
     COLORS={'red':(1,0,0),
             'green':(0,1,0),
@@ -164,15 +140,15 @@ class Color(PsDict):
         # some sanity checks
         assert len(col)>0 and len(col)<5
         for ii in col: assert ii>=0 and ii<=1
+        
+        self.color=col
             
-        self.natives(dict,color=col)
-        apply(PsDict.__init__,(self,),dict)
+        apply(PsObj.__init__,(self,),dict)
         
         
-    def __str__(self):
-        "return postscript as string"
+    def body(self):
 
-        color=self['color']
+        color=self.color
         if len(color)==1:
             # grayscale color
             ps=" %g setgray "%color
@@ -206,20 +182,20 @@ class Color(PsDict):
 
 # XXX fix!
 
-class Postscript(PsDict):
-    """
-    Insert a raw postcript command in output
-    """
-    type="Postscript"
+##class Postscript(PsObj):
+##    """
+##    Insert a raw postcript command in output
+##    """
+##    type="Postscript"
 
-    def __init__(self,postscript,**dict):
+##    def __init__(self,postscript,**dict):
 
-        self.natives(dict,postscript=postscript)
-        apply(PsDict.__init__,(self,),dict)
+##        self.natives(dict,postscript=postscript)
+##        apply(PsObj.__init__,(self,),dict)
 
 
-    def __str__(self):
-        return " %(postscript)s "%self
+##    def __str__(self):
+##        return " %(postscript)s "%self
 
 
 

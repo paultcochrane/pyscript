@@ -250,12 +250,12 @@ class AFM:
         else:
             return '<AFM object at %x>' % id(self)
 
-    def boundingbox(self,string,scale=1,kerning=0):
+    def bbox(self,string,size=1,kerning=0):
         '''
         Return a strings boundingbox in this font
         at the scale provided (relative to 1 point?)
         @param string: the string to measure
-        @param scale: the point size of the font (sort of)
+        @param size: the point size of the font (sort of)
         @param kerning: wether to subtract off the kerning
         @return: xl,yb,xr,yt
         '''
@@ -288,7 +288,7 @@ class AFM:
 	# accumulate lowest point
 	bottom = reduce(lambda x, y: min(x,self[y][2]),chars,self[chars[0]][2])
 
-        sc=scale/1000.
+        sc=size/1000.
 	xl=start*sc
 	yb=bottom*sc
 	xr=xl+width*sc
