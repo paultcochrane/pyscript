@@ -4,7 +4,8 @@ include LICENSE
 include TODO
 include BUGS
 include setup.py
-recursive-include pyscript/*.py
+include pyscript.py
+recursive-include pyscript *.py
 include doc/examples/*.py
 include doc/manual/pyscript.pdf
 
