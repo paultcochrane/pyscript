@@ -5,7 +5,7 @@ defaults.linewidth=1
 dashedline="[2 3] 0"
 
 black = Color("Black")
-grey = Color("LightGrey")
+grey = Color("LightGray")
 laserCol = Color("OrangeRed")
 
 def ScaledText(text,**dict):
