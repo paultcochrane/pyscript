@@ -105,7 +105,17 @@ else:
         if not DEBUG:
             print "Removing log file"
             os.remove(logFile)
-
+            print "Removing temp files"
+            os.remove("temp.aux")
+            os.remove("temp.dvi")
+            os.remove("temp.log")
+            os.remove("temp.ps")
+            os.remove("temp.tex")
+            os.remove("temp1.aux")
+            os.remove("temp1.dvi")
+            os.remove("temp1.eps")
+            os.remove("temp1.log")
+            os.remove("temp1.tex")
     print "Done!"
     
     
