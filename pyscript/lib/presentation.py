@@ -20,6 +20,13 @@ pyscript Presentation library (posters and talks)
 from pyscript import *
 
 class  TeXBox(Group):
+    '''
+    Typeset some LaTeX within a fixed width box.
+    
+    @cvar fixed_width: the width of the box
+    @cvar tex_scale: The abount by which to scale the tex
+    @cvar align: alignment of the LaTeX to box if its smaller
+    '''
 
     fixed_width=9.2
     
@@ -44,15 +51,20 @@ class  TeXBox(Group):
 
         Align(t,a,a1=self.align,a2=self.align,space=0)
 
-        #this is useful for debugging:
-        #rb=t.bbox()
-        #r=Rectangle(c=rb.c,width=rb.width,height=rb.height)
-        #self.append(r)
-
         self.append(a,t)
         
 
 class Box_1(Group):
+    '''
+    A box with of fixed width. Items added to it are aligned 
+    vertically and separated by a specified padding
+    
+    @cvar border: width of the border (in pts)
+    @cvar fg: color of border
+    @cvar bg: color of box background
+    @cvar fixed_width: width of box
+    @cvar pad: vertical padding between items
+    '''
     
     bg=Color('Lavender')
     fg=Color(0)
@@ -80,49 +92,81 @@ class Box_1(Group):
 
         self.insert(0,r)
 
-class Poster_1:
+class Poster_1(Page):
+    '''
+    A poster style, portrait orientation very similar to a 
+    journal articles front page. Title, authors and abstract across
+    top. two columns for boxes with details. It is set up for A4 paper
+    which can then be scaled for A0 etc.
+    
+    @cvar bg: poster background
+    
+    @cvar gutter: nonprintable margin around entire poster
+    @cvar logo_height: height to scale any logos across top
+    
+    @cvar title: TeX of title
+    @cvar title_fg: fg color of title
+    @cvar title_scale: scale of title TeX
+    @cvar title_width: proportion of total width for title
+    
+    @cvar authors: TeX of authors
+    @cvar authors_fg: fg color of authors
+    @cvar authors_scale: scale of authors TeX
+    @cvar authors_width: proportion of total width for authors
+    
+    @cvar abstract: TeX of abstract
+    @cvar abstract_fg: fg color of abstract
+    @cvar abstract_scale: scale of abstract TeX
+    @cvar abstract_width: proportion of total width for abstract
+    
+    @cvar logos: a list of filenames for the logos
+    @cvar logo_height: the height to which to scale the logos
+    
+    @cvar printing_area: an Area the size of the page minus the gutter
+    
+    @cvar col1: a Group() containing left column objects
+    @cvar col2: a Group() containing right column objects
 
-    gutter=.4 # paper margin for A4 in cm
+    '''
+    size="A4"
+    gutter=.2 # paper margin for A4 in cm
 
     bg=Color('DarkSlateBlue')
-    fg=Color('Lavender')
 
-    thelogos=[]
-    logo_height=.8
-    
     title=""
     title_fg=Color('Yellow')
     title_scale=1.4
+    title_width=.7
 
     authors=""
     authors_fg=Color(0)
     authors_scale=1
+    authors_width=.8
     
     abstract=""
     abstract_fg=Color(0)
     abstract_scale=.8
+    abstract_width=.8
     
+    logo_height=.8
     logos=()
-
-    pad=.4
 
     col1 = Group()
     col2 = Group()
     
-    paper=None
-    area=None
+    printing_area=None
 
     def __init__(self):
 
-        # This has to be done here as we don't know
-        # what units the user will choose until now
-        if self.paper is None:
-            self.paper=Paper("a4")
-            
-        self.area=Area(
-            sw=self.paper.sw+P(1,1)*self.gutter,
-            width=self.paper.width-2*self.gutter,
-            height=self.paper.height-2*self.gutter
+        Page.__init__(self)
+        
+        area=self.area()
+        
+        # subtract the gutter to get printing area
+        self.printing_area=Area(
+            sw=area.sw+P(1,1)*self.gutter,
+            width=area.width-2*self.gutter,
+            height=area.height-2*self.gutter
             )
 
     def make_logos(self):
@@ -131,11 +175,9 @@ class Poster_1:
         for logo in self.logos:
             thelogos.append(Epsf(logo,height=self.logo_height))
             
-        #if len(self.thelogos)==0:
-        #    return Area(width=0,height=0)
-
         Distribute(thelogos,a1="e",a2="w",
-                   p1=self.area.nw,p2=self.area.ne)
+                   p1=self.printing_area.nw,
+                   p2=self.printing_area.ne)
 
         Align(thelogos,a1="e",a2="w",angle=90,space=None)
 
@@ -143,28 +185,54 @@ class Poster_1:
 
 
     def make_title(self):
+        '''
+        Return a title object
+        '''
 
         return TeXBox(self.title,fg=self.title_fg,
-                      fixed_width=self.area.width*.7,
+                      fixed_width=self.printing_area.width*self.title_width,
                       tex_scale=self.title_scale,
                       align="c")
 
     def make_abstract(self):
+        '''
+        Return the abstract object
+        '''
         
         return TeXBox(self.abstract,
-                      fixed_width=self.area.width*.8,
+                      fixed_width=self.printing_area.width*self.abstract_width,
                       tex_scale=self.abstract_scale,
                       fg=self.abstract_fg,align="c")
 
     def make_authors(self):
+        '''
+        Return authorlist object
+        '''
 
         return TeXBox(self.authors,
                       fg=self.authors_fg,
                       tex_scale=self.authors_scale,
-                      fixed_width=self.area.width*.8,align="c")
+                      fixed_width=self.printing_area.width*self.authors_width,
+                      align="c")
 
+    def make_background(self):
+        '''
+        Return background (block color)
+        '''
+        area=self.area()
         
-    def make(self,scale=1):
+        return Rectangle(width=area.width,
+                         height=area.height,
+                         fg=None,
+                         bg=self.bg
+                         )
+    
+        
+    def make(self):
+        '''
+        Create the actual poster aligning everything up.
+        calls make_title(), make_authors() etc
+        '''
 
         # NB: A0 = 4x A4
         
@@ -176,7 +244,8 @@ class Poster_1:
         Distribute(Area(width=0,height=0),
                    self.col1,self.col2,
                    Area(width=0,height=0),
-                   p1=self.area.w,p2=self.area.e,a1="e",a2="w")
+                   p1=self.printing_area.w,
+                   p2=self.printing_area.e,a1="e",a2="w")
         
         
         # find the distance between the cols
@@ -198,212 +267,18 @@ class Poster_1:
             a1="s",a2="n",angle=180,space=pad
             )
 
-        all.n=self.area.n-P(0,.1)
+        all.n=self.printing_area.n-P(0,.1)
 
-        back=Rectangle(width=self.paper.width,
-                       height=self.paper.height,
-                       fg=None,
-                       bg=self.bg
-                       )
+        back=self.make_background()
 
-        p=self.area.se+P(0,1.2)
+        p=self.printing_area.se+P(0,1.2)
         signature=Text('Created with PyScript',size=6,
                        sw=p,fg=self.bg*.8).rotate(-90,p)
 
-        All=Group(back,all,signature).scale(scale,scale) 
-
-        return All
-
-
-class Poster_paper2:
-
-    gutter=.4 # paper margin for A4 in cm
-
-    bg=Color('DarkSlateBlue')
-    fg=Color('Lavender')
-
-    thelogos=[]
-    logo_height=.8
-    
-    title=""
-    title_fg=Color('Yellow')
-    title_scale=2
-
-    authors=""
-    authors_fg=Color(0)
-    authors_scale=1.4
-    
-    abstract=""
-    abstract_fg=Color(0)
-    
-    logos=None
-
-    box_bg=Color('Lavender')
-    box_fg=Color(0)
-    box_border=1
-    box_pad=.2
-
-    header_fg=Color('Navy')
-    header_scale=1.3
-
-    references=""
-    references_fg=Color(0)
-    references_scale=.75
-
-    pad=.4
-    tex_scale=.7
-
-    #  (20.9903   ,29.7039),
-
-    col1 = Group()
-    col2 = Group()
-
-    
-    def __init__(self):
-
-        # everything is going to be based around a4 paper
-        self.paper_true=Paper("a4")
-        self.paper=Area(
-            sw=self.paper_true.sw+P(1,1)*self.gutter,
-            width=self.paper_true.width-2*self.gutter,
-            height=self.paper_true.height-2*self.gutter
-            )
-
-
-    def tex(self,text,width=None,fg=None,scale=None,align="w"):
-        if fg is None:
-            fg=Color(0)
-        if width is None:
-            width=(self.paper.width-3*self.pad)/2.-2*self.box_pad
-        if scale is None:
-            scale=self.tex_scale
-
-        t=TeX(r'\begin{minipage}{%fcm}%s\end{minipage}'%(width/float(scale),text),fg=fg).scale(scale,scale)
-
-        all=Align(Area(width=width,height=0,e=t.e),
-                    t,
-                    a1=align,a2=align,space=0)
-
-        return all
-
-    def header(self,text,align="c",scale=None):
-
-        if scale is None:
-            scale=self.header_scale
-
-        scale=scale*self.tex_scale
+        self.append(back,all,signature)
         
-        return self.tex(text,fg=self.header_fg,align=align,scale=scale)
-
-
-    def addbox(self,col,*items):
-
-        group=Group()
-        apply(group.append,items)
-
-        Align(group,a1="s",a2="n",angle=180,space=self.box_pad)
-
-        bbox=group.bbox()
-
-        g=Group(
-            Rectangle(n=bbox.n-P(0,-self.box_pad),
-                      width=(self.paper.width-3*self.pad)/2.,
-                      height=bbox.height+2*self.box_pad,
-                      bg=self.box_bg,
-                      fg=self.box_fg,
-                      linewidth=self.box_border,
-                      c=group.c),
-            group,
-            )
-
-        if col==1:
-            self.col1.append(g)
-        else:
-            self.col2.append(g)
-
-    def logos(self,*files):
-
-        self.thelogos=Group()
-
-        for file in files:
-            self.thelogos.append(Epsf(file,height=self.logo_height))
-
-    def make_logos(self):
-
-        if len(self.thelogos)==0:
-            return Area(width=0,height=0)
-
-        Distribute(self.thelogos,a1="e",a2="w",
-                   p1=self.paper.nw,p2=self.paper.ne)
-
-        Align(self.thelogos,a1="e",a2="w",angle=90,space=None)
-
-        return self.thelogos
-
-
-    def make_title(self):
-
-        scale=self.tex_scale*self.title_scale
-
-        return self.tex(self.title,fg=self.title_fg,
-                        scale=scale,width=self.paper.width*.8,align="c")
-
-    def make_abstract(self):
-        return self.tex(self.abstract,16,fg=self.abstract_fg,align="c")
-
-    def make_authors(self):
-
-        scale=self.tex_scale*self.authors_scale
-        
-        return self.tex(self.authors,fg=self.authors_fg,
-                        scale=scale,width=self.paper.width*.8,align="c")
-
-    def make_references(self):
-
-        s=self.references_scale*self.tex_scale
-
-        self.col2.append(
-            self.tex(r"{\small %s}"%self.references,
-                     fg=self.references_fg,scale=s)
-            )
-        
-    def make(self,scale=1):
-
-        # A0 = 4x A4
-        
-        self.make_references()
-
-        col1=Align(self.col1,a1="s",a2="n",angle=180,space=self.pad)
-        col2=Align(self.col2,a1="s",a2="n",angle=180,space=self.pad)        
-
-
-        col2.nw = col1.ne+P(self.pad,0)
-        cols=Group(col1,col2)
-
-        all=Align(
-            self.make_logos(),
-            self.make_title(),
-            self.make_authors(),
-            self.make_abstract(),
-            cols,
-            a1="s",a2="n",angle=180,space=self.pad
-            )
-
-        all.n=self.paper.n-P(0,.1)
-
-        back=Rectangle(width=self.paper_true.width,
-                       height=self.paper_true.height,
-                       fg=None,
-                       bg=self.bg
-                       )
-
-        p=self.paper.se+P(-.1,.1)
-        signature=Text('Created with PyScript',size=6,
-                       sw=p,fg=self.bg*.8).rotate(-90,p)
-
-        All=Group(back,all,signature).scale(scale,scale) 
-
-        return All
+        # return a reference for convenience
+        return self
 
 
 class Talk(Paper):

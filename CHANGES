@@ -14,6 +14,8 @@
 - Added Page() and Pages() objects .. pyscript can now do multi-page
   postscript (or A0 posters etc), which also conforms to DSC 3.0.
 - Fixed some bugs with Text() handling of fonts and attributes changes
+- Dot can now take x,y argument instead of point
+- scale() can take a single number for both axes
 
 0.3
 ~~~

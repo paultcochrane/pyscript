@@ -63,12 +63,17 @@ class Group(Area):
 
     def validate(self,obj):
         '''
-        make sure this object can be inserted
+        make sure this object can be inserted into group
         '''
         if isinstance(obj,Page) or isinstance(obj,Pages):
             raise "Can't add a Page to %s"%str(self.__class__)
         
     def insert(self,idx,obj):
+        '''
+        insert object
+        @param idx: index at which to insert object
+        @param obj: the object to insert
+        '''
 
         self.validate(obj)
         self.objbox.union(obj.bbox())
@@ -92,6 +97,8 @@ class Group(Area):
     def apply(self,**dict):
         '''
         apply attributes to all objects
+        @return: reference to self
+        @rtype: self
         '''
         # do this by attributes since they 
         # might not all get accepted
@@ -136,6 +143,8 @@ class Group(Area):
         Gather together common bounding box for group
         Don't use Area's bbox as transformations may
         mean a tighter bbox (eg a circle)
+        @return: a Bbox()
+        @rtype:Bbox
         """
 
         # We need to do the calculation in the 
@@ -156,12 +165,13 @@ def Align(*items,**dict):
     '''
     Function to align a group of objects.
 
-    @param anchor: The item number of the object that remain fixed
-    @param a1: The first anchor point to align to eg "e", "c"
-    @param a2: The second anchor point for aligning
-    @param space: the amount of space to enforce between the anchor points, if None then only movement perpendicular to angle is possible
-    @param angle: the angle of the line between anchor points
+     - anchor: The item number of the object that remain fixed
+     - a1: The first anchor point to align to eg "e", "c"
+     - a2: The second anchor point for aligning
+     - space: the amount of space to enforce between the anchor points, if None then only movement perpendicular to angle is possible
+     - angle: the angle of the line between anchor points
     @return: a reference to the group containing the objects
+    @rtype: Group
     '''
 
     anchor=dict.get('anchor',0)
@@ -230,12 +240,12 @@ def Distribute(*items,**dict):
     '''
     Function to distribute a group of objects.
 
-    @param p1: first point of the line along which to distribute
-    @param p2: second point of the line along which to distribute
-    @param a1: The first anchor point to use for spacing to eg "e", "c"
-    @param a2: The second anchor point for spacing
-    @param as: anchor point for first item (overides a2 if present)
-    @param ae: anchor point for last item (overides a1 if present)
+     - p1: first point of the line along which to distribute
+     - p2: second point of the line along which to distribute
+     - a1: The first anchor point to use for spacing to eg "e", "c"
+     - a2: The second anchor point for spacing
+     - as: anchor point for first item (overides a2 if present)
+     - ae: anchor point for last item (overides a1 if present)
     @return: a reference to a group containing the objects
     '''
 
@@ -366,13 +376,15 @@ end
 
 
 def collecttex(objects,tex=[]):
-    '''
-    Collect the TeX objects in the order theyre rendered
-    '''
+    """
+    Collect the TeX objects in the order they're rendered
+    
+    Used by render()
+    """
     for object in objects:
         if isinstance(object,TeX):
             tex.append(object)
-        elif isinstance(object,Group):
+        elif isinstance(object,Group) and not isinstance(object,Eps):
             tex=collecttex(object.objects,tex)
     return tex
 
@@ -381,6 +393,8 @@ def TeXstuff(objects):
     '''
     Get the actual postscript code and insert it into
     the tex objects. Also grab prolog
+    
+    used bu render()
     '''
 
     objects=collecttex(objects)
@@ -475,10 +489,10 @@ def TeXstuff(objects):
 class Eps(Group):
     '''
     Create the EPS
+    @cvar pad: extra padding around EPS bbox to absorb effect
+      of line thicknesses etc (in pt)
     '''
     
-    # extra padding around EPS bbox to absorb effect
-    # of line thicknesses etc (in pt)
     pad=2
     
     def __init__(self,*objects,**dict):
@@ -569,9 +583,16 @@ class Eps(Group):
     def __str__(self):
         '''
         Eps file with correct pre- and post- code for embeding
+        @rtype: string
         '''
         out=cStringIO.StringIO()
 
+        # NB this is slightly different to Epsf 
+        # transformations are done in write() here.
+        # in Epsf, when the file is written the origin 
+        # is adjusted so it can be printed easily and 
+        # tranformations have to be done in __str__ too.
+        # hence Epsf overrides body here we're override __str__
         out.write("BeginEPSF\n")
         out.write("%%BeginDocument: PyScriptEPS\n")
         self.write(out)
@@ -581,10 +602,6 @@ class Eps(Group):
         return out.getvalue()
 
     def bbox_pp(self):
-        '''
-        Return the bbox in pp
-        '''
-        
         # Grab the groups bounding box
         b=self.bbox()
         
@@ -604,6 +621,9 @@ class Eps(Group):
 class Page(Group):
     '''
     A postscript page
+    @cvar size: The paper size, eg "a4"
+    @cvar orientation: The paper orientation, "Portrait"/"Landscape"
+    @cvar label: page number label
     '''
 
     size='a4'
@@ -666,11 +686,11 @@ class Page(Group):
         "c5":(459, 649),
         "c6":(323, 459),
         # U.S. CAD standard paper sizes
-        "archE":(2592, 3456),
-        "archD":(1728, 2592),
-        "archC":(1296, 1728),
-        "archB":(864, 1296),
-        "archA":(648, 864),
+        "arche":(2592, 3456),
+        "archd":(1728, 2592),
+        "archc":(1296, 1728),
+        "archb":(864, 1296),
+        "archa":(648, 864),
         # Other paper sizes
         "flsa":(612, 936), # U.S. foolscap
         "flse":(612, 936), # European foolscap
@@ -680,6 +700,7 @@ class Page(Group):
     def area(self):
         '''
         return an area object same size as page in default units
+        @rtype: Area
         '''
         d1,d2,w,h=self.bbox_pp()
         
@@ -698,8 +719,8 @@ class Page(Group):
 
     def bbox_pp(self):
         
-        w,h=self.PAPERSIZES[self.size]
-        if self.orientation=="Landscape": 
+        w,h=self.PAPERSIZES[string.lower(self.size)]
+        if string.lower(self.orientation)=="landscape": 
             h,w=w,h
         
         return 0,0,w,h
@@ -713,10 +734,13 @@ class Page(Group):
         if label is None: label=str(number)
         fp.write("%%%%Page: %s %d\n"%(label,number))
 
-        assert self.orientation in ("Portrait","Landscape")
-        fp.write("%%%%PageOrientation: %s\n"%self.orientation)
+        orientation=string.capitalize(self.orientation)
+        if orientation not in ("Portrait","Landscape"):
+            raise "Don't understand page orientation"
+        
+        fp.write("%%%%PageOrientation: %s\n"%orientation)
 
-        w,h=self.PAPERSIZES[self.size]
+        w,h=self.PAPERSIZES[string.lower(self.size)]
         fp.write("%%%%PageBoundingBox: %d %d %d %d\n"%\
                  (0,0,w,h))
 
@@ -729,7 +753,7 @@ class Page(Group):
         # remember the page graphics state
         fp.write("/pgsave save def\n")
         # rotate if we're landscape 
-        if self.orientation=="Landscape":
+        if orientation=="Landscape":
             fp.write("90 rotate 0 -%d translate\n"%w)
         fp.write("%%EndPageSetup\n")
     
@@ -744,6 +768,9 @@ class Page(Group):
 
         
 class Pages(Group):
+    '''
+    Class to hold pages and write out a multi-page postsript document
+    '''
     
     def write(self,fp,title="PyScriptPS"):
         '''

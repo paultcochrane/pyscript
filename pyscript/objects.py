@@ -35,11 +35,7 @@ from functions import *
 
 from afm import AFM
 
-# -------------------------------------------------------------------------
-# XXX
-#from base import PsDict
-#class PsObject: pass
-
+import warnings
 
 # -------------------------------------------------------------------------
 class AffineObj(PsObj):
@@ -58,6 +54,7 @@ class AffineObj(PsObj):
         @param t: a 2x2 Matrix dectribing Affine transformation
         @param p: the origin for the transformation
         @return: reference to self
+        @rtype: self
         '''
 
         self.T=t*self.T
@@ -76,6 +73,7 @@ class AffineObj(PsObj):
          - dx,dy
          - P
         @return: reference to self
+        @rtype: self
         '''
         if len(args)==1:
             # assume we have a point
@@ -95,6 +93,7 @@ class AffineObj(PsObj):
         @param angle: angle in degrees, clockwise
         @param p: point to rotate around (external co-ords)
         @return: reference to self
+        @rtype: self
         """ 
         angle=angle/180.0*pi # convert angle to radians
         t=Matrix(cos(angle),sin(angle),-sin(angle),cos(angle))
@@ -102,14 +101,17 @@ class AffineObj(PsObj):
 
         return self
 
-    def scale(self,sx,sy,p=None):
+    def scale(self,sx,sy=None,p=None):
         '''
         scale object size (towards objects origin or p)
-        @param sx sy: scale factors for each axis
+        @param sx: x scale factor, or total scale factor if sy=None
+        @param sy: y scale factor
         @param p: point around which to scale
         @return: reference to self
+        @rtype: self
         '''
-
+        if sy is None: sy=sx
+        
         t=Matrix(sx,0,0,sy)
         self.concat(t,p)
         
@@ -121,6 +123,7 @@ class AffineObj(PsObj):
         @param angle: angle of mirror (deg clockwise from top)
         @param p: origin of reflection
         @return: reference to self
+        @rtype: self
         '''
         # convert angle to radians, clockwise from top
         angle=angle/180.0*pi-pi/2 
@@ -144,6 +147,7 @@ class AffineObj(PsObj):
         @param angle: direction of shear (deg clockwise from top)
         @param p: origin of shear
         @return: reference to self
+        @rtype: self
         '''
 
         self.rotate(angle,p)
@@ -161,6 +165,7 @@ class AffineObj(PsObj):
         convert internal to external co-ords
         @param p_i: intrnal co-ordinate
         @return: external co-ordinate
+        @rtype: P
         '''
         assert isinstance(p_i,P), "object not a P()"
 
@@ -171,6 +176,7 @@ class AffineObj(PsObj):
         convert external to internal co-ords
         @param p_e: external co-ordinate
         @return: internal co-ordinate
+        @rtype: P
         '''
         assert isinstance(p_e,P), "object not a P()"
 
@@ -180,6 +186,7 @@ class AffineObj(PsObj):
     def prebody(self):
         '''
         set up transformation of coordinate system
+        @rtype: string
         '''
         T=self.T
         o=self.o
@@ -194,6 +201,7 @@ class AffineObj(PsObj):
     def postbody(self):
         '''
         undo coordinate system transformation
+        @rtype: string
         '''
         return "grestore\n"
 
@@ -217,6 +225,10 @@ class Area(AffineObj):
 
     If a subclass should have the origin somewhere other than sw then
     overide the sw attribute to make it a function
+    
+    @cvar width: the width
+    @cvar height: the height
+    @cvar c: centre point (simillarly for n,ne etc)
     """
 
     #XXX allow the changing of sw corner away from origin eg Text
@@ -297,9 +309,10 @@ class Area(AffineObj):
 # -------------------------------------------------------------------------
 class TeX(Area):
     '''
-    an Area object with a TeX expression within
-
-    requires working latex and dvips systems
+    A TeX expression
+    (requires working latex and dvips systems)
+    
+    @cvar fg: TeX color
     '''
 
     text=""
@@ -372,7 +385,12 @@ class TeX(Area):
 
 class Text(Area):
     '''
-    A single line text object within an Area object
+    A single line text object
+    @cvar font: postscript font name eg "Times-Roman"
+    @cvar size: pointsize of the font
+    @cvar kerning: use kerning?
+    @cvar text: the string to typeset
+    @cvar fg: color of the text
     '''
     
     # these all affect the size so should be dynamic
@@ -382,16 +400,8 @@ class Text(Area):
     _kerning=1
     
     fg=Color(0)
-    bg=None
 
     def __init__(self,text="",**dict):
-        '''
-        @param text: the string to typeset
-        @param dict:
-         - font:one of the standard postscript fonts eg "Times-Roman"
-         - scale: a number giving the pointsize of the font
-         - fg: color object
-        '''
 
         # get the bbox
         # first need font and scale BEFORE positioning
@@ -529,13 +539,11 @@ class Rectangle(Area):
     """
     Draw a rectangle 
 
-        @param dict:
-                     - linewidth: the line thickness in points
-                     - dash: the dash pattern to use (string ala postscript)
-                     - fg: line color
-                     - bg: fill color or None for empty
-                     - r: radius of corners
-
+    @cvar linewidth: the line thickness in points
+    @cvar dash: the dash pattern to use (string ala postscript)
+    @cvar fg: line color
+    @cvar bg: fill color or None for empty
+    @cvar r: radius of corners
     """
     bg=None
     fg=Color(0)
@@ -619,17 +627,13 @@ class Rectangle(Area):
 # -------------------------------------------------------------------------
 class Circle(AffineObj):
     """
-    Draw a circle, or part of
-
-    get ellipses by scaling. The origin is the center
+    Draw a circle, or part of. Generate ellipses by scaling. 
+    The origin is the center
     
-        @param dict:
-                     - r: radius
-                     - start: starting angle for arc
-                     - end: end angle for arc
-                     - c, n, ne, ... as for L{Area.__init__} but on circumference
-                     - fg,bg:  foreground and background colors
-                     - linewidth, dash: usual
+    @cvar r: radius
+    @cvar start: starting angle for arc
+    @cvar end: end angle for arc
+    @cvar c: (also n, ne,...) as for L{Area}
     """
 
 
@@ -645,13 +649,15 @@ class Circle(AffineObj):
     def locus(self,angle,target=None):
         '''
         Set or get a point on the locus
-
+        
         @param angle: locus point in degrees
-                      (Degrees clockwise from north)
+            (Degrees clockwise from north)
         @param target: target point
-        @return: target is None: point on circumference at that angle
-                 else: set point to the target, and return reference
-                       to object
+        @return: 
+            - target is None: point on circumference at that angle
+            - else: set point to the target, and return reference
+                    to object
+        @rtype: self or P
         '''
         r=self.r
         x=r*sin(angle/180.0*pi)
@@ -698,15 +704,12 @@ class Circle(AffineObj):
     # these are of the square that holds the circle
     def _get_ne(s):
         return s.itoe(P(s.r,s.r))
-        #return s.locus(45)
     def _set_ne(s,pe):
-        #s.locus(45,pe)
         s.move(pe-s.ne)
     ne = property(_get_ne,_set_ne)
 
     def _get_nw(s):
         return s.itoe(P(-s.r,s.r))
-        #return s.locus(315)
     def _set_nw(s,pe):
         s.locus(315,pe)
         s.move(pe-s.nw)
@@ -714,7 +717,6 @@ class Circle(AffineObj):
 
     def _get_se(s):
         return s.itoe(P(s.r,-s.r))
-        #return s.locus(135)
     def _set_se(s,pe):
         s.locus(135,pe)
         s.move(pe-s.se)
@@ -722,7 +724,6 @@ class Circle(AffineObj):
 
     def _get_sw(s):
         return s.itoe(P(-s.r,-s.r))
-        #return s.locus(235)
     def _set_sw(s,pe):
         s.locus(235,pe)
         s.move(pe-s.sw)
@@ -779,12 +780,19 @@ class Circle(AffineObj):
 class Dot(Circle):
     '''
     draw a dot at the given location
+    @cvar r: dot radius
+    @cvar bg: dot color
+    @cvar fg: dot border color
     '''
     r=.05
     bg=Color(0)
     fg=None
 
-    def __init__(self,c=P(0,0),**dict):
+    def __init__(self,p1=P(0,0),p2=0,**dict):
+        if isinstance(p1,P):
+            c=p1
+        else:
+            c=P(p1,p2)
         apply(Circle.__init__,(self,),dict)
         self.c=c
 
@@ -984,6 +992,8 @@ class Path(Area):
 class Paper(Area):
     '''
     returns an area object the size of one of the standard paper sizes
+    
+    B{Class deprecated - use Page instead}
     '''
 
     size=None
@@ -1030,7 +1040,8 @@ class Paper(Area):
         @return: An area object the size of the selected paper
                  with the sw corner on P(0,0)
         '''
-
+        warnings.warn("Paper() class deprecated .. use Page()")
+        
         self.size=size
         orientation=dict.get("orientation",self.orientation)
         
@@ -1050,6 +1061,11 @@ class Paper(Area):
 # -------------------------------------------------------------------------
 
 class Epsf(Area):
+    '''
+    Load an Eps from file
+    @cvar width: on init - set width to this
+    @cvar height: on init - set height to this
+    '''
 
     def __init__(self,file,**dict):
         '''

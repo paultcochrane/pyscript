@@ -49,6 +49,7 @@ class PsObj(object):
           obj.set(bg=Color(.3),linewidth=2)
 
         @return: self 
+        @rtype: self
         '''
 
         # first do non-property ones
@@ -78,6 +79,7 @@ class PsObj(object):
 
         eg::
           newobj=obj.copy(bg=Color(.3))
+        @rtype: self
         '''
         # here for convenience
         obj=copy.deepcopy(self)
@@ -92,24 +94,28 @@ class PsObj(object):
     def __str__(self):
         '''
         return actual postscript string to generate object
+        @rtype: string
         '''
         return self.prebody()+self.body()+self.postbody()
 
     def prebody(self):
         '''
         convenience function to allow clean subclassing
+        @rtype: string
         '''
         return ''
 
     def body(self):
         '''
         subclasses should overide this for generating postscipt code
+        @rtype: string
         '''
         return ''
 
     def postbody(self):
         '''
         convenience function to allow clean subclassing
+        @rtype: string
         '''
         return ''
 
@@ -122,6 +128,8 @@ class PsObj(object):
 
         NB that the bbox should be dynamically calculated and take
         into account the transformation matrix if it applies
+        @return: A bounding box object
+        @rtype: Bbox
         """
 
         return Bbox()
