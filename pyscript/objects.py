@@ -1034,16 +1034,29 @@ class Epsf(Area):
         x2=float(x2s)/d
         y2=float(y2s)/d
 
-        print x1,y1,x2,y2
         self.offset=-P(x1,y1)
-        print self.offset
-        
+
         self.width=x2-x1
         self.height=y2-y1
-        print self.width,self.height
 
+        # width and height have special meaning here
+        if dict.has_key('width') and dict.has_key('height'):
+            sx=dict['width']/float(self.width)
+            sy=dict['height']/float(self.height)
+            del dict['width']
+            del dict['height']
+        elif dict.has_key('width'):
+            sx=sy=dict['width']/float(self.width)
+            del dict['width']
+        elif dict.has_key('height'):
+            sx=sy=dict['height']/float(self.height)
+            del dict['height']
+        else:
+            sx=sy=1
+            
         apply(Area.__init__,(self,),dict)
-    
+
+        self.scale(sx,sy)
 
     def body(self):
         

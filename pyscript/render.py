@@ -46,6 +46,8 @@ PSMacros="""%% show text with kerning if supplied
 /kernshow { 0 2 2 counttomark 2 sub { -2 roll } for
 counttomark 2 idiv { exch show 0 rmoveto} repeat pop
 } bind def
+%% Get rid of showpage for epsf
+/showpage { } def
 """
 
 import os,re
@@ -113,8 +115,6 @@ def render(*objects,**opts):
 
     tex=collecttex(objects,"")
     
-    # XXX Doesn't handle nested groups!!!
-
     defs=""
     if len(tex)>0:
         defs=TeXdefs(tex)
@@ -126,6 +126,10 @@ def render(*objects,**opts):
     if type(objects)==type(()):
         objects=apply(Group,objects)
 
+    # Make the sw corner (0,0) since some brain-dead previewers 
+    # don't understand bounding-boxes
+    objects.sw=P(0,0)
+    
     bbox=objects.bbox()
 
     if not bbox.is_set():
