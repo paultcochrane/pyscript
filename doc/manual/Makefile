@@ -5,7 +5,7 @@ FIGS =
 all: $(FIGS) $(MAIN).pdf
 
 view: $(FIGS) $(MAIN).pdf
-	acroread $(MAIN).pdf
+	gv $(MAIN).pdf
 
 
 $(FIGS) : %.eps : %.py
@@ -16,6 +16,12 @@ $(FIGS) : %.eps : %.py
 	-bibtex $*
 	pdflatex $<
 	pdflatex $<
+
+%.dvi:  %.tex $(FIGS) pyscript_defs.tex
+	latex $<
+	-bibtex $*
+	latex $<
+	latex $<
 
 # standard TeX stuff
 #%.dvi:  %.tex $(FIGS)
