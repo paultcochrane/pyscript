@@ -1,0 +1,39 @@
+# main html files
+# $Id$
+
+Files = 
+    index.html
+    docs.html
+    gallery.html
+    links.html
+
+# publish stuff
+publishFiles = 
+    $Files
+    standard.css
+    background.jpg
+    background_light.jpg
+    logo.gif
+    eg/*.png
+    eg/*.pdf
+    eg/*.py
+    eg/*.eps
+    eg/*.html
+:attr {publish = scp://paultcochrane@shell.sourceforge.net//home/groups/p/py/pyscript/htdocs/%file%} $publishFiles
+
+# generating the source
+
+:print Executing the main aap file
+
+all: $Files
+
+# publish, or just generate the html files
+@if TARGETARG == 'publish':
+    :print Publishing files to web site
+    publish: $publishFiles
+	:publishall
+@else:
+    :execute eg/main.aap
+    :print you now need to say "publish"
+
+
