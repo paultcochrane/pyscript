@@ -252,10 +252,7 @@ class C(object):
         store curve parameters
         '''
 
-        apply(self,(),dict)
-
 	if len(args)==1:
-	    # XXX what if C(P(0,0),c2=45) ??
 	    self.c0=args[0]
 	    self.c1=args[0]
 	    
@@ -263,6 +260,9 @@ class C(object):
             self.c0=args[0]
             self.c1=args[1]
 	    
+        # anything supplied in keywords will override
+        # the above points eg C(P(0,0),c1=45)
+        apply(self,(),dict)
 
     def __call__(self,**dict):
         '''
@@ -339,20 +339,25 @@ class C(object):
 
 	# first get the angles ...
 	if type(self.c0) in [type(10),type(10.0)]:
-            # turn this into a unit vector in that dir
+            # turn this into a unit vector in that direction
 	    w0 = U(self.c0)
 	elif isinstance(self.c0,R):
+            # already have unit vectior
 	    w0 = self.c0
 	elif isinstance(self.c0,P):
+            # non-unit vector giving direction
 	    w0 = (self.c0-p0)
 	else:
 	    raise "Unknown control type c0"
 
 	if type(self.c1) in [type(10),type(10.0)]:
+            # turn this into a unit vector in that direction
 	    w1 = U(self.c1)
 	elif isinstance(self.c1,R):
+            # already have unit vectior
 	    w1 = self.c1
 	elif isinstance(self.c1,P):
+            # non-unit vector giving direction
 	    w1 = (self.c1-p1)
 	else:
 	    raise "Unknown control type c1"
@@ -375,8 +380,8 @@ class C(object):
 	c1 = P( p0.x + (p1.x-p0.x)*(1-sigma*cos(p)/(3*self.t1))-(p1.y-p0.y)*sigma*sin(p)/(3*self.t1) ,
 	 	p0.y + (p1.y-p0.y)*(1-sigma*cos(p)/(3*self.t1))+(p1.x-p0.x)*sigma*sin(p)/(3*self.t1) )
 
-	# only change if control point not given
-	if type(self.c0) in [type(10),type(10.0)]:
+	# only change if we were given an angle
+        if type(self.c0) in [type(10),type(10.0)]:
 	    self.c0 = c0
 	if type(self.c1) in [type(10),type(10.0)]:
 	    self.c1 = c1
