@@ -27,34 +27,55 @@ class Boxed(Group,Area):
         
     def __init__(self,obj,**dict):
         
-        Psw,Pne=obj.boundingbox()
+        bbox=obj.bbox()
 
         pad=.1
-        w=Pne[0]-Psw[0]+2*pad
-        h=Pne[1]-Psw[1]+2*pad
+        w=bbox.width+2*pad
+        h=bbox.height+2*pad
 
-        self.natives(dict,
-                     width=w,
-                     bg=Color(1),
-                     height=h)
+        self.width=w
+        self.height=h
+        self.bg=dict.get('bg',Color(1))
+        if dict.has_key('bg'):
+            del dict['bg']
 
         apply(Group.__init__, (self,), dict)
         apply(Area.__init__, (self,), dict)
 
-        obj['sw']=P(pad,pad)
+        obj.c=P(w/2.,h/2.)
 
         self.append(
-            Rectangle(width=w,height=h,bg=self['bg']),
+            Rectangle(width=w,height=h,bg=self.bg),
             obj,
             )
 
-def dot(p,r=.05):
-    '''
-    @return: a filled circle
-    @param p: a point for the center of the dot
-    @param r: the radius of the dot
-    '''
-    return Circle(r=r,bg=Color(0),c=p)
+class Circled(Group,Area):
+        
+    def __init__(self,obj,**dict):
+        
+        bbox=obj.bbox()
+
+        pad=.1
+        r=max( bbox.width+2*pad , bbox.height+2*pad )/2.0
+
+        self.width=2*r
+        self.height=2*r
+
+        
+        self.bg=dict.get('bg',Color(1))
+        if dict.has_key('bg'):
+            del dict['bg']
+
+        apply(Group.__init__, (self,), dict)
+        apply(Area.__init__, (self,), dict)
+
+        obj.c=P(r,r)
+
+        self.append(
+            Circle(r=r,bg=self.bg,c=P(r,r)),
+            obj,
+            )
+
 
 def cbox(obj,x,yt,yc):
     '''
