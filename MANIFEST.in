@@ -53,15 +53,17 @@ include doc/examples/Makefile
 include doc/examples/align.py
 include doc/examples/align2.py
 include doc/examples/atom.py
+include doc/examples/bifurcate.py
 include doc/examples/detector.py
 include doc/examples/distribute.py
 include doc/examples/div_con.py
 include doc/examples/flower_algorithm.py
 include doc/examples/qcirc.py
-include doc/examples/sarah.py
 include doc/examples/sphere.py
 include doc/examples/stateSwap.py
+include doc/examples/teleport.py
 include doc/examples/tex.py
+include doc/examples/tutorial.py
 
 # add the manual (as it currently stands)
 include doc/manual/pyscript.pdf
