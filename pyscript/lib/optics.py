@@ -79,12 +79,12 @@ def BSLine(c=P(0,0), label=None, w=1.0, h=0.1, angle=0, anchor=None):
 # phase shifter
 def PhaseShifter(sw=P(0,0), label=None, w=0.5, h=0.7, angle=0):
     """
-
+    Phase shifter
     """
     # need to implement the angle
     # call PhaseShift??
-    phaseShifter = Path(sw, sw+P(w/2,h), sw+P(w,0), sw,
-                        fg=Color("white"), bg=Color("white"))
+    phaseShifter = Path(sw, sw+P(w/2,h), sw+P(w,0), sw)
+    phaseShifter.rotate(angle,p=phaseShifter.c)
     if label is not None:
         label.s = sw+P(w/2,-h)
         return Group(phaseShifter, label)
