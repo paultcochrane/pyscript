@@ -1,4 +1,4 @@
-# Copyright (C) 2002  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2003  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@ from pyscript import *
 
 class Poster1:
 
-    bg=None
+    bg=Color('DarkSlateBlue')
     fg=Color('Lavender')
 
     thelogos=[]
@@ -33,6 +33,7 @@ class Poster1:
 
     authors=""
     authors_fg=Color(0)
+    authors_scale=1.4
     
     abstract=""
     abstract_fg=Color(0)
@@ -41,36 +42,67 @@ class Poster1:
 
     box_bg=Color('Lavender')
     box_fg=Color(0)
-    box_border=2
+    box_border=1
+    box_pad=.2
+
+    header_fg=Color('Navy')
+    header_scale=1.3
 
     references=""
     references_fg=Color(0)
     references_scale=.75
+
+    pad=.4
+    tex_scale=.7
+
+    #  (20.9903   ,29.7039),
     
     def __init__(self):
 
+        # everything is going to be based around a4 paper
         self.paper=Paper("a4")
 
-        self.col1 = Align(a1="s",a2="n",angle=180,space=.4)
-        self.col2 = Align(a1="s",a2="n",angle=180,space=.4)
+        self.col1 = Align(a1="s",a2="n",angle=180,space=self.pad)
+        self.col2 = Align(a1="s",a2="n",angle=180,space=self.pad)
 
 
-    def tex(self,text,width=9,fg=None):
+    def tex(self,text,width=None,fg=None,scale=None,align="w"):
         if fg is None:
             fg=Color(0)
-        return TeX(r'\begin{minipage}{%fcm}%s\end{minipage}'%(width,text),fg=fg)
+        if width is None:
+            width=(self.paper.width-3*self.pad)/2.-2*self.box_pad
+        if scale is None:
+            scale=self.tex_scale
+
+        t=TeX(r'\begin{minipage}{%fcm}%s\end{minipage}'%(width/float(scale),text),fg=fg).scale(scale,scale)
+
+        all=Align(Area(width=width,height=0,e=t.e),
+                    t,
+                    a1=align,a2=align,space=0)
+
+        return all
+
+    def header(self,text,align="c",scale=None):
+
+        if scale is None:
+            scale=self.header_scale
+
+        scale=scale*self.tex_scale
+        
+        return self.tex(text,fg=self.header_fg,align=align,scale=scale)
+
 
     def addbox(self,col,*items):
 
-        group=Align(a1="s",a2="n",angle=180,space=.2)
+        group=Align(a1="s",a2="n",angle=180,space=self.box_pad)
         apply(group.append,items)
 
         bbox=group.bbox()
 
         g=Group(
-            Rectangle(sw=bbox.sw-P(.2,.2),
-                      width=self.paper.width/2-.8,
-                      height=bbox.height+.4,
+            Rectangle(n=bbox.n-P(0,-self.box_pad),
+                      width=(self.paper.width-3*self.pad)/2.,
+                      height=bbox.height+2*self.box_pad,
                       bg=self.box_bg,
                       fg=self.box_fg,
                       linewidth=self.box_border,
@@ -118,24 +150,27 @@ class Poster1:
 
 
     def make_title(self):
-        return TeX(self.title,fg=self.title_fg).scale(self.title_scale,
-                                                      self.title_scale)
+
+        scale=self.tex_scale*self.title_scale
+
+        return self.tex(self.title,fg=self.title_fg,scale=scale,width=self.paper.width*.8,align="c")
 
     def make_abstract(self):
-        return self.tex(self.abstract,16,fg=self.abstract_fg)
+        return self.tex(self.abstract,16,fg=self.abstract_fg,align="c")
 
     def make_authors(self):
-        return TeX(self.authors,fg=self.authors_fg)
+
+        scale=self.tex_scale*self.authors_scale
+        
+        return self.tex(self.authors,fg=self.authors_fg,scale=scale,width=self.paper.width*.8,align="c")
 
     def make_references(self):
 
-        s=self.references_scale
-
-        # Should have an Area() of colwidth so it's left justified
+        s=self.references_scale*self.tex_scale
 
         self.col2.append(
-            self.tex(r"{\small %s}"%self.references,9./s,
-                     fg=self.references_fg).scale(s,s)
+            self.tex(r"{\small %s}"%self.references,
+                     fg=self.references_fg,scale=s)
             )
         
     def make(self,scale=1):
@@ -144,10 +179,10 @@ class Poster1:
         
         self.make_references()
         
-        self.col2.nw = self.col1.ne+P(.4,0)
+        self.col2.nw = self.col1.ne+P(self.pad,0)
         cols=Group(self.col1,self.col2)
 
-        all=Align(a1="s",a2="n",angle=180,space=.4)
+        all=Align(a1="s",a2="n",angle=180,space=self.pad)
 
         all.append(
             self.make_logos(),
