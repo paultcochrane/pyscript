@@ -336,9 +336,7 @@ class Slide(Talk):
 	    width -= logo.bbox().width
 
 	space = width/(len(self.thelogos)-1)
-	a = Align(a1="e", a2="w", angle=90, space=space)
-	for logo in self.thelogos:
-	    a.append(logo)
+	a = Align(self.thelogos, a1="e", a2="w", angle=90, space=space)
 
 	return a
 
@@ -356,7 +354,7 @@ class Slide(Talk):
 	self.headings.append(temp)
 
     def make_headings(self):
-	heading_block = Align(a1="sw", a2="nw", angle=180, space=0.4)
+	heading_block = Group()
 	for heading in self.headings:
 	    heading_text = heading[1]
 	    heading_level = heading[0]
@@ -368,11 +366,13 @@ class Slide(Talk):
 	    heading_indent = self.headings_indent[heading_level]
 
 	    tex = TeX(text=heading_bullet + ' ' + heading_text,
-			fg=heading_fg
-			).scale(heading_scale,heading_scale)
-	    tex.offset = tex.offset + P(heading_indent,0.0)
-	    heading_block.append(tex)
+			fg=heading_fg).scale(heading_scale,heading_scale)
+	    padding = Area(sw=tex.sw,width=heading_indent,height=0)
+	    heading_proper = Group(padding,tex)
+	    Align(heading_proper, a1="e", a2="w", angle=90, space=0)
+	    heading_block.append(heading_proper)
 
+	Align(heading_block, a1="sw", a2="nw", angle=180, space=0.4)
 	return heading_block
 	    
     def make_waitbar(self):
@@ -396,18 +396,16 @@ class Slide(Talk):
 	footerText = " - %s; page %i of %i" %  \
 			(talk.mainAuthor,self.pageNumber,self.pages)
 	
-	footer = Align(a1="e", a2="w", angle=90, space=0.1)
-	footer.append(
+	footerTeX = Group(
 		    TeX(text=talk.title,
 			fg=self.title_fg,
-			).scale(self.footerScale,self.footerScale)
-		    )
-	footer.append(
+			).scale(self.footerScale,self.footerScale),
 		    TeX(
 			text=footerText,
 			fg=self.title_fg
-			).scale(self.footerScale,self.footerScale)
+			).scale(self.footerScale,self.footerScale),
 		    )
+	footer = Align(footerTeX, a1="e", a2="w", angle=90, space=0.1)
 	footer.sw = self.paper.sw+P(0.4,0.4)
 	return footer
 
@@ -459,16 +457,13 @@ class Slide(Talk):
 
     def make(self, talk, scale=1):
         
-        all=Align(a1="s", a2="n", angle=180, space=0.4)
+	all = Group(self.make_logos(),self.make_title())
         
-        all.append(
-            self.make_logos(),
-            self.make_title()
-            )
-
 	if self.authors is not None:
 	    all.append(self.make_authors())
         
+        Align(all, a1="s", a2="n", angle=180, space=0.4)
+
 	if self.titlepage:
 	    all.c = self.paper.c + P(0.0,0.8)
 	else:
