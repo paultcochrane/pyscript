@@ -20,8 +20,13 @@
 
 from math import sqrt,acos,sin,cos
 from util import *
+from base import PsDict
+
 
 class Matrix:
+    '''
+    2x2 matrix class
+    '''
     type='Matrix'
  
     def __init__(self,a=0.0,b=0.0,c=0.0,d=0.0):
@@ -34,7 +39,10 @@ class Matrix:
                +","+repr(s[2])+","+repr(s[3])+')'
 
     def __str__(s):
-        return "[%f %f %f %f]"%tuple(self.data)
+        '''
+        print as postscript
+        '''
+        return "[%g %g %g %g]"%tuple(s.data)
 
     def __add__(s,o):
         if pstype(o) == MatrixType:
@@ -125,6 +133,15 @@ class Matrix:
     def det(s):
         return s[0]*s[3]-s[1]*s[2]
 
+    def inverse(s):
+
+        d=s.det()
+
+        if d==0 : raise "determinant=0, cannot calc inverse"
+
+        return Matrix(s[3],-s[1],-s[2],s[0])/float(d)
+
+
     def __div__(self,n):
         # only for numbers!
         n=float(n)
@@ -138,16 +155,19 @@ class Matrix:
 # -------------------------------------------------------------------------
 # P = Vector (relative to origin) ie a point
 # -------------------------------------------------------------------------
-class P:
+class P(PsDict):
     """
     A Vector (or point)
     operations always return type 'P' vectors
     """
     type='P'
 
-    def __init__(self,x=0.0,y=0.0):
-        self.data=[x,y]
+    def __init__(self,x=0.0,y=0.0,**dict):
+        self.point=[x,y]
 
+        self.natives({"relative":0},dict)
+        apply(PsDict.__init__,(self,),dict)
+        
     def __repr__(self):
         return self.type+'('+repr(self[0])+","+repr(self[1])+')'
 
@@ -155,14 +175,21 @@ class P:
         return 2
 
     def __getitem__(self,i):
+
+        if type(i)==type(""):
+            return PsDict.__getitem__(self,i)
+        
         if i < (len(self)):
-            return self.data[i]
+            return self.point[i]
         else:
             raise IndexError,"index reading error"
     
     def __setitem__(self,i,other):
+        if type(i)==type(""):
+            return PsDict.__setitem__(self,i,other)
+
         if i < (len(self)):
-            self.data[i]=other
+            self.point[i]=other
         else:
             raise IndexError,"index writing error"
 
@@ -205,7 +232,7 @@ class P:
 
     def __str__(self):
         "return postscript as string"
-        return "%f uu %f uu"%tuple(self.data)
+        return "%g uu %g uu"%tuple(self.point)
 
     def __div__(self,o):
         # only for numbers!
@@ -227,28 +254,7 @@ class P:
         else:
             raise TypeError, "non-vector in cross product"
 
-##   length=betrag
-  
-##   #E vector of length 1 in direction of self: -> vector
-##   def normal(self):
-##     betr=self.betrag()
-##     if betr == 0:
-##       raise ZeroDivisionError, "self is a zero-length vector"
-##     else:
-##       return (1/betr)*self
-  
-##   #E angle (rad) between two vectors (self, other): -> angle
-##   def winkel(self,other):
-##     if isVector(other):
-##       tmp=1/(self.betrag()*other.betrag())*(self*other)
-##       if tmp>=-1.0 and tmp <=1.0:
-##         return acos(tmp)
-##       else:
-##         raise "domain error in function acos()!"
-##     else:
-##       raise TypeError, "other is no vector"
-      
-##   angle=winkel
+
 
 # -------------------------------------------------------------------------
 # R = Vector (relative to last point) function dependent!

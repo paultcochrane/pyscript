@@ -104,7 +104,7 @@ def render(filename,*objects):
 
     if type(objects)==type(()):
         objects=apply(Group,objects)
-    
+
     SW,NE=objects.boundingbox()
     # convert bbox to points
     SW[0]=round(SW[0]*defaults.units)

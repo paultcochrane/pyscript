@@ -17,7 +17,7 @@
 """
 Base objects
 """
-import UserDict,os,string,re,copy
+import os,string,re
 import cStringIO,commands
 
 from types import *
@@ -28,140 +28,83 @@ from defaults import *
 from util import *
 from vectors import *
 
+from base import *
+
+from functions import *
 
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-class Color:
+class PsObject(PsDict):
     """
-    (C,M,Y,K)=CMYKColor or (R,G,B)=RGBColor or (G)=Gray or 'yellow' etc 
-    """
-    def __init__(self,*col):
-      
-        if type(col[0])==StringType:
-            col=COLORS[col[0]]
-
-        assert len(col)>0 and len(col)<5
-        
-        for ii in col:
-            assert ii>=0 and ii<=1
-            
-        self.color=col
-        
-    def __str__(self):
-        "return postscript as string"
-
-        color=self.color
-        if len(color)==1:
-            ps=" %f setgray "%color
-        elif len(color)==3:
-            ps=" %f %f %f setrgbcolor "%color
-        elif len(color)==4:
-            ps=" %f %f %f %f setcmykcolor "%color
-        else:
-            raise "Unknown color"
-        return ps
-    
-    def copy(self):
-        return copy.deepcopy(self)
-
-    def __mul__(self,other):
-        assert other>=0 and other<=1
-        newcol=[]
-        for ii in self.color:
-            newcol.append(ii*other)
-        return apply(Color,tuple(newcol))
-
-# -------------------------------------------------------------------------
-# Pass through abritrary postcript
-# -------------------------------------------------------------------------
-
-class Postscript:
-    """
-    Insert a raw postcript command in output
-    """
-    type="Postscript"
-
-    def __init__(self,command):
-        self.command=command
-
-        def __str__(self):
-            return " %s "%self.command
-
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
-
-
-class PsObject(UserDict.UserDict):
-    """
-    Base class, A generic Postscript object
-    implements a dict with
-    some dynamic elements
+    A generic Postscript object
     """
     type="PsObject"
 
     def __init__(self,**dict):
-        # create the dict structures
-        UserDict.UserDict.__init__(self)
-
-        setkeys(dict,{"o":P(0,0),
-                      "T":Matrix(1,0,0,1)})
-
-        # Add critical items first
-        critical=dict.get("__natives__",{})
-        criticalkeys=critical.keys()
-        criticalkeys.append("__natives__")
-        for key,value in critical.items():
-            self[key]=value
-
-        # Add rest
-        for key,value in dict.items():
-            if key in criticalkeys: continue
-            self[key]=value
-
-    def __getitem__(self, key):
-        "get dict or attribute"
-        if self.data.has_key(key):
-            return self.data[key]
-        try:
-            return getattr(self,"_get_%s"%key)()
-        except AttributeError:
-            print "hello"
-            raise KeyError,key
-
-    def __setitem__(self, key, item):
-        "set attribute or dict"
-        try:
-            getattr(self,"_set_%s"%key)(item)
-        except AttributeError:
-            self.data[key] = item        
-
-    def copy(self):
-        return copy.deepcopy(self)
+        self.natives({"o":P(0,0),
+                      "T":Matrix(1,0,0,1)},
+                     dict)
+        apply(PsDict.__init__,(self,),dict)
 
     def concat(self,t):
+        '''
+        concat t to tranformation matrix
+        '''
 
         T=self["T"]
-        self["T"]=t*T#[a,b,c,d]
+        self["T"]=t*T
 
-    def move(self,dx,dy):
-        self["o"]=self["o"]+P(dx,dy)
+    def move(self,*args):
+        '''
+        translate object by dx,dy
+        '''
+        if len(args)==1:
+            # assume we have a point
+            self['o']=self['o']+args[0]
+        else:
+            # assume we have dx,dy
+            self["o"]=self["o"]+P(args[0],args[1])
 
     def rotate(self,angle):
+        '''
+        rotate object, angle in degrees, clockwise
+        '''
         angle=angle/180.0*pi
-        t=Matrix([cos(angle),sin(angle),-sin(angle),cos(angle)])
+        t=Matrix(cos(angle),sin(angle),-sin(angle),cos(angle))
         self.concat(t)
 
     def scale(self,sx,sy):
-        self.concat(Matrix([sx,0,0,sy]))
+        '''
+        scale object by sx and sy
+        '''
+        self.concat(Matrix(sx,0,0,sy))
+
+    def itoe(self,p_i):
+        '''
+        convert internal to external co-ords
+        '''
+        return self['T']*p_i+self['o']
+        
+    def etoi(self,p_e):
+        '''
+        convert external to internal co-ords
+        '''
+        return self['T'].inverse()*(p_e-self['o'])
 
     def prebody(self):
         T=self["T"]
         o=self["o"]
-        S="gsave\n"
-        if T!=None and o!=P(0,0):
-            S=S+"[%f %f %f %f %s] concat "%(T[0],T[1],T[2],T[3],o)
+        S="gsave "
+        if T==Matrix(1,0,0,1):
+            S=S+"%s translate\n"%o 
+        else:
+            # NB postscript matrix is the transpose of what you'd expect!
+            S=S+"[%g %g %g %g %s] concat\n"%(T[0],T[2],T[1],T[3],o)
         return S
+
+    def body(self):
+        return ""
 
     def postbody(self):
         return "grestore\n"
@@ -170,29 +113,14 @@ class PsObject(UserDict.UserDict):
         "return postscript as string"
         return self.prebody()+self.body()+self.postbody()
 
-    def body(self):
-        return ""
 
     def boundingbox(self):
         "return objects bounding box"
         
-        # should be dynamically calculated abd take
+        # should be dynamically calculated and take
         # into account transformation matrix
         
         raise "Needs to be overridden!"
-
-    def get_fonts(self,fontdict):
-        """
-        Return any font definitions to be included at begining of output
-        """
-        # Not implemented
-        pass
-
-    def get_defs(self,order,defdict):
-        """
-        Get any postscript definitions that will be used in output
-        """
-        pass
 
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -204,64 +132,63 @@ class Area(PsObject):
     type="Area"
 
     def __init__(self,**dict):
-        setkeys(dict,{"width":0,"height":0})
+        self.natives({"width":0,"height":0},dict)
         apply(PsObject.__init__,(self,),dict)
 
-
         # Dynamic locations ... retrival
-    def _get_w(self):
-        return self["o"]+P(0,self["height"]/2.)
-    def _get_nw(self):
-        return self["o"]+P(0,self["height"])
-    def _get_s(self):
-        return self["o"]+P(self["width"]/2.,0)
-    def _get_sw(self):
-        return self["o"]
-    def _get_se(self):
-        return self["o"]+P(self["width"],0)
-    def _get_e(self):
-        return self["o"]+P(self["width"],self["height"]/2.)
-    def _get_ne(self):
-        return self["o"]+P(self["width"],self["height"])
-    def _get_n(self):
-        return self["o"]+P(self["width"]/2.,self["height"])
-    def _get_c(self):
-        return self["o"]+P(self["width"]/2.,self["height"]/2.)
+    def _get_w(s):
+        return s.itoe(P(0,s["height"]/2.))
+    def _get_nw(s):
+        return s.itoe(P(0,s["height"]))
+    def _get_s(s):
+        return s.itoe(P(s["width"]/2.,0))
+    def _get_sw(s):
+        return s.itoe(P(0,0))
+    def _get_se(s):
+        return s.itoe(P(s["width"],0))
+    def _get_e(s):
+        return s.itoe(P(s["width"],s["height"]/2.))
+    def _get_ne(s):
+        return s.itoe(P(s["width"],s["height"]))
+    def _get_n(s):
+        return s.itoe(P(s["width"]/2.,s["height"]))
+    def _get_c(s):
+        return s.itoe(P(s["width"]/2.,s["height"]/2.))
 
 
     # Dynamic locations ... setting
-    def _set_n(self,p):
-        self["o"]=self["o"]+p-self["n"]
-    def _set_ne(self,p):
-        self["o"]=self["o"]+p-self["ne"]
-    def _set_e(self,p):
-        self["o"]=self["o"]+p-self["e"]
-    def _set_se(self,p):
-        self["o"]=self["o"]+p-self["se"]
-    def _set_s(self,p):
-        self["o"]=self["o"]+p-self["s"]
-    def _set_sw(self,p):
-        self["o"]=self["o"]+p-self["sw"]
-    def _set_w(self,p):
-        self["o"]=self["o"]+p-self["w"]
-    def _set_nw(self,p):
-        self["o"]=self["o"]+p-self["nw"]
-    def _set_c(self,p):
-        self["o"]=self["o"]+p-self["c"]
+    def _set_n(s,pe):
+        s.move(pe-s['n'])
+    def _set_ne(s,pe):
+        s.move(pe-s['ne'])
+    def _set_e(s,pe):
+        s.move(pe-s['e'])
+    def _set_se(s,pe):
+        s.move(pe-s['se'])
+    def _set_s(s,pe):
+        s.move(pe-s['s'])
+    def _set_sw(s,pe):
+        s.move(pe-s['sw'])
+    def _set_w(s,pe):
+        s.move(pe-s['w'])
+    def _set_nw(s,pe):
+        s.move(pe-s['nw'])
+    def _set_c(s,pe):
+        s.move(pe-s['c'])
 
     def boundingbox(self):
         "return objects bounding box"
 
-        # return corners for now + 1point to take
-        # into account the line widths
-        sw = self["sw"]-R(1,1)*(1/float(defaults.units))
-        ne = self["ne"]+R(1,1)*(1/float(defaults.units))
+        SW=self['sw'].copy()
+        NE=self['ne'].copy()
+        for p in [self['sw'],self['nw'],self['ne'],self['se']]:
+            SW[0]=min(SW[0],p[0])
+            SW[1]=min(SW[1],p[1])
+            NE[0]=max(NE[0],p[0])
+            NE[1]=max(NE[1],p[1])
 
-        # TODO
-        # should be dynamically calculated and take
-        # into account transformation matrix
 
-        return (sw,ne)
+        return (SW,NE)
 
 # -------------------------------------------------------------------------
 # A TeX expression
@@ -295,22 +222,23 @@ class TeX(Area):
         # grab boundingbox
         bbox_so=re.search("\%\%boundingbox:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)",
                           eps,re.I)
-        self.bbox=[]
+        bbox=[]
         for ii in bbox_so.groups():
-            self.bbox.append(int(ii))
+            bbox.append(int(ii))
 
-        setkeys(dict,
-                {"width":(self.bbox[2]-self.bbox[0])/float(defaults.units),
-                 "height":(self.bbox[3]-self.bbox[1])/float(defaults.units),
-                 "fg":Color(0)
-                 })
+        self.natives(
+            {"width":(bbox[2]-bbox[0])/float(defaults.units),
+             "height":(bbox[3]-bbox[1])/float(defaults.units),
+             "fg":Color(0)
+             },
+            dict)
         apply(Area.__init__,(self,),dict)
 
+        self.offset=-P(bbox[0],bbox[1])/float(defaults.units)
         # grab font encoding
         so=re.search("^(TeXDict begin \d.*?)\s*end",eps,re.S|re.M)
         fonts=so.group(1)
         
-
         # grab body (ignoring procsets and fonts)
         so=re.search("\%\%EndSetup\s*(.*?)\s*\%\%Trailer",eps,re.S)
         body=so.group(1)
@@ -323,13 +251,56 @@ class TeX(Area):
     def body(self):
         out=cStringIO.StringIO()
 
-        out.write("%d %d translate %s\n"%(-self.bbox[0],-self.bbox[1],
-                                          self["fg"]) )
+        out.write("%s translate "%self.offset)
+        out.write("%s\n"%self['fg'])
         out.write("%s\n"%self.bodyps)
         return out.getvalue()
 
 
-class Text1(Area):
+# -------------------------------------------------------------------------
+# Text class ... requires gs -bbox
+# -------------------------------------------------------------------------
+
+class Text(Area):
+        
+    def __init__(self,text="",**dict):
+
+        self.natives(
+            {"bg":None,
+             "fg":Color(0),
+             "text":text,
+             "font":"Times-Roman",
+             "scale":"12",
+             },dict)
+        apply(PsObject.__init__,(self,),dict)
+
+        self.offset=P(0,0)
+
+        # get the bbox
+        SW,NE=gsbbox(self)
+
+        # these are all internal co-ordinates
+        self['width']=NE[0]-SW[0]
+        self['height']=NE[1]-SW[1]
+        self.offset=-SW
+
+        print SW,NE
+
+    def body(self):
+        out=cStringIO.StringIO()
+        
+        out.write("%s moveto\n"%self.offset)
+        out.write("/%(font)s findfont\n%(scale)s scalefont setfont\n"%self)
+        out.write("(%(text)s) show\n"%self)
+        
+        return out.getvalue()
+
+# -------------------------------------------------------------------------
+# Text class with alternative calculation of bbox ....
+# doesn't rely on gs -bbox  but requires postscript level 2 ?
+# -------------------------------------------------------------------------
+
+class Text_alt(Area):
         
     def __init__(self,text="",**dict):
 
@@ -352,14 +323,14 @@ class Text1(Area):
         
         self.bbox=map(float,BBOX)
 
-        setkeys(dict,
-                {"bg":None,
-                 "fg":Color(0),
-                 "o":P(0,0),
-                 "text":text,
-                 "font":font,
-                 "scale":scale
-                 })
+        self.natives(
+            {"bg":None,
+             "fg":Color(0),
+             "o":P(0,0),
+             "text":text,
+             "font":font,
+             "scale":scale
+             },dict)
         apply(PsObject.__init__,(self,),dict)
 
 
@@ -383,70 +354,26 @@ class Text1(Area):
         return (sw,ne)
 
 
-class Text2(Area):
-        
+# -------------------------------------------------------------------------
+# Text class that has 1pp bounding box ...
+# (but doesn't rely on gs)
+# -------------------------------------------------------------------------
+
+class Text_nobbox(PsObject):
+    """
+    Text class with broken bbox
+    (doesn't require gs)
+    """
     def __init__(self,text="",**dict):
 
-        # get the bbox
-        # first need font and scale
-        font=dict.get("font","Helvetica")
-        scale=dict.get("scale","12")
-
-
-        fp=open("temp.eps","w")
-        fp.write('/%s findfont'%font +
-                 ' %s scalefont setfont'%scale +
-                 ' 0 10 moveto (%s) show showpage quit'%text)
-        fp.close()
-
-        BBOX=commands.getoutput('gs -q -sDEVICE=bbox -dBATCH -dNOPAUSE %s'%"temp.eps")
-        
-        so=re.search("HiResBoundingBox:\s*([\d.\-]+)\s*([\d.\-]+)\s*([\d.\-]+)\s*([\d.\-]+)",BBOX,re.M)
-        self.bbox=[float(so.group(1)),float(so.group(2))-10,
-                   float(so.group(3)),float(so.group(4))-10]
-
-        setkeys(dict,
-                {"bg":None,
-                 "fg":Color(0),
-                 "o":P(0,0),
-                 "text":text,
-                 "font":font,
-                 "scale":scale
-                 })
-        apply(PsObject.__init__,(self,),dict)
-
-
-
-    def body(self):
-        out=cStringIO.StringIO()
-        
-        out.write("0 0 moveto\n")
-        out.write("/%(font)s findfont\n%(scale)s scalefont setfont\n"%self)
-        out.write("(%(text)s) show\n"%self)
-        
-        return out.getvalue()
-
-    def boundingbox(self):
-        "return objects bounding box"
-
-        # return corners for now + 1point to take
-        # into account the line widths
-        sw = P(self.bbox[0],self.bbox[1])
-        ne = P(self.bbox[2],self.bbox[3])
-        return (sw,ne)
-
-class Text(PsObject):
-        
-    def __init__(self,text="",**dict):
-
-        setkeys(dict,
-                {"bg":None,
-                 "fg":Color(0),
-                 "o":P(0,0),
-                 "text":text,
-                 "font":"Helvetica",
-                 "scale":"12"
-                 })
+        self.natives(
+            {"bg":None,
+             "fg":Color(0),
+             "o":P(0,0),
+             "text":text,
+             "font":"Helvetica",
+             "scale":"12"
+             },dict)
         apply(PsObject.__init__,(self,),dict)
 
     def body(self):
@@ -469,17 +396,18 @@ class Text(PsObject):
 
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
-class Box(Area):
+class Rectangle(Area):
     """
-    Draw a box
+    Draw a rectangle
     """
-    type="Box"
+    type="Rectangle"
 
     def __init__(self,**dict):
         
-        setkeys(dict,
-                {"bg":None,
-                 "fg":Color(0)})
+        self.natives(
+            {"bg":None,
+             "fg":Color(0)},
+            dict)
         apply(Area.__init__,(self,),dict)
 
 
@@ -488,11 +416,11 @@ class Box(Area):
         out=cStringIO.StringIO()
         
         if self["bg"] is not None:
-            out.write("%(bg)s 0 0 %(width)s uu %(height)s uu rectfill\n"%self)
-        out.write("%(fg)s 0 0 %(width)s uu %(height)s uu rectstroke\n"%self)
+            out.write("%(bg)s 0 0 %(width)g uu %(height)g uu rectfill\n"%self)
+        out.write("%(fg)s 0 0 %(width)g uu %(height)g uu rectstroke\n"%self)
                         
         return out.getvalue()
-                
+
 
 # -------------------------------------------------------------------------
 # Path
@@ -547,23 +475,21 @@ class Path(Area):
 
         path=self.make_relative(path)
         sw,ne=self.extent(path)
-
-        setkeys(dict,
-                {"path":path,
-                 "fg":Color(0),
-                 "bg":None,
-                 "width":ne[0]-sw[0],
-                 "height":ne[1]-sw[1],
-                 "o":sw,
-                 "linewidth":defaults.linewidth,
-                 "linecap":defaults.linecap,
-                 "linejoin":defaults.linejoin,
-                 "miterlimit":defaults.miterlimit,
-                 "dash":defaults.dash
-                 })
-
-        
         self.offset=-sw
+
+        self.natives(
+            {"path":path,
+             "fg":Color(0),
+             "bg":None,
+             "width":ne[0]-sw[0],
+             "height":ne[1]-sw[1],
+             "o":sw,
+             "linewidth":defaults.linewidth,
+             "linecap":defaults.linecap,
+             "linejoin":defaults.linejoin,
+             "miterlimit":defaults.miterlimit,
+             "dash":defaults.dash
+             },dict)
         apply(Area.__init__,(self,),dict)
 
     def closed(self):
@@ -677,6 +603,9 @@ class Path(Area):
 
         return SW,NE
 
+# -------------------------------------------------------------------------
+# Group
+# -------------------------------------------------------------------------
 
 class Group(PsObject):
     """
@@ -689,7 +618,7 @@ class Group(PsObject):
             self.objects=list(objects[0])
         else:
             self.objects=list(objects)
-        #setkeys(dict,
+        #self.natives(dict,
                  #"width":ne[0]-sw[0],
                  #"height":ne[1]-sw[1],
                  #"o":sw,
@@ -702,14 +631,18 @@ class Group(PsObject):
         """
         Gather together common bounding box for group
         """
+
         SW,NE=self.objects[0].boundingbox()
+
+
         for obj in self.objects[1:]:
             sw,ne=obj.boundingbox()
-            SW[0]=min(sw[0],SW[0])
-            SW[1]=min(sw[1],SW[1])
-            NE[0]=max(ne[0],NE[0])
-            NE[1]=max(ne[1],NE[1])
-    
+            if sw and ne:
+                # some objects return None
+                SW[0]=min(sw[0],SW[0])
+                SW[1]=min(sw[1],SW[1])
+                NE[0]=max(ne[0],NE[0])
+                NE[1]=max(ne[1],NE[1])
         return SW,NE
 
     def body(self):
