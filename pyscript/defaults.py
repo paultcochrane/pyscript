@@ -51,12 +51,6 @@ class defaults:
     # 1.0 cuts off miters at all angles, so that bevels are always produced
     miterlimit = 10  
 
-    # [ ] 0 setdash % Solid, unbroken lines
-    # [ 3] 0 setdash % 3 units on, 3 units off,
-    # [ 2] 1 setdash % 1 on, 2 off, 2 on, 2 off,
-    # [ 2 1] 0 setdash % 2 on, 1 off, 2 on, 1 off,
-    # [ 3 5] 6 setdash % 2 off, 3 on, 5 off, 3 on, 5 off,
-    # [ 2 3 ] 11 setdash % 1 on, 3 off, 2 on, 3 off, 2 on
     dash = None
 
     # a 'color' of None is transparent 

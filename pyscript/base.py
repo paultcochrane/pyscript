@@ -396,8 +396,19 @@ class Color(PsObj):
 # -------------------------------------------------------------------------
 class Dash(PsObj):
     """
-    Class to encode postscript dash
- 
+    Class to encode postscript dash pattern
+
+    Argument is a list of lengths for alternating dash and spaces
+
+    eg:
+    Dash(3)            3 on, 3 off, ...
+    Dash(2,offset=1)   1 on, 2 off, 2 on, 2 off, ...
+    Dash(2,1)          2 on, 1 off, 2 on, 1 off, ...
+    Dash(3,5,offset=6) 2 off, 3 on, 5 off, 3 on, 5 off, ...
+    Dash(3,1,1,1)      3 on, 1 off, 1 on, 1 off, 3 on, ...
+
+    @cvar offset: initially fastforward this much into the pattern
+
     """
 
     pattern=(2,)
