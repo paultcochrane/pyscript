@@ -94,7 +94,7 @@ class Arrowhead(AffineObj):
 
         AffineObj.__init__(self, **options)
 
-        if len(param) ==1:
+        if len(param) == 1:
             self.pos = param[0]
 
         sx = self.scalew
@@ -179,7 +179,7 @@ class Arrowhead2(Arrowhead):
     Similar to default but with concave base
     '''
 
-    shape=[(0, 0, 1.5, -4.854, 1.5, -4.854),
+    shape = [(0, 0, 1.5, -4.854, 1.5, -4.854),
            (0, -2, 0, -2, -1.5, -4.854),
            (-1.5, -4.854, 0, 0, 0, 0)]
 
@@ -188,7 +188,7 @@ class Arrowhead3(Arrowhead):
     Like default but rounded base
     '''
 
-    shape=[(0, 0, 1.5, -4.854, 1.5, -4.854),
+    shape = [(0, 0, 1.5, -4.854, 1.5, -4.854),
            (1.5*1.5, 1.5*(-4.854), 1.5*(-1.5), 1.5*(-4.854), -1.5, -4.854),
            (-1.5, -4.854, 0, 0, 0, 0)]
 
@@ -846,13 +846,22 @@ class Path(AffineObj):
         return out.getvalue()
 
 # -------------------------------------------------------------------------
-# Path object
+# Arrow objects
 # -------------------------------------------------------------------------
 
 class Arrow(Path):
     '''
     Path object with arrow at end ... just for convenience
     '''
-    heads=[Arrowhead(1)]
-    
+    heads = [Arrowhead(1)]
+
+class DoubleArrow(Path):
+    """
+    Path object with arrow at both ends ... just for convenience
+    """
+    startHead = Arrowhead(1)
+    endHead = Arrowhead(0)
+    endHead.reverse = True
+    heads = [startHead, endHead]
+
 # vim: expandtab shiftwidth=4:
