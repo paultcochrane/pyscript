@@ -38,7 +38,6 @@ EPSheader="""%%!PS-Adobe-2.0 EPSF-2.0
 PSheader="""%%!PS-Adobe-2.0
 %%%%Creator: pyscript v%s
 %%%%CreationDate: %s
-%%%%Pages: 1
 %%%%Page: 1 1
 """%(VERSION,time.ctime(time.time()))
 
