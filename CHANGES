@@ -1,0 +1,30 @@
+
+0.3
+~~~
+
+- Start of a Page() object for ps (as opposed to eps)
+- Pyscript now redirects stderr to pyscript.log.  and gives info about
+  what's going on etc etc, some basic command line switches for debugging
+- Lots of changes to TeX's internals
+- default units now cm
+- group has insert function
+- Paper now takes an orientation flag (portrait or landscape)
+- showpage always written to EPS file ... should be able to send file straight
+  to printer
+- more of the docs written
+- E() has been renamed U() (unit vector)
+- Epsf() now complies with spec, takes an initial width/height
+  argument for scaling
+- added Align() and Distribute() functions
+- added a presentatation library for posters and talks
+- munched some bugs
+
+0.2
+~~~
+
+- First public release
+
+0.1
+~~~
+
+- Hazy past with lots of experimentation ... never released
