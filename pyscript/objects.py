@@ -718,3 +718,30 @@ class Group(PsObject):
             out.write(str(obj))
         return out.getvalue()
     
+class Circle(Area):
+    """
+    Draw a circle
+    """
+    type="Circle"
+
+    def __init__(self, **dict):
+
+        setkeys(dict,
+                {"bg": None,
+                 "fg": Color(0)})
+
+        apply(Area.__init__, (self,), dict)
+
+    def body(self):
+
+        out = cStringIO.StringIO()
+
+        if self["bg"] is not None:
+            out.write("%(bg)s 0 0 %(radius)s uu 0 360 arc fill\n" % self)
+
+        out.write("%(fg)s 0 0 %(radius)s uu 0 360 arc stroke\n" % self)
+
+        return out.getvalue()
+
+
+
