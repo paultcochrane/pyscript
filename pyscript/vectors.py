@@ -256,7 +256,7 @@ class P(PsObj):
         # only for numbers!
         if isinstance(o, (float, int)):
             n = float(o)
-            return P(self[0]/o, self[1]/o)
+            return P(self[0]/n, self[1]/n)
         else:
             raise TypeError, "Only division by numbers implemented"
 
