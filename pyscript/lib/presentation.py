@@ -296,10 +296,12 @@ class Talk(Pages):
     title = ""
     title_fg = Color('white')
     title_scale = 5
+    title_textstyle = ""
 
     slide_title = ""
     slide_title_fg = Color('white')
     slide_title_scale = 5
+    slide_title_textstyle = ""
 
     footerScale = 1
 
@@ -309,13 +311,16 @@ class Talk(Pages):
     authors = ""
     authors_fg = Color('white')
     authors_scale = 3
+    authors_textstyle = ""
 
     talkAuthor = ""
     talkAuthor_fg = Color(0)
+    talkAuthor_textstyle = ""
 
     address = ""
     address_fg = Color('white')
     address_scale = 2
+    address_textstyle = ""
     
     logos = None
 
@@ -344,7 +349,6 @@ class Talk(Pages):
             "default" : TeX(r"$\cdot$"),
 	    "space" : Rectangle(height=1,fg=bg,bg=bg),
             }
-
     headings_indent = {
             1 : 0,
             2 : 0.5,
@@ -352,22 +356,22 @@ class Talk(Pages):
             "default" : 2,
 	    "space" : 0,
             }
-
-    def tex(self, text, width=9, fg=None):
-        if fg is None:
-            fg = Color(0)
-        return TeX(r'\begin{minipage}{%fcm}%s\end{minipage}' % 
-                    (width,text), fg=fg)
+    headings_textstyle = {
+	    1 : "",
+	    2 : "",
+	    3 : "",
+	    "default" : "",
+	    "space" : "",
+	    }
 
     def make_authors(self):
-        return TeX(
-            self.authors,fg=self.authors_fg
+	ttext = "%s %s" % (self.authors_textstyle,self.authors)
+        return TeX(ttext,fg=self.authors_fg
             ).scale(self.authors_scale,self.authors_scale)
 
     def make_address(self):
-	print 'In make_address, self.address_fg =', self.address_fg
-        return TeX(
-            self.address,fg=self.address_fg
+	ttext = "%s %s" % (self.address_textstyle,self.address)
+        return TeX(ttext,fg=self.address_fg
             ).scale(self.address_scale,self.address_scale)
 
     def make(self, *slides, **opts):
@@ -378,7 +382,7 @@ class Talk(Pages):
 	temp = Pages()
         for slide in slides:
             slide.pageNumber = i
-	    print 'Adding slide:', str(i), '...'
+	    print 'Adding slide', str(i), '...'
             temp.append(slide.make(self))
             # fname = '%s%02d%s' % ("slide",i,".eps")
             # render(temp,file=fname)
@@ -409,15 +413,17 @@ class Slide(Page,Talk):
         # self.fg = talk.fg
 	self.title_fg = talk.slide_title_fg
 	self.title_scale = talk.slide_title_scale
+	self.title_textstyle = talk.slide_title_textstyle
         # self.paper = talk.paper
         # self.footerScale = talk.footerScale
         # self.talkAuthor = talk.talkAuthor
         # self.waitbar_fg = talk.waitbar_fg
         # self.waitbar_bg = talk.waitbar_bg
-	# self.headings_bullets = talk.headings_bullets
-	# self.headings_fgs = talk.headings_fgs
-	# self.headings_scales = talk.headings_scales
-	# self.headings_indent = talk.headings_indent
+	self.headings_bullets = talk.headings_bullets
+	self.headings_fgs = talk.headings_fgs
+	self.headings_scales = talk.headings_scales
+	self.headings_indent = talk.headings_indent
+	self.headings_textstyle = talk.headings_textstyle
         self.headings = []
         self.epsf = []
         self.figs = []
@@ -499,7 +505,8 @@ class Slide(Page,Talk):
         self.figs.append(Group(back,obj))
 
     def make_title(self):
-        return TeX(self.title,fg=self.title_fg).scale(self.title_scale*0.8,
+	ttext = "%s %s" % (self.title_textstyle,self.title)
+        return TeX(ttext,fg=self.title_fg).scale(self.title_scale*0.8,
                                                       self.title_scale)
     
     def add_heading(self,level,text):
@@ -509,10 +516,11 @@ class Slide(Page,Talk):
     def make_headings(self):
         heading_block = Group()
         for heading in self.headings:
-            heading_text = heading[1]
-            heading_level = heading[0]
+	    heading_level = heading[0]
             if not self.headings_bullets.has_key(heading_level):
                 heading_level = "default"
+            heading_text = "%s %s"%(self.headings_textstyle[heading_level]
+							    ,heading[1])
             heading_bullet = self.headings_bullets[heading_level]
             heading_fg = self.headings_fgs[heading_level]
             heading_scale = self.headings_scales[heading_level]
@@ -560,11 +568,11 @@ class Slide(Page,Talk):
 	    footerText = " - %s" % (talk.talkAuthor,)
         
         footerTeX = Group(
-                    TeX(text=talk.title,
+                    TeX(text="%s %s"%(talk.title_textstyle,talk.title),
                         fg=self.title_fg,
                         ).scale(self.footerScale,self.footerScale),
                     TeX(
-                        text=footerText,
+                        text="%s %s"%(talk.talkAuthor_textstyle,footerText),
                         fg=self.title_fg
                         ).scale(self.footerScale,self.footerScale),
                     )
@@ -628,7 +636,8 @@ class Slide(Page,Talk):
 
     def make_titlepage(self, talk):
 	titlepage = Group(self.make_logos())
-        titlepage.append(TeX(talk.title,
+	ttext = "%s %s" % (talk.title_textstyle,talk.title)
+        titlepage.append(TeX(ttext,
 			    fg=talk.title_fg)\
 			    .scale(talk.title_scale,talk.title_scale))
         if talk.authors is not None:
