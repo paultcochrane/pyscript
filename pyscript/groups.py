@@ -136,67 +136,6 @@ class Group(Area):
 
 # -------------------------------------------------------------------------
     
-##class AlignO(Group):
-
-##    anchor=None
-
-##    space=None
-##    angle=0
-
-##    a1="c"
-##    a2="c"
-
-##    def __init__(self,*objs,**dict):
-
-##        # first grap the keys that define the alignment
-##        self.space=dict.get("space",None)
-##        self.a1=dict.get("a1","c")
-##        self.a2=dict.get("a2","c")
-##        self.angle=dict.get("angle",0)
-        
-##        apply(Group.__init__,(self,objs),dict)
-
-##        assert self.a1 in ["n","ne","e","se","s","sw","w","nw","c"]
-##        assert self.a2 in ["n","ne","e","se","s","sw","w","nw","c"]
-        
-##    def append(self,*objs):
-##        '''
-##        append object(s) to group
-##        '''
-
-##        for obj in objs:
-
-##            if self.anchor is None:
-##                self.objbox.union(obj.bbox())
-##                self.objects.append(obj)
-##                self.anchor=obj
-##                continue
-
-##            # if we're appending, the obj is p2
-##            p2=getattr(obj.bbox(),self.a2)
-##            p1=getattr(self.objects[-1].bbox(),self.a1)
-
-##            if self.space is not None:
-##                obj.move(E(self.angle,self.space)-(p2-p1))
-
-##            else:
-##                # Don't touch the spacing in the angle direction
-##                # adjust in othogonal direction instead
-
-##                obj.move((E(self.angle+90)*(p2-p1))*E(self.angle-90))
-
-
-##            self.objbox.union(obj.bbox())
-##            self.objects.append(obj)
-
-##        # update size
-##        if self.objbox.is_set():
-##            self.isw=self.objbox.sw
-##            self.width=self.objbox.width
-##            self.height=self.objbox.height
-
-# -------------------------------------------------------------------------
-
 def Align(*items,**dict):
     '''
     Function to align a group of objects.
@@ -242,13 +181,13 @@ def Align(*items,**dict):
         
 
         if space is not None:
-            obj.move(E(angle,space)-(p2-p1))
+            obj.move(U(angle,space)-(p2-p1))
 
         else:
             # Don't touch the spacing in the angle direction
             # adjust in othogonal direction instead
 
-            obj.move((E(angle+90)*(p2-p1))*E(angle-90))
+            obj.move((U(angle+90)*(p2-p1))*U(angle-90))
 
         
         p1=p2
@@ -317,7 +256,7 @@ def Distribute(*items,**dict):
         ov=( getattr(items[0].bbox(),a1)+getattr(items[0].bbox(),a2) )/2. -p1
 
 	# how much we need to move by
-        mv=(pv.length/2.-pv.E*ov)*pv.E
+        mv=(pv.length/2.-pv.U*ov)*pv.U
 
         items[0].move(mv)
 
@@ -331,26 +270,26 @@ def Distribute(*items,**dict):
         ov=getattr(items[0].bbox(),as)-p1
 
         # how much we need to move by
-        mv=-pv.E*ov*pv.E
+        mv=-pv.U*ov*pv.U
         items[0].move(mv)
 
-        space -= abs(( getattr(items[0].bbox(),a1)-getattr(items[0].bbox(),as) )*pv.E)
+        space -= abs(( getattr(items[0].bbox(),a1)-getattr(items[0].bbox(),as) )*pv.U)
 
         # ---second object---
         ov=getattr(items[-1].bbox(),ae)-p2
 
         # how much we need to move by
-        mv=-pv.E*ov*pv.E
+        mv=-pv.U*ov*pv.U
         items[-1].move(mv)
 
-        space -= abs(( getattr(items[-1].bbox(),ae)-getattr(items[-1].bbox(),a2) )*pv.E)
+        space -= abs(( getattr(items[-1].bbox(),ae)-getattr(items[-1].bbox(),a2) )*pv.U)
 
         if len(items)>2:
 
             # take out the length of each item in this dir
             for item in items[1:-1]:
                 # abs? XXX
-                space -= abs(( getattr(item.bbox(),a2)-getattr(item.bbox(),a1) )*pv.E)
+                space -= abs(( getattr(item.bbox(),a2)-getattr(item.bbox(),a1) )*pv.U)
 
             ds=space/float((len(items)-1))
 
@@ -358,7 +297,7 @@ def Distribute(*items,**dict):
                 p1=getattr(items[ii-1].bbox(),a1)
                 p2=getattr(items[ii].bbox(),a2)
 
-                mv=(ds-(p2-p1)*pv.E)*pv.E
+                mv=(ds-(p2-p1)*pv.U)*pv.U
                 items[ii].move(mv)
             
         

@@ -241,12 +241,12 @@ class P(PsObj):
         return sqrt(self*self)
     length = property(_get_length,None)
 
-    def _get_E(self):
+    def _get_U(self):
         '''
         Return unit vector pointing in same direction
         '''
         return self/float(self.length)
-    E = property(_get_E,None)
+    U = property(_get_U,None)
 
 
     def cross(self,other):
@@ -272,9 +272,9 @@ def R(*args,**dict):
 
     return apply(P,args,{'relative':1})
 
-#E base vectors
+#base vectors
 
-def E(angle,r=1):
+def U(angle,r=1):
     '''
     return a relative vector of length r in the given direction
     '''
@@ -293,6 +293,7 @@ def Identity(p):
     return P(p[0],p[1])
 
 
+# -------------------------------------------------------------------------
 class Bbox(object):
     """
     A Rectangular area defined by sw corner and width and height.

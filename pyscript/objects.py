@@ -1009,9 +1009,9 @@ class Epsf(Area):
 
     bbox_so=re.compile("\%\%boundingbox:\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)",re.I|re.S)
 
-    linewidth=defaults.linewidth
-    dash=defaults.dash
-    fg=Color(0)
+    #linewidth=defaults.linewidth
+    #dash=defaults.dash
+    #fg=Color(0)
 
 
     def __init__(self,file,**dict):
@@ -1062,21 +1062,26 @@ class Epsf(Area):
     def body(self):
         
         out=cStringIO.StringIO()
-        
-        if self.linewidth!=defaults.linewidth:
-            out.write("%f setlinewidth "%self.linewidth)
 
-        if self.dash!=defaults.dash:
-            out.write("%s setdash "%self.dash)
+        # These don't make sense for an eps!
+        # eps may have it's own internal style settings
+
+        #if self.linewidth!=defaults.linewidth:
+        #    out.write("%f setlinewidth "%self.linewidth)
+
+        #if self.dash!=defaults.dash:
+        #    out.write("%s setdash "%self.dash)
         
-        
-        if self.fg is not None:
-            out.write("%s\n"%self.fg)
-            
+        #if self.fg is not None:
+        #    out.write("%s\n"%self.fg)
+
         out.write("%s translate \n\n"%self.offset)
+        out.write("BeginEPSF\n")
 
         out.write("%%%%BeginDocument: %s\n"%self.file)
         out.write(self.all)
+        out.write("%%%%EndDocument\n")
+        out.write("EndEPSF\n")
         
         return out.getvalue()
 

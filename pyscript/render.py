@@ -42,12 +42,34 @@ PSheader="""%%!PS-Adobe-2.0
 %%%%Page: 1 1
 """%(VERSION,time.ctime(time.time()))
 
+# NB and 'end' was added to EndEPSF
 PSMacros="""%% show text with kerning if supplied
 /kernshow { 0 2 2 counttomark 2 sub { -2 roll } for
 counttomark 2 idiv { exch show 0 rmoveto} repeat pop
 } bind def
-%% Get rid of showpage for epsf
-/showpage { } def
+
+/BeginEPSF { 
+/b4_Inc_state save def 
+/dict_count countdictstack def 
+/op_count count 1 sub def      
+userdict begin                 
+/showpage { } def              
+0 setgray 0 setlinecap         
+1 setlinewidth 0 setlinejoin
+10 setmiterlimit [ ] 0 setdash newpath
+/languagelevel where           
+{pop languagelevel             
+1 ne                           
+{false setstrokeadjust false setoverprint
+} if
+} if
+} bind def
+
+/EndEPSF { 
+count op_count sub {pop} repeat 
+countdictstack dict_count sub {end} repeat
+b4_Inc_state restore
+} bind def
 """
 
 import os,re
