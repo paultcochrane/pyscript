@@ -159,7 +159,6 @@ class P(PsObj):
     """
 
     point=[0,0]
-    relative=0
 
     def __init__(self,x=0.0,y=0.0,**dict):
 
@@ -271,7 +270,32 @@ class P(PsObj):
 # -------------------------------------------------------------------------
 
 class R(P):
-    pass
+
+    def __add__(s,o):
+        if isinstance(o,(float,int)):
+            return R(s[0]+o,s[1]+o)
+        else:
+            return P.__add__(s,o)
+        
+    def __mul__(s,o):
+        if isinstance(o,(float,int)):
+            return R(s[0]*o,s[1]*o)
+        else:
+            return P.__mul__(s,o)
+        
+    def __rmul__(s,o):
+        
+        return R(s[0]*o,s[1]*o)
+
+    def __div__(self,o):
+        # only for numbers!
+        if isinstance(o,(float,int)):
+            n=float(o)
+            return R(self[0]/o,self[1]/o)
+        else:
+            raise TypeError, "Only division by numbers implemented"
+    def __neg__(s):
+        return R(-s[0],-s[1])
 
 #def R(*args,**dict):
 #    """

@@ -145,7 +145,7 @@ class _bezier(object):
         self.length=L
 
     def body(self):
-        return '%s %s %s %s curveto\n'%(self.s,self.cs,self.ce,self.e)
+        return '%s %s %s curveto\n'%(self.cs,self.ce,self.e)
 
 
     def _t(self,t):
@@ -268,7 +268,6 @@ class C:
                 c1=p1+c1
             if isinstance(c2,R):
                 c2=p2+c2
-            print p1,c1,c2,p2
             return _bezier(p1,c1,c2,p2)
         else:
             raise "Couldn't contruct curve"
@@ -309,7 +308,7 @@ class Path(AffineObj):
 
             p=path.pop(0)
             if isinstance(p,R):
-                p=p+cp
+                p=cp+p
                 self._pathlettes.append(_line(cp,p))
                 cp=p
             elif isinstance(p,P):
@@ -318,9 +317,13 @@ class Path(AffineObj):
             elif isinstance(p,C):
                 c=p
                 # Get the next point
-                p=path[0]
+                #p=path[0]
+                p=path.pop(0)
+                if isinstance(p,R):
+                    p=cp+p
                 self._pathlettes.append(c.curve(cp,p))
                 cp=p
+                
             else:
                 raise "Unknown path control"
 

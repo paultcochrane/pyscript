@@ -31,7 +31,7 @@
 {\Huge \emph{Pyscript}}\\[1cm]
 \emph{Postscript Graphics with Python}\\[2cm]
 
-v 0.4\\[2cm]
+v 0.5\\[2cm]
 
 Alexei Gilchrist\\
 Paul Cochrane
@@ -669,11 +669,81 @@ A simple convenience function to draw a dot at the given location
 %--------------------------------------------------------------------------
 \subsection{Path()}
 \label{sec:path}
-%\begin{python}
-%\end{python}
+\begin{python}
+class Path(AffineObj):
+    fg=Color(0)
+    bg=None
+    linewidth=None
+    linecap=None
+    linejoin=None
+    miterlimit=None
+    dash=None
+    closed=0
 
-An abritrary path (line curve etc).
+    length
+    start
+    end
 
+    def P(self,t):
+       point at fraction t of length
+
+\end{python}
+
+An abritrary path (line curve etc). This is one of the more powerful
+objects in \Verb|pyscript|. \Verb|Path| takes a list of points (either
+\Verb|P| or \Verb|R|) in it's contructions with a specifier for a
+curve (\Verb|C|) interdispersed if necessary. For example
+\Verb|Path(p0,p1,C(c1,c2),p2,p3)| would yield something like
+\begin{center}
+  \includegraphics{figs/fig_path}
+\end{center}
+The syntax is easy, between each pair of points, without a
+ \Verb|C| inbetween, a straight line segment is drawn. If there
+is a  \Verb|C| inbetween then a curve segment is drawn between 
+the points. The curve is controlled by the arguments to \Verb|C|.
+At the moment only bezier curves can be specified by \Verb|C|
+which takes two points as arguments --- they are the control
+points of the bezier. If one of the points is omitted then both
+control points will be set to the one specified point.
+
+The points to both the \Verb|Path| and \Verb|C| can be specified with
+either \Verb|P| or \Verb|R|. \Verb|P| are absolute points from the
+origin of the co-ordinate system, whereas \Verb|R| are `relative'
+points and their meaning depends on where they appear. As arguments to
+\Verb|Path| then they are relative to the previous point (unless it is
+the first point in which case it the same as \Verb|P|). As arguments to
+\Verb|C| then for the first control point it's relative to the start of the
+curve segment and for the second control point it's relative to the
+end of the segment.
+\begin{example}
+The following two specify the same curve:\\
+\Verb|Path(P(1,1),P(2,2),C(P(2,3),P(3,2)),P(3,3))|\\
+\Verb|Path(R(1,1),R(1,1),C(R(0,1),R(0,-1)),R(1,1))|
+\end{example}
+
+As you would expect, you can set the linewidth, dash pattern, color
+etc in the usual way. If you set a \Verb|bg| that is not \Verb|None|
+then the `interior' of the path will be filled in that color. 
+
+\Verb|Path| also has some additional methods and attributes. The 
+\Verb|start| and \Verb|end| atributtes give, well, the start and end of
+the path. The \Verb|length| attribute give the length of the path
+in it's default co-ordinate system. You can also get the a point a fraction
+\Verb|f| along the path with \Verb|path.P(f)|.
+\begin{example}
+\begin{python}
+path=Path(p0,p1,C(c1,c2),p2,p3,fg=Color('red'),linewidth=.8)
+
+g=Group()
+delta=1/20.
+for p in range(21):
+    g.append(Dot(path.P(p*delta)))
+render(path,g,...)
+\end{python}
+\begin{center}
+  \includegraphics{figs/fig_path_eg}
+\end{center}
+\end{example}
 %--------------------------------------------------------------------------
 \section{Text Objects}
 
