@@ -428,9 +428,11 @@ class Rectangle(Area):
 
 class Circle(PsObject):
     """
-    Draw a circle
+    Draw a circle, or part of
 
     'r' = radius
+    'start' = starting angle for arc
+    'end' = end angle for arc
 
     'o' = 'c' = center
     'n','ne' ... points on circumference
@@ -450,7 +452,9 @@ class Circle(PsObject):
 
         self.natives({"bg": None,
                       "fg": Color(0),
-                      "r": 1.0},dict)
+                      "r": 1.0,
+                      "start":0,
+                      "end":360},dict)
         apply(PsObject.__init__, (self,), dict)
 
     def locus(self,angle):
@@ -498,9 +502,9 @@ class Circle(PsObject):
         out = cStringIO.StringIO()
 
         if self["bg"] is not None:
-            out.write("%(bg)s 0 0 %(r)g uu 0 360 arc fill\n" % self)
+            out.write("%(bg)s 0 0 %(r)g uu %(start)g 90 add %(end)g 90 add arcn fill\n" % self)
 
-        out.write("%(fg)s 0 0 %(r)g uu 0 360 arc stroke\n" % self)
+        out.write("%(fg)s 0 0 %(r)g uu %(start)g 90 add %(end)g 90 add arcn stroke\n" % self)
 
         return out.getvalue()
 
