@@ -348,7 +348,7 @@ def Distribute(*items,**dict):
 
 PSMacros="""%%BeginResource: procset pyscript
 /PyScriptDict 10 dict def PyScriptDict begin
-%%show text with kerning if supplied
+%show text with kerning if supplied
 /kernshow { 0 2 2 counttomark 2 sub { -2 roll } for
 counttomark 2 idiv { exch show 0 rmoveto} repeat pop
 } bind def
@@ -797,7 +797,7 @@ class Pages(Group):
         fp.write("%%LanguageLevel: 2\n")
         fp.write("%%%%Title: %s\n"%title)
         # Say it's a single page:
-        fp.write("%%Pages: %d\n"%len(self)) 
+        fp.write("%%%%Pages: %d\n"%len(self)) 
         fp.write("%%EndComments\n")
 
         # --- Prolog ---
