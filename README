@@ -1,0 +1,30 @@
+
+			 ===============
+  		  	     pyscript
+  			 ===============
+  
+
+--------------------------------------------------------------------
+ Summary
+--------------------------------------------------------------------
+
+Pyscript is a set of modules and scripts for python that facilitate
+the creation of high-quality postscript diagrams. The diagrams are
+scripted rather than drawn.
+
+See http://pyscript.sourceforge.net
+
+
+--------------------------------------------------------------------
+ Instalation
+--------------------------------------------------------------------
+
+copy the subdirectory "pyscript" (the one with __init__.py in it) to
+somewhere on your python search path,
+
+eg $cp -a pyscript /usr/lib/python2.1/site-packages/
+
+now pyscript should by available from within python by
+>> from pyscript import *
+
+
