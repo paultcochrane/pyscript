@@ -1,16 +1,30 @@
+
+- Added Arrow() convenince class ... a Path with a predefined arrowhead
+- integrated Path and Arrowhead ... path now has a heads attribute which
+  is a list of arrowheads to draw on path
+- added a tangent() method to Path that returns a unit vector tangent to
+  the path at a particular point
+- code clean ups ... and documentation
+- added an Arrowhead class
+- added an iscale attribute to TeX to set initial scale (only time it's used)
+  makes it easy to subclass at a given scale.
+- Added HAlign and VAlign convenience functions
+- Align is now a class that inherits from Group
+  - no longer supports anchor attribute (not sure how useful this was esp as
+    objects can now be appended) first alignable object added forms anchor.  
+  - the change seems mostly transparent but may break some things
 - Added a Dash() object to describe postscript dashes
 - fixed up examples and added a few others
 - Dot() now returns a bounding box
 - objects that return null BBox()'s are ignored in Alignment operations
   This was chiefly to accomodate a Pause() object in talks
 - Fixed bug with move and rotations commuting (thanks Adrian)
-- Added HAlign and VAlign convenience functions
 - curves can now be given just a direction at the end points (eg C(45,90)), 
   a "natural" curve will be chosen automatically. This is the first half 
   of the algorithm that Metapost uses which is really nice. 
   (next part is to choose curvature automatically in unspecified curves)
 - last point of a closed path can be skipped (added automatically)
-- P now has arg instance (in degrees), return angle of P relative to origin
+- P now has 'arg' attribute (in degrees), return angle of P relative to origin
 
 0.5
 ~~~
