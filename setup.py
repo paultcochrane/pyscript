@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 a=setup(name="pyscript",
-      version="0.1",
+      version="0.2",
       description="Python Postscript Scripting",
       author="Alexei Gilchrist and Paul Cochrane",
       author_email="aalexei@sourceforge.net",
