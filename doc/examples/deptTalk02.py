@@ -10,26 +10,38 @@ from presentation import *
 talk = Talk()
 talk.title = r"""
 \begin{center}
-\textbf{\textsf{Tailoring Teleportation\\ to the Quantum Alphabet}}
+Tailoring Teleportation\\ to the Quantum Alphabet
 \end{center}
 """
-talk.authors = r"\textsf{\underline{Paul Cochrane} and Tim Ralph}"
-talk.talkAuthor = r"\textsf{Paul Cochrane}"
+talk.authors = r"\underline{Paul Cochrane} and Tim Ralph"
+talk.talkAuthor = r"Paul Cochrane"
+talk.talkAuthor_textstyle = r"\sf"
 
 talk.address = r"""
 \begin{center}
-\textsf{
 Centre for Quantum Computer Technology, Physics Dept.,\\
-University of Queensland, Australia}
+University of Queensland, Australia
 \end{center}
 """
 
 talk.title_fg = Color('white')
 talk.title_bg = Color('white')
+talk.title_textstyle = r"\bf\sf"
+
+talk.address_fg = Color('white')
+talk.address_textstyle = r"\sf"
+
+talk.authors_fg = Color('white')
+talk.authors_textstyle = r"\sf"
 
 talk.slide_title_fg = Color('lightgray')
-talk.headings_fgs[1] = Color('white')
+talk.slide_title_textstyle = r"\bf"
 
+talk.headings_fgs[1] = Color('white')
+talk.headings_textstyle[1] = r"\sf"
+
+talk.headings_fgs[2] = Color('white')
+talk.headings_textstyle[2] = r"\sf"
 
 # start of the slides
 
@@ -39,38 +51,46 @@ slide1.titlepage = True  # should just need to call this for the first page
 
 # other slides can be a bit more involved
 slide2 = Slide(talk)
-slide2.title = r"\bf Introduction"
-slide2.add_heading(1,r"\sf Teleportation")
-slide2.add_heading(1,r"\sf Tailored teleportation")
-slide2.add_heading(1,r"\sf Coherent states on a line")
-slide2.add_heading(1,r"\sf Results")
-slide2.add_heading(1,r"\sf Outlook")
+slide2.title = r"Introduction"
+slide2.add_heading(1,r"Teleportation")
+slide2.add_heading(1,r"Tailored teleportation")
+slide2.add_heading(1,r"Coherent states on a line")
+slide2.add_heading(1,r"Results")
+slide2.add_heading(1,r"Outlook")
 
 # slide 3
 slide3 = Slide(talk)
-slide3.title = r"\bf Teleportation explained\ldots"
-slide3.add_heading(1,r"\sf Victoria (verifier), Alice (sender), Bob (receiver)")
-slide3.add_heading(1,r"\sf Alice and Bob share an entanglement resource")
-slide3.add_heading(1,r"\sf Victoria gives target state to Alice")
-slide3.add_heading(1,r"\sf Target state kept secret from Alice and Bob")
+slide3.title = r"Teleportation explained\ldots"
+slide3.add_heading(1,r" Victoria (verifier), Alice (sender), Bob (receiver)")
+slide3.add_heading(1,r"Alice and Bob share an entanglement resource")
+slide3.add_heading(1,r"Victoria gives target state to Alice")
+slide3.add_heading(1,r"Target state kept secret from Alice and Bob")
 slide3.add_heading(1,r"""
-\sf Alice makes \textcolor[named]{Red}{joint} \textcolor[named]{Orange}{local}
+Alice makes joint local
 measurements on the target state and her part of the entanglement resource
 """)
+#slide3.add_heading(1,r"""
+#\sf Alice makes \textcolor[named]{Red}{joint} \textcolor[named]{Orange}{local}
+#measurements on the target state and her part of the entanglement resource
+#""")
 
 slide4 = Slide(talk)
 slide4.title = slide3.title
 slide4.add_heading(1,r"""
-\sf Alice sends the measurements to Bob via a classical channel
+Alice sends the measurements to Bob via a classical channel
 """)
 slide4.add_heading(1,r"""
-\sf Bob makes \textcolor[named]{Orange}{local} 
-\textcolor[named]{Red}{unitary}
+Bob makes local unitary
 transformations on his part of the entanglement resource
 """)
-slide4.add_heading(1,r"\sf The target state is reproduced at Bob's location")
+#slide4.add_heading(1,r"""
+#\sf Bob makes \textcolor[named]{Orange}{local} 
+#\textcolor[named]{Red}{unitary}
+#transformations on his part of the entanglement resource
+#""")
+slide4.add_heading(1,r"The target state is reproduced at Bob's location")
 slide4.add_heading(1,r"""
-\sf Victoria verifies that output state is a good reproduction of input 
+Victoria verifies that output state is a good reproduction of input 
 state""")
 
 slide5 = Slide(talk)
@@ -79,7 +99,7 @@ slide5.title = slide4.title
 slide5.add_epsf(file="teleDiag.ps",width=22,c=slide5.area.c-P(0,1))
 
 slide6 = Slide(talk)
-slide6.title = r"\bf Alice and Bob"
+slide6.title = r"Alice and Bob"
 slide6.add_epsf(file="AliceBob.ps",
 		    width=17,c=slide6.area.c-P(0,0.7))
 
@@ -129,20 +149,20 @@ ttext = TeXBox(r"\bf Now entering boring section of talk\ldots\\ Please feel fre
 slide11.add_fig(ttext,w=slide11.area.w+P(3,-1),bg=None)
 
 slide12 = Slide(talk)
-slide12.title = r"\bf Tailored teleportation"
-slide12.add_heading(1,r"\sf Tailored displacement only")
+slide12.title = r"Tailored teleportation"
+slide12.add_heading(1,r"Tailored displacement only")
 slide12.add_epsf(file="tailoredDispDiag.ps",width=20,c=slide12.area.c+P(0,-1.5))
 
 slide13 = Slide(talk)
 slide13.title = slide12.title
-slide13.add_heading(1,r"\sf Best displacement Bob should make is")
+slide13.add_heading(1,r"Best displacement Bob should make is")
 ttext = TeXBox(r"WARNING: Gratuitous equation!!!",
 	    fg=Color('white'),tex_scale=3,fixed_width=17)
 slide13.add_fig(ttext,c=slide13.area.c+P(0,5),bg=None)
 
 slide14 = Slide(talk)
 slide14.title = slide13.title
-slide14.add_heading(1,r"\sf Best displacement Bob should make is")
+slide14.add_heading(1,r"Best displacement Bob should make is")
 eqn = TeXBox(r"$\epsilon = (1-\lambda) \alpha + \lambda \beta$",
 	fg=Color('white'),
 	tex_scale=3,
@@ -155,31 +175,31 @@ slide15.add_heading(2,r"$\beta = x_- + i p_+$ is Alice's measurement result")
 slide15.add_heading(2,r"""
 \sf $\lambda$ is the squeezing parameter ($\lambda=0$: no squeezing;
 $\lambda=1$: infinite squeezing)""")
-slide15.add_heading(2,r"\sf $\alpha$ is the best guess of the target state")
+slide15.add_heading(2,r"$\alpha$ is the best guess of the target state")
 
 slide16 = slide15.copy()
-slide16.add_heading(1,r"\sf guess contribution")
+slide16.add_heading(1,r"guess contribution")
 # somehow put an arrow to \alpha and put a circle around it.
 
 slide17 = slide16.copy()
-slide17.add_heading(1,r"\sf normal teleportation contribution")
+slide17.add_heading(1,r"normal teleportation contribution")
 # again put arrow to circled element (in this caes \beta)
 
 slide18 = Slide(talk)
-slide18.title = r"\bf Tailored measurement teleportation"
-slide18.add_heading(1,r"\sf Tailored measurement as well")
+slide18.title = r"Tailored measurement teleportation"
+slide18.add_heading(1,r"Tailored measurement as well")
 slide18.add_epsf(file="adapTeleDiag.ps",width=20,c=slide18.area.c+P(0,-1.5))
 
 slide19 = Slide(talk)
-slide19.title = r"\bf Coherent states on a line"
+slide19.title = r"Coherent states on a line"
 slide19.add_heading(1,r"""
-\sf Coherent states only exist along real axis in phase space""")
+Coherent states only exist along real axis in phase space""")
 slide19.add_heading(1,r"""
-\sf States of known phase, unknown amplitude""")
+States of known phase, unknown amplitude""")
 slide19.add_epsf(file="cohStateOnALine.ps",width=20,c=slide19.area.c+P(0,-3))
 
 slide20 = Slide(talk)
-slide20.title = r"\bf How well does it work??"
+slide20.title = r"How well does it work??"
 slide20.add_epsf(file="fidelityLambdaAll.ps",width=20,c=slide20.area.c+P(0,-1))
 ttext = TeXBox(r"\sf standard teleportation",
 	    fg=Color('red'),
@@ -205,13 +225,12 @@ slide22.add_fig(ttext,w=slide21.area.c+P(-7.5,6),bg=None)
 # now need to add arrow
 
 slide23 = Slide(talk)
-slide23.title = r"\bf Beam me up, mate!"
+slide23.title = r"Beam me up, mate!"
 slide23.add_heading("space","")
 slide23.add_heading(1,r"""
-\sf CBS news coverage of the ANU teleportation experiment""")
+CBS news coverage of the ANU teleportation experiment""")
 slide23.add_heading(1,r"""
-\sf This protocol could easily be added to the ANU teleportation
-experiment""")
+This protocol could easily be added to the ANU teleportation experiment""")
 slide23.add_epsf(file="starTrek.ps",width=5,ne=slide23.area.ne-P(0.5,0.5))
 
 slide24 = slide23.copy()
@@ -223,13 +242,13 @@ slide25.add_epsf(file="working.ps",width=9.5,c=slide25.area.c+P(0,-4.5))
 slide26 = Slide(talk)
 slide26.title = r"Conclusion/Outlook"
 slide26.add_heading(1,r"""
-\sf Have shown how to tailor teleportation to the known properties of the
+Have shown how to tailor teleportation to the known properties of the
 target states""")
 slide26.add_heading(1,r"""
-\sf This gives a great improvement over current continuous variable
+This gives a great improvement over current continuous variable
 teleportation""")
 slide26.add_heading(1,r"""
-\sf This protocol could be implemented in the ANU teleportation experiment""")
+This protocol could be implemented in the ANU teleportation experiment""")
 
 
 # draw it!
