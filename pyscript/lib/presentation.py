@@ -19,8 +19,6 @@ pyscript Presentation library (posters and talks)
 
 from pyscript import *
 
-print "moooooo!"
-
 class  TeXBox(Group):
 
     fixed_width=9.2
