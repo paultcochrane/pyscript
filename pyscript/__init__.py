@@ -20,12 +20,12 @@
 PyScript - Postscript graphics from python
 """
 
-from pyscript.defaults import *
+from pyscript.defaults import defaults
 from pyscript.groups import *
 from pyscript.objects import *
-from pyscript.render import *
+from pyscript.render import render
 from pyscript.path import C, Path
-from pyscript.base import Dash
+from pyscript.base import Dash, UNITS
 
 __revision__ = '$Revision$'
 
