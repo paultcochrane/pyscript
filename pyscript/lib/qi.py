@@ -2,42 +2,12 @@
 ### = we have the equivalent
 #   = not yet implemented
 
-###  def     - define a custom controlled single-qubit operation, with
-###            opname  = name of gate operation
-###            nctrl   = number of control qubits
-###            texsym  = latex symbol for the target qubit operation
-###  defbox  - define a custom muti-qubit-controlled multi-qubit operation, with
-###            opname  = name of gate operation
-###            nbits   = number of qubits it acts upon
-###            nctrl   = number of control qubits
-###            texsym  = latex symbol for the target qubit operation
-###  qubit   - define a qubit with a certain name (all qubits must be defined)
-###            name    = name of the qubit, eg q0 or j2 etc
-###            initval = initial value (optional), eg 0
-###  cbit    - define a cbit with a certain name (all cbits must be defined)
-###            name    = name of the cbit, eg c0
-###            initval = initial value (optional), eg 0
-###  H       - single qubit operator ("hadamard")
-###  X       - single qubit operator 
-###  Y       - single qubit operator 
-###  Z       - single qubit operator
-###  S       - single qubit operator
-###  T       - single qubit operator
-###  nop     - single qubit operator, just a wire
-###  space   - single qubit operator, just an empty space
-###  dmeter  - measure qubit, showing "D" style meter instead of rectangular box
 #  zero    - replaces qubit with |0> state
 #  discard - discard qubit (put "|" vertical bar on qubit wire)
 #  slash   - put slash on qubit wire
-###  measure - measurement of qubit, gives classical bit (double-wire) output
-###  cnot    - two-qubit CNOT
-###  c-z     - two-qubit controlled-Z gate
-###  c-x     - two-qubit controlled-X gate
 #  swap    - two-qubit swap operation 
-###  Utwo    - two-qubit operation U
-###  ZZ      - two-qubit controlled-Z gate, symmetric notation; two filled circles
+#  Utwo    - two-qubit operation U
 #  SS      - two-qubit gate, symmetric; open squares
-###  toffoli - three-qubit Toffoli gate
 
 # -----------------------------------------------------------------------------
 '''
@@ -47,7 +17,7 @@ Package for drawing quantum circuit diagrams
 '''
 
 from pyscript import *
-
+from types import *
 
 # -------------------------------------------------------------------------
 class Boxed(Group,Rectangle):
@@ -126,35 +96,69 @@ class Circled(Group,Circle):
 # -------------------------------------------------------------------------
 class Gate(Group):
 
-    target=P(0,0)
+    _targets=[P(0,0)]
+    _controls=[]
+        
     control=None
+    target=None
+
     dot_r=.1
-    
-    def __init__(self,obj,**dict):
+   
+    # target object get set in __init__
+    _targetobj=None
+    _controlobj=None
+
+    def __init__(self,tobj,target=None,control=None,cobj=None):
         
-        apply(Group.__init__, (self,), dict)
+        apply(Group.__init__, (self,))
 
-        self.obj=obj
+        self._targetobj=tobj
 
-        if type(self.control) in (type(()),type([])):
-            for p in self.control:
-                self.addcontrol(p)
-                
-        elif isinstance(self.control,P):
-            self.addcontrol(self.control)
+        if type(target) in (type(()),type([])):
+            self._targets=target
+        elif isinstance(target,P):
+            self._targets=[target]
+            
+        if type(control) in (type(()),type([])):
+            self._controls=control
+        elif isinstance(control,P):
+            self._controls=[control]
 
-        obj.c=self.target
+        self._make()
 
-        self.append(
-            obj,
-            )
-
-    def addcontrol(self,p):
-
-        self.append(Path(self.target,p))
-        self.append(Dot(p,r=self.dot_r))
+    def settarget(self,*p):
         
+        self._targets=p
+        self._make()
+        
+        
+    def setcontrol(self,*p):
 
+        self._controls=p
+        self._make()
+        
+    def _make(self):
+
+        self.clear()
+        
+        # calc average target point
+        tp=self._targets[0]
+        if len(self._targets)>1:
+            for tt in self._targets[1:]:
+                tp=tp+tt
+            tp=tp/float(len(self._targets))
+        
+        self._targetobj.c=tp
+
+        #XXX should target adjust height here
+
+        # add controls 
+        for cc in self._controls:
+            self.append(Path(tp,cc))
+            self.append(Dot(cc,r=self.dot_r))
+
+        self.append(self._targetobj)
+            
 
 # -------------------------------------------------------------------------
 class GateBoxedTeX(Gate):
@@ -218,48 +222,139 @@ def classicalpath(*paths):
 
 
 # -------------------------------------------------------------------------
-class Qubit(Path):
 
-	def __init__(self):
-		# these will get tweaked afterwards
-		pass
 
-class Bit(ClassicalPath):
+class NoWire(Group):
+    def __init__(self,**dict):
+        Group.__init__(self,**dict)
 
-	def __init__(self):
-		# these will get tweaked afterwards
-		pass
+    def set(self,y,e,w):
+        return self
+    
+class QWire(NoWire):
+    
+    fg=Color(0)
+    linewidth=None
+    dash=None
 
-class T:
-	'''
-	Time-slice labeling object
-	'''
-	def __init__(self,t=1):
-		self.t=t
-# -------------------------------------------------------------------------
-class Qasm(Group):
+    def set(self,y,e,w):
+        path=Path(P(w,y),P(e,y),
+                fg=self.fg,linewidth=self.linewidth,dash=self.dash)
+        self.append(path)
+        return self
 
-    def __init__(self,*qubits,**dict):
+class CWire(QWire):
+    def set(self,y,e,w):
+        path=Path(P(w,y),P(e,y),
+                fg=self.fg,linewidth=self.linewidth,dash=self.dash)
+        
+        self.append(classicalpath(path))
+        return self
+    
 
-        apply(Group.__init__, (self,), dict)
+class Assemble(Group):
 
-	# create wires ...
-	if len(qubits)==1 and isinstance(qubits[0],Integer):
-		n = qubits[0]
+    qubitspacing=1
+    gatespacing=.1
+   
+    wires=[]
+    hang=.2
+    starthang=hang
+    endhang=hang
 
-		wires=[]
-		for w in range(n):
-			wires.append(Qubit())
+   
+    def __init__(self,*gates,**dict):
+       
 
-	else:
-		wires=qubits
-			
+        self.starthang=dict.get('hang',self.hang)
+        self.endhang=dict.get('hang',self.hang)
+        Group.__init__(self,**dict)
+        
+        sequence=list(gates)
+        
+        # parse the list ...
+        wires=[]
+        named={}
+        basetime=0
+        while len(sequence)>0:
+            # the gate ...
+            gate=sequence.pop(0)
 
-    def add(self,gate):
-	'''
-	Add gates to the quantum circuit
-	'''
-        pass
+            # the target ...
+            t=sequence.pop(0)
+            wires.append(t)
+
+            # optional controls ...
+            if len(sequence)>0 and isinstance(sequence[0],(IntType,FloatType)):
+                c=sequence.pop(0)
+                wires.append(c)
+            elif len(sequence)>0 and isinstance(sequence[0],(TupleType,ListType)):
+                c=sequence.pop(0)
+                wires.extend(c)
+            else:
+                c=None
+
+            g=self.setgate(gate,t,c)
+
+            # optional time label ...
+            if len(sequence)>0 and isinstance(sequence[0],StringTypes):
+                l=sequence.pop(0)
+                if named.has_key(l):
+                    # group already exists
+                    named[l].append(g)
+                else:
+                    # create new named group
+                    G=named[l]=Group(g)
+                    self.append(G)
+            else:
+                self.append(g)
+       
+        L=0
+        for ii in self:
+            L+=ii.width+self.gatespacing
+        L-=self.gatespacing
+
+        # XXX add distribute's options
+        Distribute(self,p1=P(0,0),p2=P(L,0))            
+        self.recalc_size()
+
+        # add wires ...
+        x0=self.w.x-self.starthang
+        x1=self.e.x+self.endhang
+        if len(self.wires) == 0:
+            for w in range(-min(wires),-max(wires)-1,-1):
+                wire=QWire().set(w,x0,x1)
+                self.insert(0,wire)
+                self.wires.append(wire)
+        else:
+            w=-min(wires)
+            for wire in self.wires:
+                # if it already an instance this will have no effect
+                # otherwise create an instance
+                wire=apply(wire)
+                wire.set(w,x0,x1)
+                self.insert(0,wire)
+                w-=1
+                
+                
+    def setgate(self,gate,target,control=None):
+
+        # if it already an instance this will have no effect
+        # otherwise create an instance
+        gate=apply(gate)
+        
+        # XXX multi target qubits
+        gate.settarget(P(0,-target))
+       
+        if isinstance(control,(IntType,FloatType)):
+            gate.setcontrol(P(0,-control))
+        elif isinstance(control,(TupleType,ListType)):
+            tmp=[]
+            for cc in control:
+                tmp.append(P(0,-cc))
+            apply(gate.setcontrol,tmp)
+
+        return gate
 
 # -------------------------------------------------------------------------
 # misc other items
@@ -270,7 +365,7 @@ class Meter(Group):
     A meter object as in Mike'n'Ike
      
     """
-    height=1
+    height=.7
     width=1.8*height
 
     angle=45
@@ -289,7 +384,7 @@ class Meter(Group):
         
         p=Path(
                 P(.1,.1),C(0,0),P(w-.1,.1),
-                P(w-.3,.1),C(0,0),P(.3,.1),
+                P(w-.2,.1),C(0,0),P(.2,.1),
                 closed=1,bg=self.mcolor,fg=None)
         
         self.append(p,
