@@ -1,4 +1,5 @@
 
+
 - rewrote Path object: the internals have completely changed. 
   There have been some  incompatible changes with previous versions
   but its now much closer to what I envisaged for the object
@@ -15,8 +16,10 @@
     - path.length returns the length of the path (local co-ord system)
     - path.P(f) returns the point on the curve at fraction f of it's 
       length
+- Finally added some docs for the Path object
 - fixed bug with defaults for linewidth etc not being taken up
   (thanks Marcus)
+- Color() can now take a Hex string, eg "#FF00FF", must start with a '#'
 - object reference returned from group's append, insert and reverse
   This makes for convenient one liners
 - Group() now has a reverse() function

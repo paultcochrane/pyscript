@@ -153,12 +153,13 @@ class Color(PsObj):
     """
     Class to encode a postscript color
  
-    There are four ways to specify the color:
+    There are five ways to specify the color:
 
      - Color(C,M,Y,K) =CMYKColor
      - Color(R,G,B) =RGBColor
      - Color(G) = Gray
      - Color('yellow') etc, see L{COLORS}
+     - Color('#FF0000') Hex string, must start with '#'
     """
 
     COLORS={
@@ -309,10 +310,18 @@ class Color(PsObj):
       
         # some sanity checks
         if type(col[0])==types.StringType:
-            col = col[0].lower()
-            col=self.COLORS[col]
-            # renormalise so that values are in [0,1]
-            col = (col[0]/255.,col[1]/255.,col[2]/255.)
+            
+            if col[0][0]=="#" and len(col[0])==7:
+                # hex color scheme  eg #A0FF00
+                col=(string.atoi(col[0][1:3], 16) / 255.0,
+                     string.atoi(col[0][3:5], 16) / 255.0,
+                     string.atoi(col[0][5:7], 16) / 255.0)
+            else:
+                # named color
+                col = col[0].lower()
+                col=self.COLORS[col]
+                # renormalise so that values are in [0,1]
+                col = (col[0]/255.,col[1]/255.,col[2]/255.)
             
         assert len(col)>0 and len(col)<5
         for ii in col: assert ii>=0 and ii<=1
