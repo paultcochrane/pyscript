@@ -730,9 +730,18 @@ many programs, such as graphing programs, that will generate eps files
 as output.  It has to obey certain rules, such as having no page
 brakes, and a bounding box.  \Verb|PyScript| will parse the file and
 extract the bounding box and use that as the basis of the size and
-placement of the figure. \Verb|Epsf()| takes a single argument --- the
-path of the eps file. The resulting object can then be positioned using
-\Verb|n|,\Verb|c| etc, and of cource can be scaled and rotated as desired.
+placement of the figure (so if it's wrong don't blame PyScript).
+\Verb|Epsf()| takes a single argument --- the path of the eps file.
+The resulting object can then be positioned using \Verb|n|,\Verb|c|,\Verb|ne|
+etc, and of course can be scaled and rotated as desired.
+
+The Eps file can also be scaled to a particular width or height by
+specifing either the \Verb|width| or the \Verb|height| attributes when
+you create the object. The aspect ratio will be preserved when you do
+this.  If you give \emph{both} width and height attributes the object
+will be scaled to those dimensions without preserving its aspect
+ratio.
+
 %==========================================================================
 \chapter{Development}
 

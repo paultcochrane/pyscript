@@ -9,7 +9,7 @@ a=setup(name="pyscript",
       author_email="aalexei@sourceforge.net",
       url="http://pyscript.sourceforge.net",
       packages=['pyscript','pyscript.lib','pyscript.fonts'],
-      scripts=['pyscript.py'],
+      scripts=['bin/pyscript'],
 )
 
 
