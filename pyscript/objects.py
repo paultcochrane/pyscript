@@ -50,17 +50,31 @@ class PsObject(PsDict):
                      )
         apply(PsDict.__init__,(self,),dict)
 
-    def concat(self,t):
+    def concat(self,t,p=None):
         '''
         concat t to tranformation matrix
+        @param t: a 2x2 Matrix dectribing Affine transformation
+        @param p: the origin for the transformation
+        @return: reference to self
         '''
 
         T=self["T"]
         self["T"]=t*T
 
+        if p is not None:
+            o=self['o'] # this is in external co-ords
+            self.move(p-o)
+            self.move(t*(o-p))
+        
+        return self
+
     def move(self,*args):
         '''
-        translate object by dx,dy
+        translate object by a certain amount
+        @param args: amount to move by, can be given as
+         - dx,dy
+         - P
+        @return: reference to self
         '''
         if len(args)==1:
             # assume we have a point
@@ -71,29 +85,49 @@ class PsObject(PsDict):
 
     	return self
 	    
-    def rotate(self,angle):
-        '''
-        rotate object, angle in degrees, clockwise
-        '''
+    def rotate(self,angle,p=None):
+        """
+        rotate object, 
+        the rotation is around p when supplied otherwise
+        it's the objects origin
+
+        @param angle: angle in degrees, clockwise
+        @param p: point to rotate around (external co-ords)
+        @return: reference to self
+        """ 
         angle=angle/180.0*pi
         t=Matrix(cos(angle),sin(angle),-sin(angle),cos(angle))
-        self.concat(t)
+        self.concat(t,p)
 
-    def scale(self,sx,sy):
-        '''
-        scale object by sx and sy
-        '''
-        self.concat(Matrix(sx,0,0,sy))
+        return self
 
+    def scale(self,sx,sy,p=None):
+        '''
+        scale object size (towards objects origin or p)
+        @param sx sy: scale factors for each axis
+        @param p: point around which to scale
+        @return: reference to self
+        '''
+
+        t=Matrix(sx,0,0,sy)
+        self.concat(t,p)
+        
+        return self
+
+        
     def itoe(self,p_i):
         '''
         convert internal to external co-ords
+        @param p_i: intrnal co-ordinate
+        @return: external co-ordinate
         '''
         return self['T']*p_i+self['o']
         
     def etoi(self,p_e):
         '''
         convert external to internal co-ords
+        @param p_e: external co-ordinate
+        @return: internal co-ordinate
         '''
         return self['T'].inverse()*(p_e-self['o'])
 
@@ -128,11 +162,21 @@ class PsObject(PsDict):
         raise "Needs to be overridden!"
 
 # -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
 
 class Area(PsObject):
     """
     A Rectangular area.
+    
+    defines the following compass points that can be set and retrived::
+
+          nw--n--ne
+          |       |
+          w   c   e
+          |       |
+          sw--s--se
+
+    The origin is the sw corner and the others are calculated from the
+    width and height attributes
     """
     type="Area"
 
@@ -182,7 +226,6 @@ class Area(PsObject):
         s.move(pe-s['c'])
 
     def boundingbox(self):
-        "return objects bounding box"
 
         SW=self['sw'].copy()
         NE=self['ne'].copy()
@@ -201,7 +244,9 @@ class Area(PsObject):
 # -------------------------------------------------------------------------
 class TeX(Area):
     '''
-    an Area object for a TeX expression
+    an Area object with a TeX expression within
+
+    requires working latex and dvips systems
     
     '''
     type="TeX"
@@ -465,12 +510,18 @@ class Text_nobbox(PsObject):
 # -------------------------------------------------------------------------
 class Rectangle(Area):
     """
-    Draw a rectangle
+    Draw a rectangle 
     """
     type="Rectangle"
 
     def __init__(self,**dict):
-        
+        '''
+        @param dict:
+                     - linewidth: the line thickness in points
+                     - dash: the dash pattern to use (string ala postscript)
+                     - fg: line color
+                     - bg: fill color or None for empty
+        '''
         self.natives(dict,
                      bg=None,
                      fg=Color(0),
@@ -504,18 +555,7 @@ class Circle(PsObject):
     """
     Draw a circle, or part of
 
-    'r' = radius
-    'start' = starting angle for arc
-    'end' = end angle for arc
-
-    'o' = 'c' = center
-    'n','ne' ... points on circumference
-    0-360 point on circumference at that angle (degrees clockwise from n)
-
-    'fg','bg'  foreground and background colors
-    'linewidth', 'dash'
-
-    get ellipses by scaling
+    get ellipses by scaling. The origin is the center
     
     """
     type="Circle"
@@ -524,7 +564,19 @@ class Circle(PsObject):
                  's':180,'sw':235,'w':270,'nw':315}
 
     def __init__(self, **dict):
+        '''
+        @param dict:
+                     - r: radius
+                     - start: starting angle for arc
+                     - end: end angle for arc
+                     - c, n, ne, ... as for L{Area.__init__}
+                     - 0-360: point on circumference at that angle
+                       (degrees clockwise from n)
+                     - fg,bg:  foreground and background colors
+                     - linewidth, dash:
 
+        
+        '''
         self.natives(dict,
                      bg=None,
                      fg=Color(0),
