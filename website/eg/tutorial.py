@@ -29,12 +29,12 @@ def BellDet(c=P(0,0)):
     H=P(0,.8)
     W=P(.5,0)
 
-    D=Path(c+H,
+    D=Group(Path(c+H,
            C(c+H+W),
            c+W,
            C(c-H+W),
            c-H,bg=blue,
-           )
+           ))
 
     return Group(
         Path(c-H,c+H,linewidth=2),
