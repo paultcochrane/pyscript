@@ -42,7 +42,10 @@ class Matrix:
         '''
         print as postscript
         '''
-        return "[%g %g %g %g]"%tuple(s.data)
+        d=s.data
+        
+        #NB postscript uses transpose
+        return "[%g %g %g %g]"%(d[0],d[2],d[1],d[3])
 
     def __add__(s,o):
         if pstype(o) == MatrixType:

@@ -20,7 +20,7 @@ Create the actual postscript
 
 VERSION="0.0.1"
 
-import sys
+import sys,os
 import cStringIO
 import time
 
@@ -31,7 +31,7 @@ from objects import Group
 # we need to double up the comment %'s
 # The BoundingBox and EndComments will be added later
 EPSheader="""%%!PS-Adobe-2.0 EPSF-2.0
-%%%%Creator: pyp v%s
+%%%%Creator: pyscript v%s
 %%%%CreationDate: %s
 """%(VERSION,time.ctime(time.time()))
 
@@ -79,13 +79,18 @@ def collecttex(objects,tex):
 # ---------------------------------------------------------------------------
 
 
-def render(filename,*objects):
+def render(*objects,**opts):
     "Create the EPSF file"
 
-    if not filename:
+    if not opts.has_key('file'):
+        opts['file']=sys.argv[0]+".eps"
+        
+        
+    if opts['file']=='-':
         out=sys.stdout
     else:
-        out=open(filename,"w")
+        print "Writing",opts['file']
+        out=open(opts['file'],"w")
 
     # step through and accumulate postscript
     # and auxillary information
@@ -106,6 +111,11 @@ def render(filename,*objects):
         objects=apply(Group,objects)
 
     SW,NE=objects.boundingbox()
+    
+    if not SW or not NE:
+        print "No objects to render!"
+        return
+    
     # convert bbox to points
     SW[0]=round(SW[0]*defaults.units)
     SW[1]=round(SW[1]*defaults.units)

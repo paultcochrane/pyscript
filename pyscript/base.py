@@ -107,6 +107,9 @@ class PsDict(UserDict.UserDict):
         for key,value in dict.items():
             obj[key]=value
         return obj
+    
+    def __repr__(self):
+        return self.type+"("+str(self.data)+")"
 
 
 # -------------------------------------------------------------------------
@@ -117,6 +120,8 @@ class Color(PsDict):
     """
     (C,M,Y,K)=CMYKColor or (R,G,B)=RGBColor or (G)=Gray or 'yellow' etc 
     """
+    type="Color"
+    
     def __init__(self,*col,**dict):
       
         if type(col[0])==StringType:

@@ -258,7 +258,7 @@ class TeX(Area):
 
 
 # -------------------------------------------------------------------------
-# Text class ... requires gs -bbox
+# Text class ... requires 'gs -sDEVICE=bbox'
 # -------------------------------------------------------------------------
 
 class Text(Area):
@@ -501,10 +501,14 @@ class Circle(PsObject):
 
         out = cStringIO.StringIO()
 
+        # By default postscript goes anti-clockwise
+        # and starts from 'e' ... fix it so it goes
+        # clockwise and starts from 'n'
+        
         if self["bg"] is not None:
-            out.write("%(bg)s 0 0 %(r)g uu %(start)g 90 add %(end)g 90 add arcn fill\n" % self)
+            out.write("%(bg)s 0 0 %(r)g uu 360 %(start)g -1 mul add 90 add 360 %(end)g -1 mul add 90 add arcn fill\n" % self)
 
-        out.write("%(fg)s 0 0 %(r)g uu %(start)g 90 add %(end)g 90 add arcn stroke\n" % self)
+        out.write("%(fg)s 0 0 %(r)g uu 360 %(start)g -1 mul add 90 add 360 %(end)g -1 mul add 90 add arcn stroke\n" % self)
 
         return out.getvalue()
 
@@ -731,19 +735,59 @@ class Group(PsObject):
 
         apply(PsObject.__init__,(self,),dict)
 
+    def __getitem__(self,i):
+
+        # If it's type string pass it on
+        if type(i)==type(""):
+            return PsObject.__getitem__(self,i)
+
+        return self.objects[i]
+        
+    def __setitem__(self,i,other):
+
+        # If it's type string pass it on
+        if type(i)==type(""):
+            return PsObject.__setitem__(self,i,other)
+
+        self.objects[i]=other
+
+    def __getslice__(self,i,j):
+        return self.objects[i:j]
+
+    def __setslice__(self,i,j,wert):
+        self.objects[i:j]=wert
+
+    def append(self,obj):
+        '''
+        append object to group
+        '''
+        self.objects.append(obj)
 
     def boundingbox(self):
         """
         Gather together common bounding box for group
         """
 
+        # We need to do the calculation in the 
+        # external co-ordinates (that's where the
+        # bounding box will be used)
+        
+        if len(self.objects)==0:
+            return None,None
+        
         SW,NE=self.objects[0].boundingbox()
-
-
+        if SW and NE:
+            SW=self.itoe(SW)
+            NE=self.itoe(NE)
+        
+        if len(self.objects)==1:
+            return SW,NE
+        
         for obj in self.objects[1:]:
             sw,ne=obj.boundingbox()
-            if sw and ne:
-                # some objects return None
+            if sw and ne: # some objects return None
+                sw=self.itoe(sw)
+                ne=self.itoe(ne)
                 SW[0]=min(sw[0],SW[0])
                 SW[1]=min(sw[1],SW[1])
                 NE[0]=max(ne[0],NE[0])
@@ -757,33 +801,6 @@ class Group(PsObject):
         return out.getvalue()
     
 
-class Arc(Area):
-    """
-    Draw an arc
-    """
-    type="Arc"
-
-    def __init__(self, **dict):
-
-        setkeys(dict,
-                {"bg": None,
-                 "fg": Color(0),
-                 "radius": 1.0,
-                 "angle1": 0,
-                 "angle2": 90})
-
-        apply(Area.__init__, (self,), dict)
-
-    def body(self):
-
-        out = cStringIO.StringIO()
-
-        if self["bg"] is not None:
-            out.write("%(bg)s 0 0 %(radius)s uu %(angle1)s %(angle2)s arc fill\n" % self)   # hmmm, could there be problems with filling this object???
-
-        out.write("%(fg)s 0 0 %(radius)s uu %(angle1)s %(angle2)s arc stroke\n" % self)
-
-        return out.getvalue()
 
 
 
