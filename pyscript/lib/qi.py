@@ -15,6 +15,10 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 # USA.
 
+# $Id$
+
+__revision__ = '$Revision$'
+
 ### = we have the equivalent
 #   = not yet implemented
 
