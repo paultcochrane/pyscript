@@ -14,22 +14,33 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+# $Id$
+
 """
 Base objects
 """
+
+__revision__ = '$Revision$'
+
 import copy
 import types
 import string
 
 # -------------------------------------------------------------------------
 class PyScriptError(Exception):
+    """
+    Handles a PyScript error
+    """
     pass
 
 class FontError(Exception):
+    """
+    Handles a font error
+    """
     pass
 
 # -------------------------------------------------------------------------
-UNITS={
+UNITS = {
     "inch":72,
     "points":1,
     "cm":28.346,
@@ -43,13 +54,13 @@ class PsObj(object):
     Base Class that most pyscript objects should subclass
     """
 
-    def __init__(self,**dict):
+    def __init__(self, **dict):
         '''
         can pass a dict of atributes to set
         '''
-        apply(self,(),dict)
+        apply(self, (), dict)
 
-    def __call__(self,**dict):
+    def __call__(self, **dict):
         '''
         Set a whole lot of attributes in one go
         
@@ -63,24 +74,24 @@ class PsObj(object):
         # first do non-property ones
         # this will raise an exception if class doesn't have attribute
         # I think this is good.
-        prop=[]
-        for key,value in dict.items():
-            if isinstance(eval('self.__class__.%s'%key),property):
-                prop.append((key,value))
+        prop = []
+        for key, value in dict.items():
+            if isinstance(eval('self.__class__.%s'%key), property):
+                prop.append((key, value))
             else:
-                self.__class__.__setattr__(self,key,value)
+                self.__class__.__setattr__(self, key, value)
 
         # now the property ones
         # (which are functions of the non-property ones)
-        for key,value in prop:
-            self.__class__.__setattr__(self,key,value)
+        for key, value in prop:
+            self.__class__.__setattr__(self, key, value)
                 
 
         # for convenience return a reference to us
         return self
         
 
-    def copy(self,**dict):
+    def copy(self, **dict):
         '''
         return a copy of this object
         with listed attributes modified
@@ -90,9 +101,9 @@ class PsObj(object):
         @rtype: self
         '''
         # here for convenience
-        obj=copy.deepcopy(self)
+        obj = copy.deepcopy(self)
 
-        apply(obj,(),dict)
+        apply(obj, (), dict)
 
         return obj
     
@@ -162,48 +173,51 @@ class Color(PsObj):
      - Color('#FF0000') Hex string, must start with '#'
     """
 
-    COLORS={
-        "aliceblue":(240,248,255),
-        "antiquewhite":(250,235,215),
-        "aqua":(0,255,255),
-        "aquamarine":(127,255,212),
-        "azure":(240,255,255),
-        "beige":(245,245,220),
-        "bisque":(255,228,196),
-        "black":(0,0,0),
-        "blanchedalmond":(255,235,205),
-        "blue":(0,0,255),
-        "blueviolet":(138,43,226),
-        "brown":(165,42,42),
-        "burlywood":(222,184,135),
-        "cadetblue":(95,158,160),
-        "chartreuse":(127,255,0),
-        "chocolate":(210,105,30),
-        "coral":(255,127,80),
-        "cornflowerblue":(100,149,237),
-        "cornsilk":(255,248,220),
-        "crimson":(220,20,60),
-        "cyan":(0,255,255),
-        "darkblue":(0,0,139),
-        "darkcyan":(0,139,139),
-        "darkgoldenrod":(184,134,11),
-        "darkgray":(169,169,169),
-        "darkgreen":(0,100,0),
-        "darkkhaki":(189,183,107),
-        "darkmagenta":(139,0,139),
-        "darkolivegreen":(85,107,47),
-        "darkorange":(255,140,0),
-        "darkorchid":(153,50,204),
-        "darkred":(139,0,0),
-        "darksalmon":(233,150,122),
-        "darkseagreen":(143,188,143),
+    COLORS = {
+        "aliceblue":(240, 248, 255),
+        "antiquewhite":(250, 235, 215),
+        "aqua":(0, 255, 255),
+        "aquamarine":(127, 255, 212),
+        "azure":(240, 255, 255),
+        "beige":(245, 245, 220),
+        "bisque":(255, 228, 196),
+        "black":(0, 0, 0),
+        "blanchedalmond":(255, 235, 205),
+        "blue":(0, 0, 255),
+        "blueviolet":(138, 43, 226),
+        "brown":(165, 42, 42),
+        "burlywood":(222, 184, 135),
+        "cadetblue":(95, 158, 160),
+        "chartreuse":(127, 255, 0),
+        "chocolate":(210, 105, 30),
+        "coral":(255, 127, 80),
+        "cornflowerblue":(100, 149, 237),
+        "cornsilk":(255, 248, 220),
+        "crimson":(220, 20, 60),
+        "cyan":(0, 255, 255),
+        "darkblue":(0, 0, 139),
+        "darkcyan":(0, 139, 139),
+        "darkgoldenrod":(184, 134, 11),
+        "darkgray":(169, 169, 169),
+        "darkgrey":(169, 169, 169),
+        "darkgreen":(0, 100, 0),
+        "darkkhaki":(189, 183, 107),
+        "darkmagenta":(139, 0, 139),
+        "darkolivegreen":(85, 107, 47),
+        "darkorange":(255, 140, 0),
+        "darkorchid":(153, 50, 204),
+        "darkred":(139, 0, 0),
+        "darksalmon":(233, 150, 122),
+        "darkseagreen":(143, 188, 143),
         "darkslateblue":(72,61,139),
         "darkslategray":(47,79,79),
+        "darkslategrey":(47,79,79),
         "darkturquoise":(0,206,209),
         "darkviolet":(148,0,211),
         "deeppink":(255,20,147),
         "deepskyblue":(0,191,255),
         "dimgray":(105,105,105),
+        "dimgrey":(105,105,105),
         "dodgerblue":(30,144,255),
         "firebrick":(178,34,34),
         "floralwhite":(255,250,240),
@@ -214,6 +228,7 @@ class Color(PsObj):
         "gold":(255,215,0),
         "goldenrod":(218,165,32),
         "gray":(128,128,128),
+        "grey":(128,128,128),
         "green":(0,128,0),
         "greenyellow":(173,255,47),
         "honeydew":(240,255,240),
@@ -232,11 +247,13 @@ class Color(PsObj):
         "lightgoldenrod":(250,250,210),
         "lightgreen":(144,238,144),
         "lightgray":(211,211,211),
+        "lightgrey":(211,211,211),
         "lightpink":(255,182,193),
         "lightsalmon":(255,160,122),
         "lightseagreen":(32,178,170),
         "lightskyblue":(135,206,250),
         "lightslategray":(119,136,153),
+        "lightslategrey":(119,136,153),
         "lightsteelblue":(176,196,222),
         "lightyellow":(255,255,224),
         "lime":(0,255,0),
@@ -289,6 +306,7 @@ class Color(PsObj):
         "skyblue":(135,206,235),
         "slateblue":(106,90,205),
         "slategray":(112,128,144),
+        "slategrey":(112,128,144),
         "snow":(255,250,250),
         "springgreen":(0,255,127),
         "steelblue":(70,130,180),
@@ -306,48 +324,59 @@ class Color(PsObj):
         }
 
 
-    def __init__(self,*col,**dict):
-      
+    def __init__(self, *col, **dict):
+        """
+        Initialisation of the colour object
+
+        @param col:
+        @type col:
+
+        @param dict:
+        @type dict:
+        """
         # some sanity checks
-        if type(col[0])==types.StringType:
+        if type(col[0]) == types.StringType:
             
-            if col[0][0]=="#" and len(col[0])==7:
+            if col[0][0] == "#" and len(col[0]) == 7:
                 # hex color scheme  eg #A0FF00
-                col=(string.atoi(col[0][1:3], 16) / 255.0,
+                col = (string.atoi(col[0][1:3], 16) / 255.0,
                      string.atoi(col[0][3:5], 16) / 255.0,
                      string.atoi(col[0][5:7], 16) / 255.0)
             else:
                 # named color
                 col = col[0].lower()
-                col=self.COLORS[col]
+                col = self.COLORS[col]
                 # renormalise so that values are in [0,1]
-                col = (col[0]/255.,col[1]/255.,col[2]/255.)
+                col = (col[0]/255., col[1]/255., col[2]/255.)
             
         assert len(col)>0 and len(col)<5
-        for ii in col: assert ii>=0 and ii<=1
+        for ii in col: assert ii >= 0 and ii <= 1
         
-        self.color=col
+        self.color = col
             
-        apply(PsObj.__init__,(self,),dict)
+        apply(PsObj.__init__, (self, ), dict)
         
         
     def body(self):
+        """
+        Returns the body of the postscript for the Color object
+        """
 
-        color=self.color
-        if len(color)==1:
+        color = self.color
+        if len(color) == 1:
             # grayscale color
-            ps=" %g setgray "%color
-        elif len(color)==3:
+            ps = " %g setgray "%color
+        elif len(color) == 3:
             # rgb color
-            ps=" %g %g %g setrgbcolor "%color
-        elif len(color)==4:
+            ps = " %g %g %g setrgbcolor "%color
+        elif len(color) == 4:
             # cmyk color
-            ps=" %g %g %g %g setcmykcolor "%color
+            ps = " %g %g %g %g setcmykcolor "%color
         else:
             raise "Unknown color"
         return ps
     
-    def __mul__(self,other):
+    def __mul__(self, other):
         '''
         colors can be multiplied by a numeric factor.
         factors less than 1 will darken the colors,
@@ -358,11 +387,11 @@ class Color(PsObj):
           Color(.2,.6,.6)*.5 = Color(.1,.3,.3)
 
         '''
-        assert other>=0 #and other<=1
-        newcol=[]
+        assert other >= 0 #and other<=1
+        newcol = []
         for ii in self.color:
-            newcol.append(min(1,ii*other))
-        return apply(Color,tuple(newcol))
+            newcol.append(min(1, ii*other))
+        return apply(Color, tuple(newcol))
 
 # -------------------------------------------------------------------------
 class Dash(PsObj):
