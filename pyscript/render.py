@@ -73,7 +73,7 @@ b4_Inc_state restore
 
 /PyScriptStart {} def
 /PyScriptEnd {} def
-/showpage {} def
+
 """
 
 import os,re
@@ -257,10 +257,13 @@ def render(*objects,**opts):
     out.write('/uu {%f mul} def '%defaults.units)
     out.write('%f setlinewidth '%defaults.linewidth)
     out.write(defs)
-    
+    out.write('\n/PyScriptDict 1 dict def\nPyScriptDict begin \n')
+    out.write('/showpage {} def\n')
     out.write(str(objects))
+    out.write('\nend\n')
+
     
-    out.write('\nshowpage\n')
+    out.write('showpage\n')
 
     out.close()
 

@@ -206,7 +206,7 @@ class Poster_1:
                        bg=self.bg
                        )
 
-        p=self.area.se+P(-.1,.1)
+        p=self.area.se+P(0,1.2)
         signature=Text('Created with PyScript',size=6,
                        sw=p,fg=self.bg*.8).rotate(-90,p)
 

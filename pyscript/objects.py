@@ -1085,6 +1085,8 @@ class Paper(Area):
 
         apply(Area.__init__,(self,),dict)
 
+        
+        
 # -------------------------------------------------------------------------
 
 class Epsf(Area):
@@ -1139,9 +1141,11 @@ class Epsf(Area):
         else:
             sx=sy=1
             
+        self.scale(sx,sy)
+
         apply(Area.__init__,(self,),dict)
 
-        self.scale(sx,sy)
+
 
     def body(self):
         
