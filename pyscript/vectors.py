@@ -231,6 +231,13 @@ class P(PsObj):
         else:
             raise TypeError, "Only division by numbers implemented"
 
+    def _get_x(self):
+        return self[0]
+    x = property(_get_x,None)
+
+    def _get_y(self):
+        return self[1]
+    y = property(_get_y,None)
 
     def _get_length(self):
         '''
@@ -263,13 +270,16 @@ class P(PsObj):
 # R = Vector (relative to last point) function dependent!
 # -------------------------------------------------------------------------
 
-def R(*args,**dict):
-    """
-    Exactly the same as a P() but some functions interpret
-    this as a relative direction
-    """
+class R(P):
+    pass
 
-    return apply(P,args,{'relative':1})
+#def R(*args,**dict):
+#    """
+#    Exactly the same as a P() but some functions interpret
+#    this as a relative direction
+#    """
+
+#return apply(P,args,{'relative':1})
 # -------------------------------------------------------------------------
 # Unit vector
 # -------------------------------------------------------------------------

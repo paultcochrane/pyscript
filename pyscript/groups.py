@@ -149,8 +149,20 @@ class Group(Area):
             self.isw=self.objbox.sw
             self.width=self.objbox.width
             self.height=self.objbox.height
+
+    def clear(self):
+        '''
+        Clear all the elements and reset group to 
+        an empty group
+        '''
+
+        self.isw=Area.isw
+        self.width=Area.width
+        self.height=Area.height
+        self.objbox=Bbox()
+        self.objects=[]
         
-            
+        
     def body(self):
         out=cStringIO.StringIO()
         for obj in self.objects:
