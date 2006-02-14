@@ -5,7 +5,7 @@
 bifurcate.py - a bifurcation diagram
 
 As lambda increases to some critical value the function becomes
-multivalued and bifurcates giving the fork structure after lambda_c.
+multivalued and bifurcates giving the fork structure after \lambda_c.
 """
 
 # import the pyscript objects
