@@ -24,7 +24,6 @@ __revision__ = '$Revision$'
 
 import copy
 import types
-#from pyscript.vectors import Bbox
 
 # -------------------------------------------------------------------------
 class PyScriptError(Exception):
@@ -154,7 +153,7 @@ class PsObj(object):
         @rtype: Bbox
         """
 
-        return Bbox()
+        return ''
 
 
 # -------------------------------------------------------------------------
