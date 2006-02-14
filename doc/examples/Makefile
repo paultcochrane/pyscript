@@ -22,7 +22,7 @@ all: $(MAIN)
 
 # standard TeX stuff
 %.eps:  %.py
-	./$<
+	pyscript $<
 
 clean:
 	rm -f $(MAIN)
