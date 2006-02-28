@@ -29,7 +29,6 @@ __revision__ = '$Revision$'
 
 import cStringIO, time, os, sys
 
-#from types import *
 from types import TupleType, ListType
 from pyscript.base import PsObj
 from pyscript.vectors import P, Bbox, U
@@ -282,7 +281,7 @@ class Align(Group):
 
         Group.__init__(self, **options)
 
-        self.aligned=[]
+        self.aligned = []
 
         self.append(*objects)
         
