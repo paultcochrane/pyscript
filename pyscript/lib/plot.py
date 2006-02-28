@@ -16,18 +16,19 @@
 
 # $Id$
 
-__revision__ = '$Revision$'
-
 '''
 pyscript plotting functions
 '''
 
-from pyscript import *
-from Numeric import *
+__revision__ = '$Revision$'
+
+from pyscript import Group, Path, P, TeX, Color
+from Numeric import max, min, round, arrayrange
 
 class Graph(Group):
 
     def __init__(self):
+        Group.__init__(self)
 
         # the bottom left hand corner of the graph is (0,0)
         self.xGraphMin = 0.0
@@ -77,8 +78,14 @@ class Graph(Group):
             yTickSep = (yMaxVal - yMinVal)/11.0
             
         # the x and y axes
-        xAxis = Path(P(xGraphMin,yGraphMin),P(xGraphMax,yGraphMin))
-        yAxis = Path(P(xGraphMin,yGraphMin),P(xGraphMin,yGraphMax))
+        xAxis = Path(
+                P(xGraphMin, yGraphMin), 
+                P(xGraphMax, yGraphMin)
+                )
+        yAxis = Path(
+                P(xGraphMin, yGraphMin),
+                P(xGraphMin,yGraphMax)
+                )
         
         # length of the ticks
         xTickLen = 0.2 # in graph coordinates

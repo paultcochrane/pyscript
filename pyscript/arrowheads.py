@@ -80,7 +80,7 @@ class ArrowHead(AffineObj):
     scalew = 1
     scaleh = 1
 
-    linewidth = .2
+    linewidth = 0.2
     linejoin = 2 #0=miter, 1=round, 2=bevel
 
     # miterlimit:
@@ -95,7 +95,7 @@ class ArrowHead(AffineObj):
         # remember this angle for when instance is copied...
         # this assumes all rotations that have been applied
         # are represented by angle and reverse
-        angle0=self.angle+self.reverse*180
+        angle0 = self.angle + self.reverse*180
 
         AffineObj.__init__(self, **options)
 
@@ -153,7 +153,7 @@ class ArrowHead(AffineObj):
         """
         
         # the (0,0) point:
-        p0 = self.itoe(P(0,0))
+        p0 = self.itoe(P(0, 0))
         xmax = xmin = p0.x
         ymax = ymin = p0.y
 

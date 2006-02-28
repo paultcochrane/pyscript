@@ -16,17 +16,17 @@
 
 # $Id$
 
-__revision__ = '$Revision$'
-
 '''
 pyscript Optics objects library
 '''
 
-from pyscript import *
+__revision__ = '$Revision$'
+
+from pyscript import Group, Path, Color, P, C, Dash, TeX, Text
 import types
 
 # beam splitter
-def BS(sw=P(0,0), label=None, h=1.0):
+def BS(sw=P(0, 0), label=None, h=1.0):
     """
     Beam splitter; displayed as a line
 
@@ -39,15 +39,31 @@ def BS(sw=P(0,0), label=None, h=1.0):
     @param h: beam splitter height
     @type h: float
     """
-    buff = P(0,0.1)
-    b = Path(sw-buff, sw+P(0,h)+buff, sw+P(h,h)+buff, sw+P(h,0)-buff, sw-buff,
-           fg=None, bg=Color("white"))
-    p1 = Path(sw, sw+P(h,h))
-    p2 = Path(sw+P(0,h), sw+P(h,0))
-    p3 = Path(sw+P(h/4,h/2), sw+P(h,0)+P(-h/4,h/2), linewidth=1)
+    buff = P(0, 0.1)
+    b = Path(
+            sw-buff, 
+            sw+P(0, h)+buff, 
+            sw+P(h, h)+buff, 
+            sw+P(h, 0)-buff, 
+            sw-buff, 
+            fg=None, bg=Color("white")
+            )
+    p1 = Path(
+            sw, 
+            sw+P(h, h)
+            )
+    p2 = Path(
+            sw+P(0, h), 
+            sw+P(h, 0)
+            )
+    p3 = Path(
+            sw+P(h/4, h/2), 
+            sw+P(h, 0)+P(-h/4, h/2), 
+            linewidth=1
+            )
 
     if label is not None:
-        label['w'] = sw + P(h,0) + P(-h/4,h/2)
+        label['w'] = sw + P(h, 0) + P(-h/4, h/2)
         return Group(b, p1, p2, p3, label)
     else:
         return Group(b, p1, p2, p3)
@@ -92,11 +108,11 @@ class BSBox(Group):
 
         # make the beam splitter
         bs = Group()
-        bs.append(Path(P(0,0),
-                  P(0,self.height),
-                  P(self.height,self.height),
-                  P(self.height,0),
-                  P(0,0),
+        bs.append(Path(P(0, 0),
+                  P(0, self.height),
+                  P(self.height, self.height),
+                  P(self.height, 0),
+                  P(0, 0),
                   P(self.height, self.height),
                   fg=self.fg, bg=self.bg)
                   )
@@ -116,7 +132,7 @@ class BSBox(Group):
                 raise ValueError, \
                         "label is not a string or Text or TeX object"
 
-            self.label.w = P(3.0*self.height/4.0,self.height/2.0)
+            self.label.w = P(3.0*self.height/4.0, self.height/2.0)
             bs.append(self.label)
 
         self.append(bs)
@@ -185,9 +201,9 @@ class PhaseShifter(Group):
 
         # now make the phase shifter
         ps = Path(
-                P(0,0), 
-                P(self.width/2.0,self.height), 
-                P(self.width,0), 
+                P(0, 0), 
+                P(self.width/2.0, self.height), 
+                P(self.width, 0), 
                 closed=1, 
                 fg=self.fg, bg=self.bg,
                 )
@@ -197,8 +213,8 @@ class PhaseShifter(Group):
             ps.rotate(self.angle, p=ps.bbox().c)
 
         if self.label is not None:
-            self.label.s = P(self.width/2.0,-self.height)
-            self.append(ps, label)
+            self.label.s = P(self.width/2.0, -self.height)
+            self.append(ps, self.label)
         else:
             self.append(ps)
 
@@ -253,10 +269,10 @@ class Mirror(Group):
         # make the mirror itself
         mirror = Group()
         mirror.append(
-                      Path(P(0,0), 
-                      P(0,self.thickness),
-                      P(self.length,self.thickness), 
-                      P(self.length,0), 
+                      Path(P(0, 0), 
+                      P(0, self.thickness),
+                      P(self.length, self.thickness), 
+                      P(self.length, 0), 
                       fg=self.fg, bg=self.bg, closed=1)
                       )
 
@@ -266,9 +282,11 @@ class Mirror(Group):
             flicksObj = Group()
             for i in range(10):
                 flicksObj.append(
-                        Path(P((i+1.0)*self.length/10.0, self.thickness),
-                             P(i*self.length/10.0, self.thickness+flickLen),
-                             fg=self.fg, bg=self.bg))
+                        Path(
+                            P((i+1.0)*self.length/10.0, self.thickness),
+                            P(i*self.length/10.0, self.thickness+flickLen),
+                            fg=self.fg, bg=self.bg
+                            ))
 
             mirror.append(flicksObj)
 
@@ -336,17 +354,23 @@ class Detector(Group):
         self.bg = options.get("bg", self.bg)
         if self.width > self.height:
             p.append(Path(
-                P(0, 0), P(0, self.height),
-                P(self.width-self.height/2.0, self.height), C(90, 0),
-                P(self.width, self.height/2.0), C(180, 90),
+                P(0, 0), 
+                P(0, self.height),
+                P(self.width-self.height/2.0, self.height), 
+                C(90, 0),
+                P(self.width, self.height/2.0), 
+                C(180, 90),
                 P(self.width-self.height/2.0, 0),
                 fg=self.fg, bg=self.bg,
                 closed=1)
                 )
         else:
             p.append(Path(
-                P(0, 0), P(0, self.height),  C(90, 0),
-                P(self.width, self.height/2.0), C(180, 90),
+                P(0, 0), 
+                P(0, self.height),  
+                C(90, 0),
+                P(self.width, self.height/2.0), 
+                C(180, 90),
                 closed=1)
                 )
 
@@ -368,7 +392,7 @@ class Detector(Group):
                         "label is not a string or Text or TeX object"
 
             # the location given here not tested!!!
-            self.label.w = P(3.0*self.height/4.0,self.height/2.0)
+            self.label.w = P(3.0*self.height/4.0, self.height/2.0)
             p.append(self.label)
 
         self.append(p)
@@ -418,13 +442,14 @@ class Laser(Group):
 
         # make the laser
         laser = Group()
-        laser.append(Path(P(0,0),
-                  P(0,self.height),
-                  P(self.width,self.height),
-                  P(self.width,0),
+        laser.append(
+                Path(P(0, 0),
+                  P(0, self.height),
+                  P(self.width, self.height),
+                  P(self.width, 0),
                   closed=1,
                   fg=self.fg, bg=self.bg)
-                  )
+                )
 
         # rotate if necessary
         laser.rotate(self.angle, p=laser.bbox().c)
@@ -493,13 +518,15 @@ class Modulator(Group):
 
         # make the laser
         modulator = Group()
-        modulator.append(Path(P(0,0),
-                  P(0,self.height),
-                  P(self.width,self.height),
-                  P(self.width,0),
-                  closed=1,
-                  fg=self.fg, bg=self.bg)
-                  )
+        modulator.append(
+                Path(
+                    P(0, 0), 
+                    P(0, self.height), 
+                    P(self.width, self.height), 
+                    P(self.width, 0), 
+                    closed=1, 
+                    fg=self.fg, bg=self.bg
+                    ))
 
         # rotate if necessary
         modulator.rotate(self.angle, p=modulator.bbox().c)
@@ -567,14 +594,16 @@ class FreeSpace(Group):
 
         # make the laser
         fs = Group()
-        fs.append(Path(P(0,0),
-                  P(0,self.height),
-                  P(self.width,self.height),
-                  P(self.width,0),
-                  closed=1,
-                  fg=self.fg, bg=self.bg,
-                  dash=Dash())
-                  )
+        fs.append(
+                Path(
+                    P(0, 0), 
+                    P(0, self.height), 
+                    P(self.width, self.height), 
+                    P(self.width, 0), 
+                    closed=1, 
+                    fg=self.fg, bg=self.bg, 
+                    dash=Dash())
+                )
 
         # rotate if necessary
         fs.rotate(self.angle, p=fs.bbox().c)

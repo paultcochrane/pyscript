@@ -310,7 +310,7 @@ class Align(Group):
 
                 if len(self.aligned)==0:
                     # first object sets the position ...
-                    Group.append(self,obj)
+                    Group.append(self, obj)
                     self.aligned.append(obj)
                 else: 
 
@@ -327,7 +327,7 @@ class Align(Group):
 
                         obj.move((U(angle+90)*(p2-p1))*U(angle-90))
             
-                    Group.append(self,obj)
+                    Group.append(self, obj)
                     self.aligned.append(obj)
             else:
                 # append but don't align

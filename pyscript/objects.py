@@ -639,9 +639,9 @@ class Text(Area):
               'settext':self.settext,
               'offset':self.offset}
         
-        out.write("%(offset)s moveto\n"%ATTR)
-        out.write("/%(font)s %(size)s selectfont %(fg)s \n"%ATTR)
-        out.write("mark %(settext)s kernshow\n"%ATTR)
+        out.write("%(offset)s moveto\n" % ATTR)
+        out.write("/%(font)s %(size)s selectfont %(fg)s \n" % ATTR)
+        out.write("mark %(settext)s kernshow\n" % ATTR)
 
         return out.getvalue()
 
