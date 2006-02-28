@@ -37,48 +37,48 @@ identifierRE = re.compile("^([A-Za-z]+).*")
 
 # regular expression to parse char lines
 charRE = re.compile(
-    "(-?\d+)"			# charnum
-    "\s*;\s*WX\s+"		# ; WX 
-    "(\d+)"			# width
-    "\s*;\s*N\s+"		# ; N 
-    "([.A-Za-z0-9_]+)"	        # charname
-    "\s*;\s*B\s+"		# ; B 
-    "(-?\d+)"			# left
-    "\s+"			# 
-    "(-?\d+)"			# bottom
-    "\s+"			# 
-    "(-?\d+)"			# right
-    "\s+"			# 
-    "(-?\d+)"			# top
-    "\s*;\s*"			# ; 
+    "(-?\d+)"          # charnum
+    "\s*;\s*WX\s+"     # ; WX 
+    "(\d+)"            # width
+    "\s*;\s*N\s+"      # ; N 
+    "([.A-Za-z0-9_]+)" # charname
+    "\s*;\s*B\s+"      # ; B 
+    "(-?\d+)"          # left
+    "\s+"              # 
+    "(-?\d+)"          # bottom
+    "\s+"              # 
+    "(-?\d+)"          # right
+    "\s+"              # 
+    "(-?\d+)"          # top
+    "\s*;\s*"          # ; 
     )
 
 # regular expression to parse kerning lines
 kernRE = re.compile(
-    "([.A-Za-z0-9_]+)"	# leftchar
-    "\s+"		# 
-    "([.A-Za-z0-9_]+)"	# rightchar
-    "\s+"		# 
-    "(-?\d+)"		# value
-    "\s*"		# 
+    "([.A-Za-z0-9_]+)" # leftchar
+    "\s+"              # 
+    "([.A-Za-z0-9_]+)" # rightchar
+    "\s+"              # 
+    "(-?\d+)"          # value
+    "\s*"              # 
     )
 
 # regular expressions to parse composite info lines of the form:
 # Aacute 2 ; PCC A 0 0 ; PCC acute 182 211 ;
 compositeRE = re.compile(
-    "([.A-Za-z0-9_]+)"	# char name
-    "\s+"		# 
-    "(\d+)"		# number of parts
-    "\s*;\s*"		# 
+    "([.A-Za-z0-9_]+)" # char name
+    "\s+"              # 
+    "(\d+)"            # number of parts
+    "\s*;\s*"          # 
     )
 componentRE = re.compile(
-    "PCC\s+"		# PPC
-    "([.A-Za-z0-9_]+)"	# base char name
-    "\s+"		# 
-    "(-?\d+)"		# x offset
-    "\s+"		# 
-    "(-?\d+)"		# y offset
-    "\s*;\s*"		# 
+    "PCC\s+"           # PPC
+    "([.A-Za-z0-9_]+)" # base char name
+    "\s+"              # 
+    "(-?\d+)"          # x offset
+    "\s+"              # 
+    "(-?\d+)"          # y offset
+    "\s*;\s*"          # 
     )
 
 
@@ -136,9 +136,9 @@ class ConvertAFM:
         # formatted for Mac, Unix or Dos
         sep = ""
         if '\r' in data: 
-            sep = sep + '\r'	# mac or dos
+            sep = sep + '\r'    # mac or dos
         if '\n' in data: 
-            sep = sep + '\n'	# unix or dos
+            sep = sep + '\n'    # unix or dos
         #lines = string.split(data, sep)
         lines = data.split(sep)
 

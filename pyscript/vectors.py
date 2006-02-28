@@ -134,7 +134,7 @@ class Matrix:
             tmp = Matrix()
             for i in range(len(self)):
                 tmp[i] = self[i]*other
-            return tmp	
+            return tmp
         else:
             raise TypeError, "m-n-error in matrix multiplication"
       
@@ -145,7 +145,7 @@ class Matrix:
             tmp = Matrix()
             for i in range(len(self)):
                 tmp[i] = other*self[i]
-            return tmp	
+            return tmp
         else:
             raise TypeError, "error in right matrix multiplication"
 
@@ -512,7 +512,6 @@ class Bbox(object):
             #self.width,self.height=ne-sw
 
         if self.is_set():
-
             x1 = min(self.sw[0], xmin)
             y1 = min(self.sw[1], ymin)
             x2 = max(self.ne[0], xmax)
@@ -523,7 +522,6 @@ class Bbox(object):
             self.height = y2-y1
             
         else:
-
             self.sw = P(xmin, ymin)
             self.width = xmax-xmin
             self.height = ymax-ymin
