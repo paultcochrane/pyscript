@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2005  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2002-2006  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -463,10 +463,17 @@ class AFM:
         '''
         Return a strings boundingbox in this font
         at the scale provided (relative to 1 point?)
+
         @param string: the string to measure
+        @type string: string
+
         @param size: the point size of the font (sort of)
-        @param kerning: wether to subtract off the kerning
-        @return: xl,yb,xr,yt
+        @type size: int
+
+        @param kerning: whether to subtract off the kerning
+        @type kerning: boolean
+
+        @return: xl, yb, xr, yt
         '''
 
         chars = map(ord, list(string))
@@ -493,12 +500,12 @@ class AFM:
         f = self[chars[-1]]
         width = width-start-(f[0]-f[3])
 
-
         # accumulate maximum height
         top = reduce(lambda x, y: max(x, self[y][4]), chars, 0)
 
         # accumulate lowest point
-        bottom = reduce(lambda x, y: min(x, self[y][2]), chars, self[chars[0]][2])
+        bottom = reduce(lambda x, y: min(x, self[y][2]), 
+                                     chars, self[chars[0]][2])
 
         sc = size/1000.
         xl = start*sc
@@ -507,7 +514,6 @@ class AFM:
         yt = top*sc
 
         return xl, yb, xr, yt
-
 
 def load(fontname):
     """
