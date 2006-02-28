@@ -47,9 +47,9 @@ def AndGate(
     @param pinLength: length of pins into and out of gate
     @param label: overall label
     @param labelPinIn1: label for input pin 1 (the top one for default
-	direction)
+        direction)
     @param labelPinIn2: label for input pin 2 (th bottom one for default
-	direction)
+        direction)
     @param labelPinOut: label for output pin
     @return: a Group() object of the gate
     """
@@ -59,48 +59,48 @@ def AndGate(
     bodyHeight = height
     bodyWidth = width - 2.0*pinLength
     gateBody = Group(Path(sw+P(pinLength,buff+0), 
-	sw+P(pinLength,buff+bodyHeight), 
-	sw+P(pinLength+bodyWidth/2.,buff+bodyHeight)),
+        sw+P(pinLength,buff+bodyHeight), 
+        sw+P(pinLength+bodyWidth/2.,buff+bodyHeight)),
         Circle(c=sw+P(pinLength+bodyWidth/2.,buff+bodyHeight/2.), 
-		r=bodyHeight/2., start=0, end=180),
+                r=bodyHeight/2., start=0, end=180),
         Path(sw+P(pinLength+bodyWidth/2.,buff+0), sw+P(pinLength,buff+0)))
     gatePinIn1 = Path(sw+P(0,bodyHeight-pinEdgeDist), 
-	sw+P(pinLength,bodyHeight-pinEdgeDist))
+        sw+P(pinLength,bodyHeight-pinEdgeDist))
     gatePinIn2 = Path(sw+P(0,pinEdgeDist), sw+P(pinLength,pinEdgeDist))
     gatePinOut = Path(sw+P(bodyWidth+pinLength,bodyHeight/2.), 
-	sw+P(bodyWidth+2.*pinLength,bodyHeight/2.))
+        sw+P(bodyWidth+2.*pinLength,bodyHeight/2.))
 
     if direction == 'e':
-	angle = 0
+        angle = 0
     elif direction == 'n':
-	angle = -90
+        angle = -90
     elif direction == 's':
-	angle = 90
+        angle = 90
     elif direction == 'w':
- 	angle = 180
+        angle = 180
     else:
-	print "Incorrect direction entered, 'e' used..."
-	angle = 0
+        print "Incorrect direction entered, 'e' used..."
+        angle = 0
 
     if label is not None:
-	obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut, label)
-	return obj.rotate(angle,p=obj.c)
+        obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut, label)
+        return obj.rotate(angle,p=obj.c)
     else:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
 
 # NAND gate
 def NandGate(
-	sw=P(0,0), 
-	direction='e', 
-	height=2.0, 
-	width=3.0, 
-	pinLength=0.5, 
-	label=None, 
-	labelPinIn1=None, 
-	labelPinIn2=None, 
-	labelPinOut=None,
-	):
+        sw=P(0,0), 
+        direction='e', 
+        height=2.0, 
+        width=3.0, 
+        pinLength=0.5, 
+        label=None, 
+        labelPinIn1=None, 
+        labelPinIn2=None, 
+        labelPinOut=None,
+        ):
     """
     Generates a NAND gate
     @param sw: the position of the sw reference point
@@ -123,18 +123,18 @@ def NandGate(
     bodyWidth = width - 2.0*pinLength
     rad = 0.1
     gateBody = Group(Path(sw+P(pinLength,buff+0), 
-	sw+P(pinLength,buff+bodyHeight), 
-	sw+P(pinLength+bodyWidth/2.,buff+bodyHeight)),
+        sw+P(pinLength,buff+bodyHeight), 
+        sw+P(pinLength+bodyWidth/2.,buff+bodyHeight)),
         Circle(c=sw+P(pinLength+bodyWidth/2.,buff+bodyHeight/2.), 
-		r=bodyHeight/2., start=0, end=180),
+                r=bodyHeight/2., start=0, end=180),
         Path(sw+P(pinLength+bodyWidth/2.,buff+0), sw+P(pinLength,buff+0)))
     gatePinIn1 = Path(sw+P(0,bodyHeight-pinEdgeDist), 
-		sw+P(pinLength,bodyHeight-pinEdgeDist))
+                sw+P(pinLength,bodyHeight-pinEdgeDist))
     gatePinIn2 = Path(sw+P(0,pinEdgeDist), sw+P(pinLength,pinEdgeDist))
     gatePinOut = Group(
         Circle(c=P(bodyWidth+pinLength+rad,bodyHeight/2.),r=rad),
         Path(sw+P(bodyWidth+pinLength+2.*rad,bodyHeight/2.), 
-		sw+P(bodyWidth+2.*rad+2.*pinLength,bodyHeight/2.)))
+                sw+P(bodyWidth+2.*rad+2.*pinLength,bodyHeight/2.)))
 
     if direction == 'e':
         angle = 0
@@ -150,22 +150,22 @@ def NandGate(
 
     if label is not None:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut, label)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
     else:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
 
 # OR gate
 def OrGate(
-	sw=P(0,0), 
-	direction='e', 
-	height=2.0, 
-	width=3.0, 
-	pinLength=0.5, 
-	label=None, 
-	labelPinIn1=None, 
-	labelPinIn2=None, 
-	labelPinOut=None):
+        sw=P(0,0), 
+        direction='e', 
+        height=2.0, 
+        width=3.0, 
+        pinLength=0.5, 
+        label=None, 
+        labelPinIn1=None, 
+        labelPinIn2=None, 
+        labelPinOut=None):
     """
     Generates an OR gate
     @param sw: the position of the sw reference point
@@ -188,15 +188,15 @@ def OrGate(
     bodyWidth = width - 2.0*pinLength
     rad = 0.1
     gateBody = Path(sw-P(pinBackDist,pinEdgeDist),
-		C(sw+P(pinLength+bodyWidth/2.,0)),
-		sw+P(1.25*bodyWidth,bodyHeight/2.),
-		C(sw+P(pinLength+bodyWidth/2.,bodyHeight)),
-		sw+P(-pinBackDist,bodyHeight+pinEdgeDist),
-		C(sw+P(2.0*pinLength,bodyHeight/2.)),
-		sw-P(pinBackDist,pinEdgeDist),
-		)
+                C(sw+P(pinLength+bodyWidth/2.,0)),
+                sw+P(1.25*bodyWidth,bodyHeight/2.),
+                C(sw+P(pinLength+bodyWidth/2.,bodyHeight)),
+                sw+P(-pinBackDist,bodyHeight+pinEdgeDist),
+                C(sw+P(2.0*pinLength,bodyHeight/2.)),
+                sw-P(pinBackDist,pinEdgeDist),
+                )
     gatePinIn1 = Path(sw+P(0,bodyHeight-pinEdgeDist), 
-		sw+P(pinLength,bodyHeight-pinEdgeDist))
+                sw+P(pinLength,bodyHeight-pinEdgeDist))
     gatePinIn2 = Path(sw+P(0,pinEdgeDist), sw+P(pinLength,pinEdgeDist))
     gatePinOut = Path(gateBody.e,gateBody.e+P(pinLength,0))
 
@@ -214,10 +214,10 @@ def OrGate(
 
     if label is not None:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut, label)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
     else:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
 
 # NOR gate
 def NorGate(
@@ -262,9 +262,9 @@ def NorGate(
                 sw+P(pinLength,bodyHeight-pinEdgeDist))
     gatePinIn2 = Path(sw+P(0,pinEdgeDist), sw+P(pinLength,pinEdgeDist))
     gatePinOut = Group(
-		Circle(w=gateBody.e,r=0.1),
-		Path(gateBody.e+P(0.2,0),gateBody.e+P(pinLength+0.2,0)),
-		)
+                Circle(w=gateBody.e,r=0.1),
+                Path(gateBody.e+P(0.2,0),gateBody.e+P(pinLength+0.2,0)),
+                )
 
     if direction == 'e':
         angle = 0
@@ -280,10 +280,10 @@ def NorGate(
 
     if label is not None:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut, label)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
     else:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
 
 # XOR gate
 def XorGate(
@@ -318,19 +318,19 @@ def XorGate(
     bodyWidth = width - 2.0*pinLength
     rad = 0.1
     gateBody = Group(
-		Path(sw+P(-pinBackDist+xBit,-pinEdgeDist),
-                	C(sw+P(pinLength+xBit+bodyWidth/2.,0)),
-                	sw+P(1.4*bodyWidth,bodyHeight/2.),
-                	C(sw+P(pinLength+xBit+bodyWidth/2.,bodyHeight)),
-                	sw+P(-pinBackDist+xBit,bodyHeight+pinEdgeDist),
-                	C(sw+P(2.0*pinLength+xBit,bodyHeight/2.)),
-                	sw+P(-pinBackDist+xBit,-pinEdgeDist),
-                	),
-		Path(sw+P(-pinBackDist,bodyHeight+pinEdgeDist),
+                Path(sw+P(-pinBackDist+xBit,-pinEdgeDist),
+                        C(sw+P(pinLength+xBit+bodyWidth/2.,0)),
+                        sw+P(1.4*bodyWidth,bodyHeight/2.),
+                        C(sw+P(pinLength+xBit+bodyWidth/2.,bodyHeight)),
+                        sw+P(-pinBackDist+xBit,bodyHeight+pinEdgeDist),
+                        C(sw+P(2.0*pinLength+xBit,bodyHeight/2.)),
+                        sw+P(-pinBackDist+xBit,-pinEdgeDist),
+                        ),
+                Path(sw+P(-pinBackDist,bodyHeight+pinEdgeDist),
                         C(sw+P(2.0*pinLength,bodyHeight/2.)),
                         sw+P(-pinBackDist,-pinEdgeDist)
-			),
-		)
+                        ),
+                )
     gatePinIn1 = Path(sw+P(0,bodyHeight-pinEdgeDist),
                 sw+P(pinLength,bodyHeight-pinEdgeDist))
     gatePinIn2 = Path(sw+P(0,pinEdgeDist), sw+P(pinLength,pinEdgeDist))
@@ -350,10 +350,10 @@ def XorGate(
 
     if label is not None:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut, label)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
     else:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
 
 # NXOR gate
 def NxorGate(
@@ -405,9 +405,9 @@ def NxorGate(
                 sw+P(pinLength,bodyHeight-pinEdgeDist))
     gatePinIn2 = Path(sw+P(0,pinEdgeDist), sw+P(pinLength,pinEdgeDist))
     gatePinOut = Group(
-		Circle(w=gateBody.e,r=0.1),
-		Path(gateBody.e+P(0.2,0),gateBody.e+P(pinLength+0.2,0)),
-		)
+                Circle(w=gateBody.e,r=0.1),
+                Path(gateBody.e+P(0.2,0),gateBody.e+P(pinLength+0.2,0)),
+                )
 
     if direction == 'e':
         angle = 0
@@ -423,10 +423,10 @@ def NxorGate(
 
     if label is not None:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut, label)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
     else:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
 
 # NOT gate
 def NotGate(
@@ -462,16 +462,16 @@ def NotGate(
     bodyWidth = width - 2.0*pinLength
     rad = 0.1
     gateBody = Path(sw+P(pinLength,buff+0),
-		sw+P(pinLength,buff+bodyHeight),
-        	sw+P(pinLength+0.707106781*bodyWidth,buff+bodyHeight/2.),
-		sw+P(pinLength,buff+0))
+                sw+P(pinLength,buff+bodyHeight),
+                sw+P(pinLength+0.707106781*bodyWidth,buff+bodyHeight/2.),
+                sw+P(pinLength,buff+0))
     gatePinIn1 = Path(sw+P(0,bodyHeight-pinEdgeDist),
                 sw+P(pinLength,bodyHeight-pinEdgeDist))
     gatePinIn2 = Path(sw+P(0,pinEdgeDist), sw+P(pinLength,pinEdgeDist))
     gatePinOut = Group(
         Circle(w=gateBody.e,r=rad),
         Path(gateBody.e+P(2.*rad,0),gateBody.e+P(2.*rad+pinLength,0))
-	)
+        )
 
     if direction == 'e':
         angle = 0
@@ -487,23 +487,23 @@ def NotGate(
 
     if label is not None:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut, label)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
     else:
         obj = Group(gateBody, gatePinIn1, gatePinIn2, gatePinOut)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
 
 
 # resistor
 def Resistor(
-	w=P(0,0),
-	direction='ew',
-	resLength=3.0,
-	resWidth=1.0,
-	pinLength=0.5,
-	label=None,
-	labelPinIn=None,
-	labelPinOut=None,
-	):
+        w=P(0,0),
+        direction='ew',
+        resLength=3.0,
+        resWidth=1.0,
+        pinLength=0.5,
+        label=None,
+        labelPinIn=None,
+        labelPinOut=None,
+        ):
     """
     Generates a box resistor
     @param w: the position of the sw reference point
@@ -522,19 +522,19 @@ def Resistor(
     pinOut = Path(resistor.e,resistor.e+P(pinLength,0))
 
     if direction == 'ew':
-	angle = 0
+        angle = 0
     elif direction == 'ns':
-	angle = 90
+        angle = 90
     else:
-	angle = 0
-	print "please enter either ew or ns, ew used in this case"
+        angle = 0
+        print "please enter either ew or ns, ew used in this case"
 
     if label is not None:
-	obj = Group(pinIn, pinOut, resistor, label)
-	return obj.rotate(angle,p=obj.c)
+        obj = Group(pinIn, pinOut, resistor, label)
+        return obj.rotate(angle,p=obj.c)
     else:
-	obj = Group(pinIn, pinOut, resistor)
-	return obj.rotate(angle,p=obj.c)
+        obj = Group(pinIn, pinOut, resistor)
+        return obj.rotate(angle,p=obj.c)
 
 # capacitor
 def Capacitor(
@@ -562,24 +562,24 @@ def Capacitor(
 
     pinIn = Path(w,w+P(pinLength,0))
     cap = Group(
-	Path(pinIn.e+P(0,-capHeight/2.0),pinIn.e+P(0,capHeight/2.0)),
-	Path(pinIn.e+P(capSep,-capHeight/2.0),pinIn.e+P(capSep,capHeight/2.0)),
-	)
+        Path(pinIn.e+P(0,-capHeight/2.0),pinIn.e+P(0,capHeight/2.0)),
+        Path(pinIn.e+P(capSep,-capHeight/2.0),pinIn.e+P(capSep,capHeight/2.0)),
+        )
     pinOut = Path(cap.e,cap.e+P(pinLength,0))
 
     if direction == 'ew':
-	angle = 0
+        angle = 0
     elif direction == 'ns':
-	angle = 90
+        angle = 90
     else:
-	angle = 0
-	print "please enter either ew or ns, ew used in this case"
+        angle = 0
+        print "please enter either ew or ns, ew used in this case"
 
     if label is not None:
         obj = Group(pinIn, pinOut, cap, label)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
     else:
         obj = Group(pinIn, pinOut, cap)
-	return obj.rotate(angle,p=obj.c)
+        return obj.rotate(angle,p=obj.c)
 
 # vim: expandtab shiftwidth=4:
