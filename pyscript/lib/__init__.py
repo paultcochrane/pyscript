@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2005  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2003-2006  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -23,4 +23,3 @@ The PyScript libraries
 __revision__ = '$Revision$'
 
 # vim: expandtab shiftwidth=4:
-
