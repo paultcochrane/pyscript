@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2005  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2002-2006  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -259,8 +259,6 @@ class Align(Group):
      - space: the amount of space to enforce between the anchor points, 
               if None, then only move perpendicular to angle
      - angle: the angle of the line between anchor points
-    @return: a reference to the group containing the objects
-    @rtype: Group
     '''
 
     a1 = 'c'
@@ -293,7 +291,7 @@ class Align(Group):
         @param objects: list of objects to append
         @type objects: list
 
-        @param options: dictionary of attributes to temporarily overide
+        @param options: dictionary of attributes to temporarily override
         @type options: dict
         """
 

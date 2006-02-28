@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2005  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2003-2006  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -70,10 +70,17 @@ class  TeXArea(Group):
     Typeset some LaTeX within a fixed width minipage environment.
 
     @cvar width: the width of the environment
+    @type width: float
+
     @cvar iscale: initial scale of the tex
-    @evar align: alignment of the LaTeX to box if its smaller than 
+    @type iscale: float
+
+    @cvar align: alignment of the LaTeX to box if it iss smaller than 
     the full width
-    @evar fg: color of TeX
+    @type align: string (anchor point)
+
+    @cvar fg: color of TeX
+    @type fg: L{Color} object
     '''
 
     # has to be different from groups width attribute

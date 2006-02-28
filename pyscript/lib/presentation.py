@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2005  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2003-2006  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@ followed by poster and talk classes
 
 from pyscript import *
 
-class  TeXBox(Group):
+class TeXBox(Group):
     '''
     Typeset some LaTeX within a fixed width box.
     
@@ -36,15 +36,11 @@ class  TeXBox(Group):
     @cvar align: alignment of the LaTeX to box if its smaller
     '''
 
-    fixed_width=9.4
-    
-    tex_scale=.7
-
-    fg=Color(0)
-
-    align="w"
-    
-    text_style=""
+    fixed_width = 9.4
+    tex_scale = 0.7
+    fg = Color(0)
+    align = "w"
+    text_style = ""
 
     def __init__(self,text,**dict):
 
@@ -569,12 +565,14 @@ class Slide(Page,Talk):
         return TeX(ttext,fg=self.title_fg).scale(self.title_scale*0.8,
                                                       self.title_scale)
     
-    def add_heading(self,level,text):
+    def add_heading(self, level, text):
 	"""
 	Add a heading to the slide
-	@cvar level: the heading level as a number starting from 1 (the most
+
+	@param level: the heading level as a number starting from 1 (the most
 	significant level)
-	@cvar text: the text to be used for the heading
+
+	@param text: the text to be used for the heading
 	"""
         temp = [ level, text ]
         self.headings.append(temp)
@@ -656,17 +654,22 @@ class Slide(Page,Talk):
         footer.sw = self.area.sw+P(0.4,0.4)
         return footer
 
-    def add_epsf(self,file="",**dict):
+    def add_epsf(self, file="", **dict):
 	"""
 	Add an eps file to the slide
+
+        @param file: the filename of the eps file
+        @type file: string
 	
-	@cvar width: the width of the image in the current default units.  If
-	only this variable is given, then the aspect ratio of the image is
+	@keyword width: the width of the image in the current default units.  
+        If only this variable is given, then the aspect ratio of the image is
 	maintained.
-	@cvar height: the height of the image in the current default units  If
-	only this variable is given, then the aspect ratio of the image is 
-	maintainted.
-	@cvar c,n,ne,e,se,s,sw,w,nw: the location of the anchor point
+
+	@keyword height: the height of the image in the current default
+        units.  If only this variable is given, then the aspect ratio of 
+        the image is maintainted.
+
+	@keyword c, n, ne, e, se, s, sw, w, nw: the location of the anchor point
 	"""
         if dict.has_key('width'):
             picture = Epsf(file,width=dict['width'])

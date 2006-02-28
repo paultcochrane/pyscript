@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2005  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2002-2006  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -257,6 +257,7 @@ class Area(AffineObj):
         Get the "north" point
         """
         return self.itoe(P(self.width/2., self.height)+self.isw)
+
     def _set_n(self, pe):
         """
         Set the "north" point
@@ -269,6 +270,7 @@ class Area(AffineObj):
         Get the "north-east" point
         """
         return self.itoe(P(self.width, self.height)+self.isw)
+
     def _set_ne(self, pe):
         """
         Set the "north-east" point
@@ -281,6 +283,7 @@ class Area(AffineObj):
         Get the "east" point
         """
         return self.itoe(P(self.width, self.height/2.)+self.isw)
+
     def _set_e(self, pe):
         """
         Set the "east" point
@@ -293,6 +296,7 @@ class Area(AffineObj):
         Get the "south-east" point
         """
         return self.itoe(P(self.width, 0)+self.isw)
+
     def _set_se(self, pe):
         """
         Set the "south-east" point
@@ -305,6 +309,7 @@ class Area(AffineObj):
         Get the "south" point
         """
         return self.itoe(P(self.width/2., 0)+self.isw)
+
     def _set_s(self, pe):
         """
         Set the "south" point
@@ -317,6 +322,7 @@ class Area(AffineObj):
         Get the "south-west" point
         """
         return self.itoe(self.isw)
+
     def _set_sw(self, pe):
         """
         Set the "south-west" point
@@ -329,6 +335,7 @@ class Area(AffineObj):
         Get the "west" point
         """
         return self.itoe(P(0, self.height/2.)+self.isw)
+
     def _set_w(self, pe):
         """
         Set the "west" point
@@ -341,6 +348,7 @@ class Area(AffineObj):
         Get the "north-west" point
         """
         return self.itoe(P(0, self.height)+self.isw)
+
     def _set_nw(self, pe):
         """
         Set the "north-west" point
@@ -646,28 +654,40 @@ class Rectangle(Area):
     Draw a rectangle 
 
     @cvar linewidth: the line thickness in points
+    @type linewidth: float
+
     @cvar dash: a Dash() object giving the dash pattern to use 
+    @type dash: L{Dash} object
+
     @cvar fg: line color
+    @type fg: L{Color} object
+
     @cvar bg: fill color or None for empty
+    @type bg: L{Color} object
+
     @cvar r: radius of corners
+    @type r: float
+
     @cvar width: width of rectangle
+    @type width: float
+
     @cvar height: height of rectangle
+    @type height: float
     """
+
     bg = None
     fg = Color(0)
-    r = 0
+    r = 0.0
     linewidth = None
     dash = None
     width = 1.0
     height = 1.0
 
-    def __init__(self, obj = None, **options):
+    def __init__(self, obj=None, **options):
         '''
         @param obj:
             for Area() or Bbox(), the size and position will
             be taken from obj
-        @param r: 
-            radius of corners. Will saturate at min(width/2,height/2)
         '''
 
         if isinstance(obj, Area) or isinstance(obj, Bbox):
@@ -727,11 +747,11 @@ class Rectangle(Area):
                 out.write("%(fg)s 0 0 %(width)g uu %(height)g uu rectstroke\n"\
                                 % ATTR)
             else:
-                out.write("%(fg)s newpath %(w)s moveto\n"%ATTR)
-                out.write("%(nw)s %(n)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
-                out.write("%(ne)s %(e)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
-                out.write("%(se)s %(s)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
-                out.write("%(sw)s %(w)s %(r)s uu arcto 4 {pop} repeat\n"%ATTR)
+                out.write("%(fg)s newpath %(w)s moveto\n" % ATTR)
+                out.write("%(nw)s %(n)s %(r)s uu arcto 4 {pop} repeat\n" % ATTR)
+                out.write("%(ne)s %(e)s %(r)s uu arcto 4 {pop} repeat\n" % ATTR)
+                out.write("%(se)s %(s)s %(r)s uu arcto 4 {pop} repeat\n" % ATTR)
+                out.write("%(sw)s %(w)s %(r)s uu arcto 4 {pop} repeat\n" % ATTR)
                 out.write("closepath stroke\n")
                 
         return out.getvalue()
@@ -744,26 +764,40 @@ class Circle(AffineObj):
     The origin is the center
     
     @cvar r: radius
+    @type r: float
+
     @cvar start: starting angle for arc
+    @type start: float
+
     @cvar end: end angle for arc
+    @type end: float
+
     @cvar c: (also n, ne,...) as for L{Area}
+    @type c: L{P} object
+
+    @cvar linewidth: width of the lines
+    @type linewidth: float
+
+    @cvar dash: Dash() object giving dash pattern to use
+    @type dash: L{Dash} object
     """
 
     bg = None
     fg = Color(0)
     r = 1.0
-    start = 0
-    end = 360
+    start = 0.0
+    end = 360.0
     linewidth = None
     dash = None
     
-
-    def locus(self, angle, target = None):
+    def locus(self, angle, target=None):
         '''
         Set or get a point on the locus
         
         @param angle: locus point in degrees
             (Degrees clockwise from north)
+        @type angle: float
+
         @param target: target point
         @return: 
             - target is None: point on circumference at that angle
@@ -788,6 +822,7 @@ class Circle(AffineObj):
         Get the "centre" point
         """
         return self.o
+
     def _set_c(self, pe):
         """
         Set the "centre" point
@@ -800,6 +835,7 @@ class Circle(AffineObj):
         Get the "north" point
         """
         return self.locus(0)
+    
     def _set_n(self, pe):
         """
         Set the "north" point
@@ -812,6 +848,7 @@ class Circle(AffineObj):
         Get the "east" point
         """
         return self.locus(90)
+
     def _set_e(self, pe):
         """
         Set the "east" point
@@ -824,6 +861,7 @@ class Circle(AffineObj):
         Get the "south" point
         """
         return self.locus(180)
+
     def _set_s(self, pe):
         """
         Set the "south" point
@@ -836,6 +874,7 @@ class Circle(AffineObj):
         Get the "west" point
         """
         return self.locus(270)
+
     def _set_w(self, pe):
         """
         Set the "west" point
@@ -849,6 +888,7 @@ class Circle(AffineObj):
         Get the "nort-east" point
         """
         return self.itoe(P(self.r, self.r))
+
     def _set_ne(self, pe):
         """
         Set the "north-east" point
@@ -861,6 +901,7 @@ class Circle(AffineObj):
         Get the "nort-west" point
         """
         return self.itoe(P(-self.r, self.r))
+
     def _set_nw(self, pe):
         """
         Set the "nort-west" point
@@ -874,6 +915,7 @@ class Circle(AffineObj):
         Get the "south-east" point
         """
         return self.itoe(P(self.r, -self.r))
+
     def _set_se(self, pe):
         """
         Set the "south-east" point
@@ -887,6 +929,7 @@ class Circle(AffineObj):
         Get the "south-west" point
         """
         return self.itoe(P(-self.r, -self.r))
+
     def _set_sw(self, pe):
         """
         Set the "south-west" point
@@ -895,17 +938,14 @@ class Circle(AffineObj):
         self.move(pe-self.sw)
     sw = property(_get_sw, _set_sw)
 
-
     def body(self):
         """
         Returns the object's postscript body
         """
-
-
         out = cStringIO.StringIO()
 
         if self.linewidth:
-            out.write("%g setlinewidth "%self.linewidth)
+            out.write("%g setlinewidth " % self.linewidth)
 
         if self.dash is not None:
             out.write(str(self.dash))
