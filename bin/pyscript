@@ -9,10 +9,10 @@ def usage():
     pyscript [options] file.py
 
     options:
-    [-h/--help] print usage information and exit
-    [-V/--version] print version information and exit
-    [-o/--output=outputFile] specify an alternative output file name
-    [-l/--logfile=logFile] specify an alternative log file name
+    [-h/--help]                Print usage information and exit
+    [-V/--version]             Print version information and exit
+    [-o/--output=outputFile]   Specify an alternative output file name
+    [-l/--logfile=logFile]     Specify an alternative log file name
     """
 
 def version():
