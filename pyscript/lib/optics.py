@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2005  Alexei Gilchrist and Paul Cochrane
+# Copyright (C) 2002-2006  Alexei Gilchrist and Paul Cochrane
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -26,32 +26,51 @@ from pyscript import *
 import types
 
 # beam splitter
-def BS(sw=P(0,0),label=None,h=1.0):
+def BS(sw=P(0,0), label=None, h=1.0):
     """
     Beam splitter; displayed as a line
+
+    @param sw: location of the south-west corner of the object
+    @type sw: L{P} object
+
+    @param label: beam splitter label
+    @type label: string
+
+    @param h: beam splitter height
+    @type h: float
     """
-    buff=P(0,0.1)
-    b=Path(sw-buff,sw+P(0,h)+buff,sw+P(h,h)+buff,
-           sw+P(h,0)-buff,sw-buff,fg=None,bg=Color("white"))
-    p1=Path(sw,sw+P(h,h))
-    p2=Path(sw+P(0,h),sw+P(h,0))
-    p3=Path(sw+P(h/4,h/2),sw+P(h,0)+P(-h/4,h/2),linewidth=1)
+    buff = P(0,0.1)
+    b = Path(sw-buff, sw+P(0,h)+buff, sw+P(h,h)+buff, sw+P(h,0)-buff, sw-buff,
+           fg=None, bg=Color("white"))
+    p1 = Path(sw, sw+P(h,h))
+    p2 = Path(sw+P(0,h), sw+P(h,0))
+    p3 = Path(sw+P(h/4,h/2), sw+P(h,0)+P(-h/4,h/2), linewidth=1)
+
     if label is not None:
-        label['w']=sw+P(h,0)+P(-h/4,h/2)
-        return Group(b,p1,p2,p3,label)
+        label['w'] = sw + P(h,0) + P(-h/4,h/2)
+        return Group(b, p1, p2, p3, label)
     else:
-        return Group(b,p1,p2,p3)
+        return Group(b, p1, p2, p3)
 
 # box beam splitter (aka polarising beam splitter)
 class BSBox(Group):
     """
     Beam splitter as a box as opposed to a line
 
-    @param label: 
-    @param height:
-    @param angle:
-    @param fg:
-    @param bg:
+    @ivar label: the label to attach to the beam splitter
+    @type label: C{string}, L{TeX} or L{Text} object
+
+    @ivar height: height of the beam splitter (equal to its width)
+    @type height: C{float}
+
+    @ivar angle: rotation angle
+    @type angle: C{float}
+
+    @ivar fg: foreground colour
+    @type fg: L{Color} object
+
+    @ivar bg: background colour
+    @type bg: L{Color} object
     """
 
     label = None
@@ -105,50 +124,109 @@ class BSBox(Group):
 # polarising beam splitter
 PBS = BSBox
 
-#def PBS(c=P(0,0), h=1.0, angle=0):
-    #"""
-    #Polarising beam splitter (box)
-    #"""
-    #sw=c-P(h/2.0,h/2.0)
-    #beamSplitter = Path(sw, sw+P(0,h), sw+P(h,h), sw+P(h,0), sw, sw+P(h,h),
-             #fg=Color("black"), bg=Color("white"))
-    #beamSplitter.rotate(angle,p=sw+P(h/2.0,h/2.0))
-    #return Group(beamSplitter)
-
 # line beam splitter
-def BSLine(c=P(0,0), label=None, w=1.0, h=0.1, angle=0, anchor=None, fg=Color(0), bg=Color(0)):
-    """
-    Line beam splitter
-    """
-    sw = c-P(w/2.0,h/2.0)
-    beamSplitter = Path(sw, sw+P(0,h), sw+P(w,h), sw+P(w,0), sw,
-             fg=fg, bg=bg)
-    beamSplitter.rotate(angle,p=c)
-    if label is not None:
-        label.w = sw+P(h,0)+P(-h/4,h/2)
-        return Group(beamSplitter, label)
-    else:
-        return Group(beamSplitter)
+#def BSLine(c=P(0,0), label=None, w=1.0, h=0.1, angle=0, anchor=None, 
+        #fg=Color(0), bg=Color(0)):
+    #"""
+    #Line beam splitter
+    #"""
+    #sw = c-P(w/2.0,h/2.0)
+    #beamSplitter = Path(sw, sw+P(0,h), sw+P(w,h), sw+P(w,0), sw,
+             #fg=fg, bg=bg)
+    #beamSplitter.rotate(angle,p=c)
+    #if label is not None:
+        #label.w = sw+P(h,0)+P(-h/4,h/2)
+        #return Group(beamSplitter, label)
+    #else:
+        #return Group(beamSplitter)
 
 # phase shifter
-def PhaseShifter(sw=P(0,0), label=None, w=0.5, h=0.7, angle=0):
+class PhaseShifter(Group):
     """
     Phase shifter
+
+    @ivar label: phase shifter label
+    @type label: string
+
+    @ivar width: phase shifter width
+    @type width: float
+
+    @ivar height: phase shifter height
+    @type height: float
+
+    @ivar angle: angle through which to rotate the phase shifter
+    @type angle: float
+
+    @ivar fg: foreground colour
+    @type fg: L{Color} object
+
+    @ivar bg: background colour
+    @type bg: L{Color} object
     """
-    # need to implement the angle
-    # call PhaseShift??
-    phaseShifter = Path(sw, sw+P(w/2,h), sw+P(w,0), sw)
-    phaseShifter.rotate(angle,p=phaseShifter.c)
-    if label is not None:
-        label.s = sw+P(w/2,-h)
-        return Group(phaseShifter, label)
-    else:
-        return Group(phaseShifter)
+
+    label = None
+    width = 0.5
+    height = 0.7
+    angle = 0
+    fg = Color(0)
+    bg = Color(1)
+
+    def __init__(self, **options):
+        # inherit from base class
+        Group.__init__(self, **options)
+
+        # process the options if any
+        self.label = options.get("label", self.label)
+        self.width = options.get("width", self.width)
+        self.height = options.get("height", self.height)
+        self.angle = options.get("angle", self.angle)
+        self.fg = options.get("fg", self.fg)
+        self.bg = options.get("bg", self.bg)
+
+        # now make the phase shifter
+        ps = Path(
+                P(0,0), 
+                P(self.width/2.0,self.height), 
+                P(self.width,0), 
+                closed=1, 
+                fg=self.fg, bg=self.bg,
+                )
+
+        # rotate if necessary
+        if self.angle != 0:
+            ps.rotate(self.angle, p=ps.bbox().c)
+
+        if self.label is not None:
+            self.label.s = P(self.width/2.0,-self.height)
+            self.append(ps, label)
+        else:
+            self.append(ps)
 
 # mirror
 class Mirror(Group):
     """
     Mirror
+
+    @ivar label: mirror label
+    @type label: string, L{TeX} or L{Text} object
+
+    @ivar length: mirror length
+    @type length: float
+
+    @ivar thickness: mirror thickness
+    @type thickness: float
+
+    @ivar angle: rotation angle
+    @type angle: float
+
+    @ivar flicks: put the mirror flicks on? (shows where back of mirror is)
+    @type flicks: boolean
+
+    @ivar fg: foreground colour
+    @type fg: L{Color} object
+
+    @ivar bg: background colour
+    @type bg: L{Color} object
     """
 
     label = None
@@ -219,6 +297,27 @@ class Mirror(Group):
 class Detector(Group):
     """
     A D-shaped detector
+
+    @cvar height: detector height
+    @type height: float
+
+    @cvar width: detector width
+    @type width: float
+
+    @ivar fg: foreground colour
+    @type fg: L{Color} object
+
+    @ivar bg: background colour
+    @type bg: L{Color} object
+
+    @cvar pad: space padding around object
+    @type pad: float
+
+    @ivar angle: rotation angle
+    @type angle: float
+
+    @ivar label: detector label
+    @type label: string, L{TeX} or L{Text} object
     """
 
     height = 0.8
@@ -278,6 +377,24 @@ class Detector(Group):
 class Laser(Group):
     """
     Laser
+
+    @ivar label: laser label
+    @type label: string, L{TeX} or L{Text} object
+
+    @ivar height: laser box height
+    @type height: float
+
+    @ivar width: laser box width (some might say "length")
+    @type width: float
+
+    @ivar angle: rotation angle
+    @type angle: float
+
+    @ivar fg: foreground colour
+    @type fg: L{Color} object
+
+    @ivar bg: background colour
+    @type bg: L{Color} object
     """
 
     label = None
@@ -335,6 +452,24 @@ class Laser(Group):
 class Modulator(Group):
     """
     Modulator (EOM, AOM etc.)
+
+    @ivar label: modulator label
+    @type label: string, L{TeX} or L{Text} object
+
+    @ivar height: modulator box height
+    @type height: float
+
+    @ivar width: modulator box width
+    @type width: float
+
+    @ivar angle: rotation angle
+    @type angle: float
+
+    @ivar fg: foreground colour
+    @type fg: L{Color} object
+
+    @ivar bg: background colour
+    @type bg: L{Color} object
     """
 
     label = None
@@ -391,6 +526,24 @@ class Modulator(Group):
 class FreeSpace(Group):
     """
     A patch of free space (for example, in an interferometer)
+
+    @ivar label: label of free space region
+    @type label: string, L{TeX} or L{Text} object
+
+    @ivar height: height of free space box
+    @type height: float
+
+    @ivar width: width of free space box (some might say "length")
+    @type width: float
+
+    @ivar angle: rotation angle
+    @type angle: float
+
+    @ivar fg: foreground colour
+    @type fg: L{Color} object
+
+    @ivar bg: background colour
+    @type bg: L{Color} object
     """
 
     label = None
