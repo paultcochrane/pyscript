@@ -620,4 +620,60 @@ class Lens(Group):
 
         self.append(lens)
 
+# lambda plate; shifts signal by a half or quarter wavelength
+class LambdaPlate(Group):
+    """
+    Lambda plate; shifts optical signal by a half or quarter wavelength
+    
+    @ivar height: height of the lambda plate
+    @type height: float
+
+    @ivar width: width of the lambda plate
+    @type width: float
+
+    @ivar angle: rotation angle
+    @type angle: float
+
+    @ivar fg: foreground colour
+    @type fg: L{Color} object
+
+    @ivar bg: background colour
+    @type bg: L{Color} object
+    """
+
+    height = 1.0
+    width = 0.3
+    angle = 0.0
+    fg = Color(0)
+    bg = Color(1)
+
+    def __init__(self, **options):
+        # inherit from the base class
+        Group.__init__(self, **options)
+
+        # process the options if any
+        self.fg = options.get("fg", self.fg)
+        self.bg = options.get("bg", self.bg)
+        self.height = options.get("height", self.height)
+        self.width = options.get("width", self.width)
+        self.angle = options.get("angle", self.angle)
+
+        # make the beam splitter
+        lp = Group()
+        lp.append(
+                Path(
+                    P(0, 0), 
+                    P(-self.width, 0),
+                    P(-self.width, self.height),
+                    P(0, self.height),
+                    P(0, 0),
+                    P(-self.width, self.height),
+                    fg=self.fg, bg=self.bg)
+                  )
+
+        # rotate if necessary
+        lp.rotate(self.angle, p=lp.bbox().c)
+
+        self.append(lp)
+
 # vim: expandtab shiftwidth=4:
