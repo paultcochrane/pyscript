@@ -12,7 +12,7 @@ from pyscript.lib.optics import *
 # set up some handy defaults
 defaults.units=UNITS['cm']
 
-# initialise a red laser beam
+# initialise a laser beam
 beam = Group()
 
 # the laser
@@ -38,6 +38,7 @@ det = Detector(angle=90)
 det.n = bs.s + P(0,-1)
 beam.append(Path(bs.s, det.n))
 
+# make the beam red
 beam.apply(fg=Color("red"))
 
 # collect all the objects together
