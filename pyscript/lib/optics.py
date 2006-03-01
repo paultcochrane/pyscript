@@ -420,7 +420,6 @@ class Laser(Group):
         self.append(laser)
 
 # modulator 
-# (this is just a container, in case we want to make this fancier later)
 class Modulator(Group):
     """
     Modulator (EOM, AOM etc.)
@@ -459,7 +458,7 @@ class Modulator(Group):
         self.width = options.get("width", self.width)
         self.angle = options.get("angle", self.angle)
 
-        # make the laser
+        # make the modulator
         modulator = Group()
         modulator.append(
                 Path(
@@ -526,7 +525,7 @@ class FreeSpace(Group):
         self.width = options.get("width", self.width)
         self.angle = options.get("angle", self.angle)
 
-        # make the laser
+        # make the free space
         fs = Group()
         fs.append(
                 Path(
@@ -543,5 +542,80 @@ class FreeSpace(Group):
         fs.rotate(self.angle, p=fs.bbox().c)
 
         self.append(fs)
+
+# lens
+class Lens(Group):
+    """
+    A lens
+
+    @ivar height: lens height
+    @type height: float
+
+    @ivar thickness: lens thickness
+    @type thickness: float
+
+    @ivar angle: rotation angle
+    @type angle: float
+
+    @ivar type: the type of lens: convex/concave
+    @type type: string
+
+    @ivar fg: foreground colour
+    @type fg: L{Color} object
+
+    @ivar bg: background colour
+    @type bg: L{Color} object
+    """
+
+    height = 1.0
+    thickness = 0.4
+    angle = 0.0
+    fg = Color(0)
+    bg = Color(1)
+    type = "concave"
+
+    def __init__(self, **options):
+        # inherit from the base class
+        Group.__init__(self, **options)
+
+        # process the options if any
+        self.fg = options.get("fg", self.fg)
+        self.bg = options.get("bg", self.bg)
+        self.height = options.get("height", self.height)
+        self.thickness = options.get("thickness", self.thickness)
+        self.angle = options.get("angle", self.angle)
+        self.type = options.get("type", self.type)
+
+        # determine what type of lens to make
+        if self.type == "convex":
+            leftCurveAngle = -30
+            rightCurveAngle = -30
+        elif self.type == "concave":
+            leftCurveAngle = 30
+            rightCurveAngle = 30
+        else:
+            print "Unknown lens type, defaulting to concave"
+            leftCurveAngle = 30
+            rightCurveAngle = 30
+
+        # make the lens
+        lens = Group()
+        lens.append(
+                Path(
+                    P(0, 0), 
+                    C(leftCurveAngle, 180-leftCurveAngle),
+                    P(0, self.height),
+                    P(self.thickness, self.height), 
+                    C(-180+rightCurveAngle, -rightCurveAngle),
+                    P(self.thickness, 0), 
+                    closed=1, 
+                    fg=self.fg, bg=self.bg, 
+                    )
+                )
+
+        # rotate if necessary
+        lens.rotate(self.angle, p=lens.bbox().c)
+
+        self.append(lens)
 
 # vim: expandtab shiftwidth=4:
