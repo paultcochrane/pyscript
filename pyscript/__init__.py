@@ -29,7 +29,8 @@ from pyscript.objects \
         Dot, Paper, Epsf
 from pyscript.render import render
 from pyscript.path import C, Path, Arrow, DoubleArrow
-from pyscript.arrowheads import *
+from pyscript.arrowheads import ArrowHead, ArrowHead1, ArrowHead2, \
+        ArrowHead3, ArrowHead4
 from pyscript.base \
         import PsObj, Dash, UNITS, Color, PyScriptError, FontError, Dash
 from pyscript.vectors import P, Matrix, R, U, Cusp, Identity, Bbox

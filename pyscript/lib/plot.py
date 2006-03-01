@@ -26,23 +26,29 @@ from pyscript import Group, Path, P, TeX, Color
 from Numeric import max, min, round, arrayrange
 
 class Graph(Group):
+    """
+    Basic graph class
+    """
 
     def __init__(self):
         Group.__init__(self)
 
-        # the bottom left hand corner of the graph is (0,0)
+        # the bottom left hand corner of the graph is (0, 0)
         self.xGraphMin = 0.0
         self.yGraphMin = 0.0
 
-        # the top right hand corner of the graph is (10,10)
+        # the top right hand corner of the graph is (10, 10)
         self.xGraphMax = 10.0
         self.yGraphMax = 10.0
 
     def plot(self,
-             xData,yData,
+             xData, yData,
              xMinVal=None, xMaxVal=None,
              yMinVal=None, yMaxVal=None,
              xTickSep=None, yTickSep=None):
+        """
+        plot some data
+        """
 
         # check inputs for correct type!!
 
@@ -84,7 +90,7 @@ class Graph(Group):
                 )
         yAxis = Path(
                 P(xGraphMin, yGraphMin),
-                P(xGraphMin,yGraphMax)
+                P(xGraphMin, yGraphMax)
                 )
         
         # length of the ticks
@@ -105,43 +111,48 @@ class Graph(Group):
         xNumTicks = round((xMaxVal - xMinVal)/xTickSep)
         
         if xTickSep is None:
-            # try and split x data up into maxXTicks equal points and see if the numbers look "nice"
+            # try and split x data up into maxXTicks equal points and see 
+            # if the numbers look "nice"
             xTickSep = (xMax - xMin)/xNumTicks
 
-        xTicksVals = arrayrange(xMinVal,xMaxVal+xTickSep,xTickSep)
-        xTicksPos = (xGraphMax/xNumTicks)*arrayrange(0,xNumTicks+1,1)
+        xTicksVals = arrayrange(xMinVal, xMaxVal+xTickSep, xTickSep)
+        xTicksPos = (xGraphMax/xNumTicks)*arrayrange(0, xNumTicks+1, 1)
         # ### just for testing...
         #xTicksVals = [-10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10]
         #xTicksPos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         xTicks = Group()
         for i in range(len(xTicksPos)):
-            xTicks.append(Path(P(xGraphMin+xTicksPos[i],yGraphMin),
-                               P(xGraphMin+xTicksPos[i],yGraphMin+xTickLen)))
+            xTicks.append(Path(P(xGraphMin+xTicksPos[i], yGraphMin),
+                               P(xGraphMin+xTicksPos[i], yGraphMin+xTickLen)))
         
-        # try and split y data up into maxYTicks equal points and see if the numbers look "nice"
+        # try and split y data up into maxYTicks equal points and see if 
+        # the numbers look "nice"
         yNumTicks = round((yMaxVal - yMinVal)/yTickSep)
         
         if yTickSep is None:
-            # try and split x data up into maxXTicks equal points and see if the numbers look "nice"
+            # try and split x data up into maxXTicks equal points and see 
+            # if the numbers look "nice"
             yTickSep = (yMax - yMin)/yNumTicks
         
-        yTicksVals = arrayrange(yMinVal,yMaxVal+yTickSep,yTickSep)
-        yTicksPos = (yGraphMax/yNumTicks)*arrayrange(0,yNumTicks+1,1)
+        yTicksVals = arrayrange(yMinVal, yMaxVal+yTickSep, yTickSep)
+        yTicksPos = (yGraphMax/yNumTicks)*arrayrange(0, yNumTicks+1, 1)
         # ### just for testing...
-        #yTicksVals = [-1, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 0.10]
+        #yTicksVals = \
+                # [-1, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 0.10]
         #yTicksPos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         yTicks = Group()
         for i in range(len(yTicksPos)):
-            yTicks.append(Path(P(xGraphMin,yGraphMin+yTicksPos[i]),
-                               P(xGraphMin+yTickLen,xGraphMin+yTicksPos[i])))
+            yTicks.append(Path(P(xGraphMin, yGraphMin+yTicksPos[i]),
+                               P(xGraphMin+yTickLen, xGraphMin+yTicksPos[i])))
 
         # ## now put the x values on the graph
         # I need to work out the bounding box for all of the text area
         # that the values take up
         xTicksValsText = Group()
         for i in range(len(xTicksVals)):
-            xTicksValsText.append(TeX(s=P(xGraphMin+xTicksPos[i],yGraphMin-1.0),
-                                      text=str(xTicksVals[i])))
+            xTicksValsText.append(
+                    TeX(s=P(xGraphMin+xTicksPos[i], yGraphMin-1.0), 
+                        text=str(xTicksVals[i])))
 
         # now grab the height of the text, subtract 2*(some padding)
         # and translate the xTicksVals object down by that amount
@@ -152,7 +163,9 @@ class Graph(Group):
         # I can properly position the text
         xTicksValsText = Group()
         for i in range(len(xTicksVals)):
-            xTicksValsText.append(TeX(s=P(xGraphMin+xTicksPos[i],yGraphMin-xTicksValsHeight-2.0*xTicksValsPadding),
+            xTicksValsText.append(
+                    TeX(s=P(xGraphMin+xTicksPos[i], \
+                            yGraphMin-xTicksValsHeight-2.0*xTicksValsPadding),
                                       text=("%0.2f" % xTicksVals[i])))
 
         # ## now put the y values on the graph
@@ -160,8 +173,9 @@ class Graph(Group):
         # that the values take up
         yTicksValsText = Group()
         for i in range(len(yTicksVals)):
-            yTicksValsText.append(TeX(e=P(xGraphMin-1.0,yGraphMin+yTicksPos[i]),
-                                      text=("%0.2f" % yTicksVals[i])))
+            yTicksValsText.append(
+                    TeX(e=P(xGraphMin-1.0, yGraphMin+yTicksPos[i]), 
+                        text=("%0.2f" % yTicksVals[i])))
 
         # now grab the width of the text, subtract 2*(some padding)
         # and translate the yTicksVals object left by that amount
@@ -172,8 +186,10 @@ class Graph(Group):
         # I can properly position the text
         yTicksValsText = Group()
         for i in range(len(yTicksVals)):
-            yTicksValsText.append(TeX(e=P(xGraphMin-2.0*yTicksValsPadding,yGraphMin+yTicksPos[i]),
-                                      text=("%0.2f" % yTicksVals[i])))
+            yTicksValsText.append(
+                    TeX(e=P(xGraphMin-2.0*yTicksValsPadding, \
+                            yGraphMin+yTicksPos[i]), 
+                            text=("%0.2f" % yTicksVals[i])))
 
         # ### believe it or not, now we put the curve on
 
@@ -200,8 +216,8 @@ class Graph(Group):
         # curve.bg = Color('blue')
         for i in range(len(yGraphData)-1):
             # ## workaround for colour issue
-            segment = Path(P(xGraphData[i],yGraphData[i]),
-                           P(xGraphData[i+1],yGraphData[i+1]))
+            segment = Path(P(xGraphData[i], yGraphData[i]),
+                           P(xGraphData[i+1], yGraphData[i+1]))
             if linecolour is not None:
                 segment.fg = Color(linecolour)
                 
@@ -209,10 +225,8 @@ class Graph(Group):
             # ## end of workaround
             
             # original code
-            #    curve.append(Path(P(xGraphData[i],yGraphData[i]),
-            #                      P(xGraphData[i+1],yGraphData[i+1])))
-            
-            
+            #    curve.append(Path(P(xGraphData[i], yGraphData[i]),
+            #                      P(xGraphData[i+1], yGraphData[i+1])))
             
         self.objects = Group(xAxis, yAxis, xTicks, yTicks, curve,
                         xTicksValsText, yTicksValsText)
@@ -220,39 +234,47 @@ class Graph(Group):
         self.axesArea = Group(xAxis, yAxis, xTicks, yTicks)
         return self.objects, self.graphArea, self.axesArea
 
-    def xlabel(self,label):
-    
+    def xlabel(self, label):
+        """
+        define the label on the x-axis
+        """
         xGraphMin = self.xGraphMin
         yGraphMin = self.yGraphMin
         xGraphMax = self.xGraphMax
         yGraphMax = self.yGraphMax
-        axesGraphDiff = self.graphArea.bbox().height - self.axesArea.bbox().height
+        axesGraphDiff = self.graphArea.bbox().height \
+                - self.axesArea.bbox().height
 
         xLabelPadding = 0.075
         # ## now put an xlabel on it
-        xLabelText = TeX(n=P((xGraphMax-xGraphMin)/2.0,yGraphMin-axesGraphDiff-xLabelPadding),
-                         text=label)
+        xLabelText = TeX(n=P((xGraphMax-xGraphMin)/2.0, \
+                yGraphMin-axesGraphDiff-xLabelPadding), text=label)
 
         return self.objects.append(xLabelText)
 
-    def ylabel(self,label,angle=-90):
-        
+    def ylabel(self, label, angle=-90):
+        """
+        define the label on the y-axis
+        """
         xGraphMin = self.xGraphMin
         yGraphMin = self.yGraphMin
         xGraphMax = self.xGraphMax
         yGraphMax = self.yGraphMax
-        axesGraphDiff = self.graphArea.bbox().width - self.axesArea.bbox().width
+        axesGraphDiff = self.graphArea.bbox().width \
+                - self.axesArea.bbox().width
 
         yLabelPadding = 0.075
         # ## now put an ylabel on it
-        yLabelText = TeX(e=P(xGraphMin-axesGraphDiff-yLabelPadding,(yGraphMax-yGraphMin)/2.0),
-                             text=label)
+        yLabelText = TeX(e=P(xGraphMin-axesGraphDiff-yLabelPadding, \
+                (yGraphMax-yGraphMin)/2.0), text=label)
         yLabelText.rotate(angle)
 
         return self.objects.append(yLabelText)
 
-    def title(self,label):
-
+    def title(self, label):
+        """
+        define the title
+        """
         xGraphMin = self.xGraphMin
         yGraphMin = self.yGraphMin
         xGraphMax = self.xGraphMax
@@ -261,7 +283,7 @@ class Graph(Group):
 
         titlePadding = 0.1
         # ## now put an title on it
-        titleText = TeX(s=graphNorth + P(0.0,titlePadding),
+        titleText = TeX(s=graphNorth + P(0.0, titlePadding),
                         text=label)
             
         return self.objects.append(titleText)

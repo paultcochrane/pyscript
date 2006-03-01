@@ -25,7 +25,10 @@ followed by poster and talk classes
 
 __revision__ = '$Revision$'
 
-from pyscript import *
+from pyscript.defaults import defaults
+from pyscript import Color, Group, Epsf, Area, P, Align, Rectangle, TeX, \
+        Page, Distribute, Text, Pages
+from pyscript.render import render
 
 class TeXBox(Group):
     '''
@@ -37,7 +40,7 @@ class TeXBox(Group):
     @cvar tex_scale: The amount by which to scale the TeX
     @type tex_scale: float
 
-    @cvar align: alignment of the LaTeX to box if its smaller
+    @cvar align: alignment of the LaTeX to box if it is smaller
     @type align: anchor string
     '''
 
@@ -47,8 +50,8 @@ class TeXBox(Group):
     align = "w"
     text_style = ""
 
-    def __init__(self, text, **dict):
-        apply(Group.__init__, (self,), dict)
+    def __init__(self, text, **options):
+        apply(Group.__init__, (self, ), options)
 
         width_pp = int(self.fixed_width/float(self.tex_scale)*defaults.units)
 
@@ -63,7 +66,7 @@ class TeXBox(Group):
         Align(t, a, a1=self.align, a2=self.align, space=0)
 
         self.append(a, t)
-        apply(self, (), dict)
+        apply(self, (), options)
 
 class Box_1(Group):
     '''
@@ -96,8 +99,8 @@ class Box_1(Group):
     pad = 0.2
     r = 0
 
-    def __init__(self, *items, **dict):
-        apply(Group.__init__, (self,), dict)
+    def __init__(self, *items, **options):
+        apply(Group.__init__, (self, ), options)
         
         apply(self.append, items)
 
@@ -156,65 +159,65 @@ class Poster_1(Page):
     @cvar col2: a Group() containing right column objects
 
     '''
-    size="A4"
-    gutter=.2 # paper margin for A4 in cm
+    size = "A4"
+    gutter = .2 # paper margin for A4 in cm
 
-    bg=Color('DarkSlateBlue')
+    bg = Color('DarkSlateBlue')
 
-    title=""
-    title_fg=Color('Yellow')
-    title_scale=1.4
-    title_width=.8
+    title = ""
+    title_fg = Color('Yellow')
+    title_scale = 1.4
+    title_width = .8
 
-    address=""
-    address_fg=Color(0)
-    address_scale=1
-    address_width=.8
+    address = ""
+    address_fg = Color(0)
+    address_scale = 1
+    address_width = .8
 
-    authors=""
-    authors_fg=Color(0)
-    authors_scale=1
-    authors_width=.8
+    authors = ""
+    authors_fg = Color(0)
+    authors_scale = 1
+    authors_width = .8
     
-    abstract=""
-    abstract_fg=Color(0)
-    abstract_scale=.8
-    abstract_width=.8
+    abstract = ""
+    abstract_fg = Color(0)
+    abstract_scale = .8
+    abstract_width = .8
     
-    logo_height=.8
-    logos=()
+    logo_height = .8
+    logos = ()
 
     col1 = Group()
     col2 = Group()
 
     signature_fg = bg*0.8
     
-    printing_area=None
+    printing_area = None
 
     def __init__(self):
 
         Page.__init__(self)
         
-        area=self.area()
+        area = self.area()
         
         # subtract the gutter to get printing area
-        self.printing_area=Area(
-            sw=area.sw+P(1,1)*self.gutter,
+        self.printing_area = Area(
+            sw=area.sw+P(1, 1)*self.gutter,
             width=area.width-2*self.gutter,
             height=area.height-2*self.gutter
             )
 
     def make_logos(self):
 
-        thelogos=Group()
+        thelogos = Group()
         for logo in self.logos:
-            thelogos.append(Epsf(logo,height=self.logo_height))
+            thelogos.append(Epsf(logo, height=self.logo_height))
             
-        Distribute(thelogos,a1="e",a2="w",
+        Distribute(thelogos, a1="e", a2="w",
                    p1=self.printing_area.nw,
                    p2=self.printing_area.ne)
 
-        Align(thelogos,a1="e",a2="w",angle=90,space=None)
+        Align(thelogos, a1="e", a2="w", angle=90, space=None)
 
         return thelogos
 
@@ -224,7 +227,7 @@ class Poster_1(Page):
         Return a title object
         '''
 
-        return TeXBox(self.title,fg=self.title_fg,
+        return TeXBox(self.title, fg=self.title_fg,
                       fixed_width=self.printing_area.width*self.title_width,
                       tex_scale=self.title_scale,
                       align="c")
@@ -247,7 +250,7 @@ class Poster_1(Page):
         return TeXBox(self.abstract,
                       fixed_width=self.printing_area.width*self.abstract_width,
                       tex_scale=self.abstract_scale,
-                      fg=self.abstract_fg,align="c")
+                      fg=self.abstract_fg, align="c")
 
     def make_authors(self):
         '''
@@ -264,7 +267,7 @@ class Poster_1(Page):
         '''
         Return background (block color)
         '''
-        area=self.area()
+        area = self.area()
         
         return Rectangle(width=area.width,
                          height=area.height,
@@ -282,26 +285,26 @@ class Poster_1(Page):
         # NB: A0 = 4x A4
         
         # vertically align the column items ... no spacing yet!
-        Align(self.col1,a1="s",a2="n",angle=180,space=None)
-        Align(self.col2,a1="s",a2="n",angle=180,space=None)
+        Align(self.col1, a1="s", a2="n", angle=180, space=None)
+        Align(self.col2, a1="s", a2="n", angle=180, space=None)
 
         # Distribute the cols horizontally
-        Distribute(Area(width=0,height=0),
-                   self.col1,self.col2,
-                   Area(width=0,height=0),
+        Distribute(Area(width=0, height=0),
+                   self.col1, self.col2,
+                   Area(width=0, height=0),
                    p1=self.printing_area.w,
-                   p2=self.printing_area.e,a1="e",a2="w")
+                   p2=self.printing_area.e, a1="e", a2="w")
         
         
         # find the distance between the cols
-        pad=(self.col2.bbox().w-self.col1.bbox().e)[0]
+        pad = (self.col2.bbox().w-self.col1.bbox().e)[0]
 
         # vertically align the column items
         Align(self.col1, a1="s", a2="n", angle=180, space=pad)
         Align(self.col2, a1="s", a2="n", angle=180, space=pad)        
 
         # align the two columns themselves
-        cols=Align(self.col1, self.col2, 
+        cols = Align(self.col1, self.col2, 
                 angle=90, space=None, a1="ne", a2="nw")
         
         all = Align(
@@ -392,12 +395,12 @@ class Talk(Pages):
             "space" : 3,
             }
     headings_bullets = {
-            1 : TeX(r"$\bullet$"),#Epsf(file="redbullet.eps").scale(0.15,0.15),#TeX(r"$\bullet$"), 
-            2 : TeX(r"--"),#Epsf(file="greenbullet.eps").scale(0.1,0.1),#TeX(r"--"), 
+            1 : TeX(r"$\bullet$"), #Epsf(file="redbullet.eps").scale(0.15, 0.15), #TeX(r"$\bullet$"), 
+            2 : TeX(r"--"), #Epsf(file="greenbullet.eps").scale(0.1, 0.1), #TeX(r"--"), 
             3 : TeX(r"$\gg$"),
-            "equation" : Rectangle(height=1,fg=bg,bg=bg),
+            "equation" : Rectangle(height=1, fg=bg, bg=bg),
             "default" : TeX(r"$\cdot$"),
-            "space" : Rectangle(height=1,fg=bg,bg=bg),
+            "space" : Rectangle(height=1, fg=bg, bg=bg),
             }
     headings_indent = {
             1 : 0,
@@ -420,17 +423,17 @@ class Talk(Pages):
         """
         Generate the authors text on the titlepage
         """
-        ttext = "%s %s" % (self.authors_textstyle,self.authors)
-        return TeX(ttext,fg=self.authors_fg
-            ).scale(self.authors_scale,self.authors_scale)
+        ttext = "%s %s" % (self.authors_textstyle, self.authors)
+        return TeX(ttext, fg=self.authors_fg
+            ).scale(self.authors_scale, self.authors_scale)
 
     def make_address(self):
         """
         Generate the address text on the titlepage
         """
-        ttext = "%s %s" % (self.address_textstyle,self.address)
-        return TeX(ttext,fg=self.address_fg
-            ).scale(self.address_scale,self.address_scale)
+        ttext = "%s %s" % (self.address_textstyle, self.address)
+        return TeX(ttext, fg=self.address_fg
+            ).scale(self.address_scale, self.address_scale)
 
     def make(self, *slides, **opts):
         """
@@ -446,17 +449,17 @@ class Talk(Pages):
             slide.pageNumber = i
             print 'Adding slide', str(i), '...'
             temp.append(slide.make(self))
-            # fname = '%s%02d%s' % ("slide",i,".eps")
-            # render(temp,file=fname)
+            # fname = '%s%02d%s' % ("slide", i, ".eps")
+            # render(temp, file=fname)
             i += 1
-        # print "%i slides produced" % (i-1,)
+        # print "%i slides produced" % (i-1, )
         if not opts.has_key('file'):
             raise "No filename given"
         file = opts['file']
         
         render(temp, file=file)
 
-class Slide(Page,Talk):
+class Slide(Page, Talk):
     """
     A slide class.  Use this class to generate the individual slides in a talk
     """
@@ -468,7 +471,7 @@ class Slide(Page,Talk):
     size = "a4"   # need to work out why "screen" gives extra white box on right
     orientation = "Landscape"   
 
-    def __init__(self,talk):
+    def __init__(self, talk):
 
         Page.__init__(self)
         
@@ -493,7 +496,7 @@ class Slide(Page,Talk):
         self.thelogos = []
         self.area = self.area()
 
-    def logos(self,*files):
+    def logos(self, *files):
         """
         Grab the logos (if any)
         """
@@ -512,7 +515,7 @@ class Slide(Page,Talk):
             return Area(width=0, height=0)
         elif len(self.thelogos) == 1:
             return Group(
-                Area(width=self.area.width, height=0, nw=P(0,0)),
+                Area(width=self.area.width, height=0, nw=P(0, 0)),
                 self.thelogos[0]
                 )
 
@@ -529,57 +532,57 @@ class Slide(Page,Talk):
 
         return a
 
-    def add_fig(self,obj,**dict):
+    def add_fig(self, obj, **options):
         """
         Chuck an arbitrary figure onto the page, with a white background
         """
 
         # there must be a better way to do this!!!
-        if dict.has_key('e'):
-            obj.e = dict['e']
-        elif dict.has_key('se'):
-            obj.se = dict['se']
-        elif dict.has_key('s'):
-            obj.s = dict['s']
-        elif dict.has_key('sw'):
-            obj.sw = dict['sw']
-        elif dict.has_key('w'):
-            obj.w = dict['w']
-        elif dict.has_key('nw'):
-            obj.nw = dict['nw']
-        elif dict.has_key('n'): 
-            obj.n = dict['n']
-        elif dict.has_key('ne'):
-            obj.ne = dict['ne']
-        elif dict.has_key('c'):
-            obj.c = dict['c']
+        if options.has_key('e'):
+            obj.e = options['e']
+        elif options.has_key('se'):
+            obj.se = options['se']
+        elif options.has_key('s'):
+            obj.s = options['s']
+        elif options.has_key('sw'):
+            obj.sw = options['sw']
+        elif options.has_key('w'):
+            obj.w = options['w']
+        elif options.has_key('nw'):
+            obj.nw = options['nw']
+        elif options.has_key('n'): 
+            obj.n = options['n']
+        elif options.has_key('ne'):
+            obj.ne = options['ne']
+        elif options.has_key('c'):
+            obj.c = options['c']
         else:
-            obj.sw = P(0.0,0.0)
+            obj.sw = P(0.0, 0.0)
 
-        if dict.has_key('bg'):
-            backColor = dict['bg']
+        if options.has_key('bg'):
+            backColor = options['bg']
         else:
             backColor = Color('white')
 
-        if dict.has_key('fg'):
-            frontColor = dict['fg']
+        if options.has_key('fg'):
+            frontColor = options['fg']
         else:
             frontColor = None
 
         gutter = 0.1
         back = Rectangle(width=obj.bbox().width+gutter,
                     height=obj.bbox().height+gutter,
-                    bg=backColor,fg=frontColor)
-        back.sw = obj.bbox().sw-P(gutter/2.0,gutter/2.0)
-        self.figs.append(Group(back,obj))
+                    bg=backColor, fg=frontColor)
+        back.sw = obj.bbox().sw-P(gutter/2.0, gutter/2.0)
+        self.figs.append(Group(back, obj))
 
     def make_title(self):
         """
         Make the title of the slide (note that this is *not* the title of
         the talk
         """
-        ttext = "%s %s" % (self.title_textstyle,self.title)
-        return TeX(ttext,fg=self.title_fg).scale(self.title_scale*0.8,
+        ttext = "%s %s" % (self.title_textstyle, self.title)
+        return TeX(ttext, fg=self.title_fg).scale(self.title_scale*0.8,
                                                       self.title_scale)
     
     def add_heading(self, level, text):
@@ -604,7 +607,7 @@ class Slide(Page,Talk):
             if not self.headings_bullets.has_key(heading_level):
                 heading_level = "default"
             heading_text = "%s %s"%(self.headings_textstyle[heading_level]
-                                                            ,heading[1])
+                                                            , heading[1])
             heading_bullet = self.headings_bullets[heading_level]
             heading_fg = self.headings_fgs[heading_level]
             heading_scale = self.headings_scales[heading_level]
@@ -616,8 +619,8 @@ class Slide(Page,Talk):
                             fg=heading_fg,
                             tex_scale=heading_scale))
             Align(tex, a1='ne', a2='nw', angle=90, space=0.2)
-            padding = Area(sw=tex.sw,width=heading_indent,height=0)
-            heading_proper = Group(padding,tex)
+            padding = Area(sw=tex.sw, width=heading_indent, height=0)
+            heading_proper = Group(padding, tex)
             Align(heading_proper, a1="e", a2="w", angle=90, space=0)
             heading_block.append(heading_proper)
 
@@ -628,7 +631,7 @@ class Slide(Page,Talk):
         """
         Make a waitbar
         """
-        waitBarBack = Rectangle(se=self.area.se+P(-0.8,0.4),
+        waitBarBack = Rectangle(se=self.area.se+P(-0.8, 0.4),
                         width=2.5,
                         height=0.5,
                         r=0.2,
@@ -636,17 +639,17 @@ class Slide(Page,Talk):
                         bg=self.waitbar_bg)
 
         offset = 0.05
-        waitBarFront = Rectangle(w=waitBarBack.w+P(offset,0),
+        waitBarFront = Rectangle(w=waitBarBack.w+P(offset, 0),
                         width=(waitBarBack.width-2*offset)*\
                                 self.pageNumber/self.pages,
                         height=waitBarBack.height-2*offset,
                         r=0.2,
                         fg=self.waitbar_fg,
                         bg=self.waitbar_fg)
-        waitBar = Group(waitBarBack,waitBarFront)
+        waitBar = Group(waitBarBack, waitBarFront)
         return  waitBar
 
-    def make_footer(self,talk):
+    def make_footer(self, talk):
         """
         Make the footer.  A text block giving the title and the name of the
         person giving the talk
@@ -654,24 +657,24 @@ class Slide(Page,Talk):
         pageOf = False
         if pageOf:
             footerText = " - %s; page %i of %i" %  \
-                        (talk.speaker,self.pageNumber,self.pages)
+                        (talk.speaker, self.pageNumber, self.pages)
         else:
-            footerText = " - %s" % (talk.speaker,)
+            footerText = " - %s" % (talk.speaker, )
         
         footerTeX = Group(
-                    TeX(text="%s %s"%(talk.title_textstyle,talk.title),
+                    TeX(text="%s %s"%(talk.title_textstyle, talk.title),
                         fg=self.title_fg,
-                        ).scale(self.footerScale,self.footerScale),
+                        ).scale(self.footerScale, self.footerScale),
                     TeX(
-                        text="%s %s"%(talk.speaker_textstyle,footerText),
+                        text="%s %s"%(talk.speaker_textstyle, footerText),
                         fg=self.title_fg
-                        ).scale(self.footerScale,self.footerScale),
+                        ).scale(self.footerScale, self.footerScale),
                     )
         footer = Align(footerTeX, a1="e", a2="w", angle=90, space=0.1)
-        footer.sw = self.area.sw+P(0.4,0.4)
+        footer.sw = self.area.sw+P(0.4, 0.4)
         return footer
 
-    def add_epsf(self, file="", **dict):
+    def add_epsf(self, file="", **options):
         """
         Add an eps file to the slide
 
@@ -688,36 +691,37 @@ class Slide(Page,Talk):
 
         @keyword c, n, ne, e, se, s, sw, w, nw: the location of the anchor point
         """
-        if dict.has_key('width'):
-            picture = Epsf(file,width=dict['width'])
-        elif dict.has_key('height'):
-            picture = Epsf(file,height=dict['height'])
-        elif dict.has_key('width') and dict.has_key('height'):
-            picture = Epsf(file,width=dict['width'],height=dict['height'])
+        if options.has_key('width'):
+            picture = Epsf(file, width=options['width'])
+        elif options.has_key('height'):
+            picture = Epsf(file, height=options['height'])
+        elif options.has_key('width') and options.has_key('height'):
+            picture = Epsf(file, width=options['width'], 
+                    height=options['height'])
         else:
             picture = Epsf(file)
 
         # there must be a better way to do this!!!
-        if dict.has_key('e'):
-            picture.e = dict['e']
-        elif dict.has_key('se'):
-            picture.se = dict['se']
-        elif dict.has_key('s'):
-            picture.s = dict['s']
-        elif dict.has_key('sw'):
-            picture.sw = dict['sw']
-        elif dict.has_key('w'):
-            picture.w = dict['w']
-        elif dict.has_key('nw'):
-            picture.nw = dict['nw']
-        elif dict.has_key('n'):
-            picture.n = dict['n']
-        elif dict.has_key('ne'):
-            picture.ne = dict['ne']
-        elif dict.has_key('c'):
-            picture.c = dict['c']
+        if options.has_key('e'):
+            picture.e = options['e']
+        elif options.has_key('se'):
+            picture.se = options['se']
+        elif options.has_key('s'):
+            picture.s = options['s']
+        elif options.has_key('sw'):
+            picture.sw = options['sw']
+        elif options.has_key('w'):
+            picture.w = options['w']
+        elif options.has_key('nw'):
+            picture.nw = options['nw']
+        elif options.has_key('n'):
+            picture.n = options['n']
+        elif options.has_key('ne'):
+            picture.ne = options['ne']
+        elif options.has_key('c'):
+            picture.c = options['c']
         else:
-            picture.sw = P(0.0,0.0)
+            picture.sw = P(0.0, 0.0)
 
         offset = 0.2
         background = Rectangle(width=picture.bbox().width+offset,
@@ -725,8 +729,8 @@ class Slide(Page,Talk):
                                 bg=Color('white'),
                                 fg=Color('white'),
                                 )
-        background.sw = picture.sw-P(offset/2.0,offset/2.0)
-        figure = Group(background,picture)
+        background.sw = picture.sw-P(offset/2.0, offset/2.0)
+        figure = Group(background, picture)
         self.epsf.append(figure)
 
     def make_epsf(self):
@@ -752,10 +756,10 @@ class Slide(Page,Talk):
         Makes the titlepage of the talk
         """
         titlepage = Group(self.make_logos())
-        ttext = "%s %s" % (talk.title_textstyle,talk.title)
+        ttext = "%s %s" % (talk.title_textstyle, talk.title)
         titlepage.append(TeX(ttext,
                             fg=talk.title_fg)\
-                            .scale(talk.title_scale,talk.title_scale))
+                            .scale(talk.title_scale, talk.title_scale))
         if talk.authors is not None:
             titlepage.append(talk.make_authors())
         if talk.address is not None:
@@ -815,27 +819,27 @@ class Slide(Page,Talk):
         
         if self.titlepage:
             all = self.make_titlepage(talk)
-            all.c = self.area.c + P(0.0,0.8)
+            all.c = self.area.c + P(0.0, 0.8)
         else:
-            all = Group(self.make_logos(),self.make_title())
+            all = Group(self.make_logos(), self.make_title())
             Align(all, a1="s", a2="n", angle=180, space=0.4)
-            all.nw = self.area.nw + P(2.5,-0.2)
+            all.nw = self.area.nw + P(2.5, -0.2)
 
         # I'm aware that this isn't a good way to do this, but
         # it's late at night, and I want to get *something* going
 
         headings = self.make_headings()
-        headings.nw = self.area.nw + P(3.0,-3.0)
+        headings.nw = self.area.nw + P(3.0, -3.0)
     
         back = self.make_background(talk)
 
-        p = self.area.se + P(-0.1,0.1)
+        p = self.area.se + P(-0.1, 0.1)
         signature = Text(
                 'Created with PyScript.  http://pyscript.sourceforge.net', 
                 size=15, 
                 sw=p, 
                 fg=self.bg*0.8
-                ).rotate(-90,p)
+                ).rotate(-90, p)
 
         self.pages = len(talk.slides)
 
@@ -848,8 +852,8 @@ class Slide(Page,Talk):
                 signature,
                 self.make_footer(talk),
                 self.make_waitbar()
-                ).scale(scale,scale)
+                ).scale(scale, scale)
 
-        return Page(All,orientation="Landscape")
+        return Page(All, orientation="Landscape")
 
 # vim: expandtab shiftwidth=4:

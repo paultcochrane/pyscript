@@ -17,8 +17,6 @@
 
 # $Id$
 
-__revision__ = '$Revision$'
-
 ### = we have the equivalent
 #   = not yet implemented
 
@@ -31,11 +29,12 @@ __revision__ = '$Revision$'
 # -----------------------------------------------------------------------------
 '''
 Package for drawing quantum circuit diagrams
-
-
 '''
 
-from pyscript import *
+__revision__ = '$Revision$'
+
+from pyscript import Rectangle, Color, Circle, Dot, P, Path, TeX, \
+        Distribute, C, U
 from pyscript.groups import Group
 
 from types import IntType, FloatType, ListType, TupleType, StringType
@@ -47,14 +46,18 @@ class Boxed(Group, Rectangle):
     the box can be placed acording to standard Area tags
 
     @cvar pad: padding around object
+    @type pad: float
+
     @cvar width: overide the width of the box
+    @type width: float
+
     @cvar height: override the height of the box
-    
+    @type height: float
     '''
 
     fg = Color(0)
     bg = Color(1)
-    pad = .2
+    pad = 0.2
 
     def __init__(self, obj, **options):
         
@@ -74,7 +77,6 @@ class Boxed(Group, Rectangle):
                       bg=self.bg, fg=self.fg,
                       c=obj.c,
                       r=self.r, linewidth=self.linewidth, dash=self.dash),
-
             obj,
             )
 
@@ -90,7 +92,7 @@ class Circled(Group, Circle):
 
     fg = Color(0)
     bg = Color(1)
-    pad = .1
+    pad = 0.1
 
     def __init__(self, obj, **options):
         
@@ -116,6 +118,9 @@ class Circled(Group, Circle):
 
 # -------------------------------------------------------------------------
 class Gate(Group):
+    """
+    Gate class
+    """
 
     control = None
     target = None
@@ -204,41 +209,99 @@ class Gate(Group):
 
 # -------------------------------------------------------------------------
 class GateBoxedTeX(Gate):
+    """
+    Gate with TeX object enclosed in a Box
+    """
     def __init__(self, tex, **options):
         Gate.__init__(self, Boxed(TeX(tex)) , **options)
 
 GBT = GateBoxedTeX
 # -------------------------------------------------------------------------
 class GateCircledTeX(Gate):
+    """
+    Gate with TeX object enclosed in a Circle
+    """
     def __init__(self, tex, **options):
         Gate.__init__(self, Circled(TeX(tex)) , **options)
 
 GCT = GateCircledTeX
 # -------------------------------------------------------------------------
-def H(**options): return GBT('$H$', **options)
-def X(**options): return GBT('$X$', **options)
-def Y(**options): return GBT('$Y$', **options)
-def Z(**options): return GBT('$Z$', **options)
-def S(**options): return GBT('$S$', **options)
-def T(**options): return GBT('$T$', **options)
+def H(**options): 
+    """
+    Hadamard gate
+    """
+    return GBT('$H$', **options)
 
-def RX(arg, **options): return GCT('$R_x(%s)$'%arg, **options)
-def RY(arg, **options): return GCT('$R_y(%s)$'%arg, **options)
-def RZ(arg, **options): return GCT('$R_z(%s)$'%arg, **options)
+def X(**options): 
+    """
+    X gate
+    """
+    return GBT('$X$', **options)
+
+def Y(**options): 
+    """
+    Y gate
+    """
+    return GBT('$Y$', **options)
+
+def Z(**options): 
+    """
+    Z gate
+    """
+    return GBT('$Z$', **options)
+
+def S(**options): 
+    """
+    @todo ask Alexei what this gate is
+    """
+    return GBT('$S$', **options)
+
+def T(**options): 
+    """
+    @todo ask Alexei what this gate is
+    """
+    return GBT('$T$', **options)
+
+def RX(arg, **options): 
+    """
+    @todo ask Alexei what this gate is
+    """
+    return GCT('$R_x(%s)$'%arg, **options)
+
+def RY(arg, **options): 
+    """
+    @todo ask Alexei what this gate is
+    """
+    return GCT('$R_y(%s)$'%arg, **options)
+
+def RZ(arg, **options): 
+    """
+    @todo ask Alexei what this gate is
+    """
+    return GCT('$R_z(%s)$'%arg, **options)
 
 # -------------------------------------------------------------------------
 def NOT(**options):
+    """
+    NOT gate
+    """
     r = .2
     return Gate(
         Group(Circle(r=r), Path(P(0, r), P(0, -r)), Path(P(-r, 0), P(r, 0))),
         **options)
 # -------------------------------------------------------------------------
 def CSIGN(**options):
+    """
+    Controlled sign gate
+    """
     return Gate(Dot(r=Gate.dot_r), **options)
 
 ZZ = CSIGN
 # -------------------------------------------------------------------------
 def SWAP(**options):
+    """
+    Swap gate
+    """
     x = Group(Path(P(-.1, .1), P(.1, -.1)), Path(P(-.1, -.1), P(.1, .1)))
     options['controlobj'] = options.get('controlobj', x)
     return Gate(x, **options)
@@ -247,6 +310,9 @@ def SWAP(**options):
 
 # XXX make this a class!
 class ClassicalPath:
+    """
+    A classical path
+    """
     pass
 
 def classicalpath(*paths):
@@ -330,8 +396,6 @@ class Assemble(Group):
 
    
     def __init__(self, *gates, **options):
-       
-
         self.starthang = options.get('hang', self.hang)
         self.endhang = options.get('hang', self.hang)
         Group.__init__(self, **options)
@@ -342,7 +406,7 @@ class Assemble(Group):
         wires = []
         named = {}
         basetime = 0
-        while len(sequence)>0:
+        while len(sequence) > 0:
             # the gate ...
             gate = sequence.pop(0)
 
@@ -351,10 +415,12 @@ class Assemble(Group):
             wires.append(t)
 
             # optional controls ...
-            if len(sequence)>0 and isinstance(sequence[0], (IntType, FloatType)):
+            if len(sequence) > 0 and \
+                    isinstance(sequence[0], (IntType, FloatType)):
                 c = sequence.pop(0)
                 wires.append(c)
-            elif len(sequence)>0 and isinstance(sequence[0], (TupleType, ListType)):
+            elif len(sequence) > 0 and \
+                    isinstance(sequence[0], (TupleType, ListType)):
                 c = sequence.pop(0)
                 wires.extend(c)
             else:
@@ -449,7 +515,6 @@ class Meter(Group):
     mcolor = Color(.8)
     
     def __init__(self, **args):
-
         Group.__init__(self, **args)
 
         h = self.height
@@ -480,7 +545,6 @@ class Detector(Group):
     pad = .1
 	
     def __init__(self, object=None, **options):
-		
         if object is not None:
             # use the object's boundingbox when width and height not supplied
             bb = object.bbox()

@@ -24,7 +24,7 @@ __revision__ = '$Revision$'
 
 from pyscript.defaults import defaults
 #from math import sqrt, pi, sin, cos
-from pyscript.vectors import P, Bbox, U, R # ,Identity 
+from pyscript.vectors import P, Bbox # ,Identity 
 from pyscript.base import Color
 from pyscript.objects import AffineObj
 import cStringIO

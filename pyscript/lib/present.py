@@ -14,7 +14,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-from pyscript import *
+'''
+pyscript Presentation library (posters and talks)
+'''
+
+from pyscript.defaults import defaults
+from pyscript import Group, Rectangle, Color, TeX, Area, Align, Page, \
+        VAlign, Page, Text, P, Bbox, Pages
+
+__revision__ = '$Revision$'
 
 # ----------------------------------------------------------------------
 # First some useful components

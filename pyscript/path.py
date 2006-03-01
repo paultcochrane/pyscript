@@ -22,12 +22,12 @@ The Path module
 
 __revision__ = '$Revision$'
 
-from pyscript.defaults import defaults
+#from pyscript.defaults import defaults
 from math import sqrt, pi, sin, cos
 from pyscript.vectors import P, Bbox, U, Identity, R
 from pyscript.base import Color
 from pyscript.objects import AffineObj
-from pyscript.arrowheads import *
+from pyscript.arrowheads import ArrowHead
 import cStringIO
 
 # -------------------------------------------------------------------------

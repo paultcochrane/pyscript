@@ -475,7 +475,6 @@ class AFM:
 
         @return: xl, yb, xr, yt
         '''
-
         chars = map(ord, list(string))
 
         # order: width l b r t
@@ -483,7 +482,7 @@ class AFM:
         # use 'reduce' and 'map' as they're written in C
 
         # add up all the widths
-        width = reduce(lambda x, y: x+self[y][0], chars, 0)
+        width = reduce(lambda x, y : x+self[y][0], chars, 0)
 
         # subtract the kerning
         if kerning == 1:
