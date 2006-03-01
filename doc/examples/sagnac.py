@@ -54,14 +54,16 @@ beam.apply(fg=Color("red"))
 
 # collect all the objects together
 fig = Group(
-	laser,
-	bs_w,
-	mirror_n, mirror_e,
-	bs_e,
-	det_n, det_e,
-	beam,
-	)
+        laser,
+        bs_w,
+        mirror_n, mirror_e,
+        bs_e,
+        det_n, det_e,
+        beam,
+        )
 
 # render the figure
 render(fig, 
-	file="sagnac.eps")
+        file="sagnac.eps")
+
+# vim: expandtab shiftwidth=4:

@@ -43,13 +43,15 @@ beam.apply(fg=Color("red"))
 
 # collect all the objects together
 fig = Group(
-	laser,
-	bs,
-	mirror_n, mirror_e,
-	det,
-	beam,
-	)
+        laser,
+        bs,
+        mirror_n, mirror_e,
+        det,
+        beam,
+        )
 
 # render the figure
 render(fig, 
-	file="michelson-morely.eps")
+        file="michelson-morely.eps")
+
+# vim: expandtab shiftwidth=4:
