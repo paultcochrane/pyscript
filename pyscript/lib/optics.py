@@ -277,7 +277,8 @@ class Mirror(Group):
                       P(0, self.length),
                       P(self.thickness, self.length), 
                       P(self.thickness, 0), 
-                      fg=self.fg, bg=self.bg, closed=1)
+                      closed=1,
+                      fg=self.fg, bg=self.bg)
                       )
 
         if self.flicks:
@@ -295,7 +296,8 @@ class Mirror(Group):
             mirror.append(flicksObj)
 
         # rotate the mirror if necessary
-        mirror.rotate(self.angle, p=mirror.bbox().c)
+        if self.angle != 0.0:
+            mirror.rotate(self.angle, p=mirror.bbox().c)
 
         # make the mirror the current object
         self.append(mirror)
