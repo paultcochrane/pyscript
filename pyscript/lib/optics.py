@@ -22,8 +22,7 @@ pyscript Optics objects library
 
 __revision__ = '$Revision$'
 
-from pyscript import Group, Path, Color, P, C, Dash, TeX, Text
-import types
+from pyscript import Group, Path, Color, P, C, Dash
 
 # beam splitter
 def BS(sw=P(0, 0), label=None, h=1.0):
