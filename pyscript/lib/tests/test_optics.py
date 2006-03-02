@@ -2,67 +2,44 @@
 
 from pyscript import *
 from pyscript.lib.optics import *
+from pyscript.tests.test import test_run
 
-import os
+lib = "optics"
 
 # test the line beam splitter
-obj = BS()
-render(obj, file="test_optics_BS.eps")
-#os.system("gv -scale 10 test_optics_BS.eps")
+test_run(BS(), lib)
 
 # test the BSBox object
-obj = BSBox()
-render(obj, file="test_optics_BSBox.eps")
-#os.system("gv -scale 10 test_optics_BSBox.eps")
+test_run(BSBox(), lib)
 
 # test the PBS object
-obj = PBS()
-render(obj, file="test_optics_PBS.eps")
-#os.system("gv -scale 10 test_optics_PBS.eps")
+test_run(PBS(), lib)
 
 # test the BSLine object
-obj = BSLine()
-render(obj, file="test_optics_BSLine.eps")
-#os.system("gv -scale 10 test_optics_BSLine.eps")
+test_run(BSLine(), lib)
 
 # test the PhaseShifter object
-obj = PhaseShifter()
-render(obj, file="test_optics_PhaseShifter.eps")
-#os.system("gv -scale 10 test_optics_PhaseShifter.eps")
+test_run(PhaseShifter(), lib)
 
 # test the Mirror object
-obj = Mirror()
-render(obj, file="test_optics_Mirror.eps")
-#os.system("gv -scale 10 test_optics_Mirror.eps")
+test_run(Mirror(), lib)
 
 # test the Detector object
-obj = Detector()
-render(obj, file="test_optics_Detector.eps")
-#os.system("gv -scale 10 test_optics_Detector.eps")
+test_run(Detector(), lib)
 
 # test the Laser object
-obj = Laser()
-render(obj, file="test_optics_Laser.eps")
-#os.system("gv -scale 10 test_optics_Laser.eps")
+test_run(Laser(), lib)
 
 # test the Modulator object
-obj = Modulator()
-render(obj, file="test_optics_Modulator.eps")
-#os.system("gv -scale 10 test_optics_Modulator.eps")
+test_run(Modulator(), lib)
 
 # test the FreeSpace object
-obj = FreeSpace()
-render(obj, file="test_optics_FreeSpace.eps")
-#os.system("gv -scale 10 test_optics_FreeSpace.eps")
+test_run(FreeSpace(), lib)
 
 # test the Lens object
-obj = Lens()
-render(obj, file="test_optics_Lens.eps")
-os.system("gv -scale 10 test_optics_Lens.eps")
+test_run(Lens(), lib)
 
 # test the LambdaPlate object
-obj = LambdaPlate()
-render(obj, file="test_optics_LambdaPlate.eps")
-os.system("gv -scale 10 test_optics_LambdaPlate.eps")
+test_run(LambdaPlate(), lib)
 
 # vim: expandtab shiftwidth=4:

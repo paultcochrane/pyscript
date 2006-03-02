@@ -2,43 +2,35 @@
 
 from pyscript import *
 from pyscript.lib.electronics import *
+from pyscript.tests import test_run
 
-import os
-
-def test(obj):
-    """
-    Render the given object in pyscript and view with ghostview
-    """
-
-    render(obj, file="test_optics_%s.eps" % obj.__class__.__name__)
-    os.system("gv -scale 10 test_optics_%s.eps" % obj.__class__.__name__)
-    return
+lib = "electronics"
 
 # test the AND gate
-test(AndGate())
+test_run(AndGate(), lib)
 
 # test the NAND gate
-test(NandGate())
+test_run(NandGate(), lib)
 
 # test the OR gate
-test(OrGate())
+test_run(OrGate(), lib)
 
 # test the NOR gate
-test(NorGate())
+test_run(NorGate(), lib)
 
 # test the XOR gate
-test(XorGate())
+test_run(XorGate(), lib)
 
 # test the NXOR gate
-test(NxorGate())
+test_run(NxorGate(), lib)
 
 # test the NOT gate
-test(NotGate())
+test_run(NotGate(), lib)
 
 # test the Resistor
-test(Resistor())
+test_run(Resistor(), lib)
 
 # test the Capacitor
-test(Capacitor())
+test_run(Capacitor(), lib)
 
 # vim: expandtab shiftwidth=4:
