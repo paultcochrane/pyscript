@@ -7,18 +7,21 @@ MAIN = align.eps\
        detector.eps\
        distribute.eps\
        div_con.eps\
+       fabry-perot_pdh.eps\
        flower_algorithm.eps\
+       michelson-morely.eps\
        qcirc.eps\
+       sagnac.eps\
        sphere.eps\
        stateSwap.eps\
        teleport.eps\
        tex.eps\
        tutorial.eps
 
-#view: $(MAIN).ps
-#	gv $(MAIN).ps
-
 all: $(MAIN)
+
+view: $(MAIN)
+	$(foreach i, $(MAIN), $(shell gv $i))
 
 # standard TeX stuff
 %.eps:  %.py
