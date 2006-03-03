@@ -51,21 +51,23 @@ class TeXBox(Group):
     text_style = ""
 
     def __init__(self, text, **options):
-        apply(Group.__init__, (self, ), options)
+        Group.__init__(self, **options)
 
         width_pp = int(self.fixed_width/float(self.tex_scale)*defaults.units)
+
+        al = Align(a1=self.align, a2=self.align, space=0)
 
         t = TeX(r'\begin{minipage}{%dpt}%s %s\end{minipage}' \
                 % (width_pp, self.text_style, text), 
                 fg=self.fg)
 
         t.scale(self.tex_scale, self.tex_scale)
+        al.append(t)
         
         a = Area(width=self.fixed_width, height=0)
+        al.append(a)
 
-        Align(t, a, a1=self.align, a2=self.align, space=0)
-
-        self.append(a, t)
+        self.append(al)
         apply(self, (), options)
 
 class Box_1(Group):
@@ -100,7 +102,7 @@ class Box_1(Group):
     r = 0
 
     def __init__(self, *items, **options):
-        apply(Group.__init__, (self, ), options)
+        Group.__init__(self, **options)
         
         apply(self.append, items)
 
@@ -209,7 +211,8 @@ class Poster_1(Page):
 
     def make_logos(self):
 
-        thelogos = Group()
+        #thelogos = Group()
+        thelogos = Align(a1="e", a2="w", angle=90, space=None)
         for logo in self.logos:
             thelogos.append(Epsf(logo, height=self.logo_height))
             
@@ -217,7 +220,7 @@ class Poster_1(Page):
                    p1=self.printing_area.nw,
                    p2=self.printing_area.ne)
 
-        Align(thelogos, a1="e", a2="w", angle=90, space=None)
+        #Align(thelogos, a1="e", a2="w", angle=90, space=None)
 
         return thelogos
 
@@ -601,7 +604,7 @@ class Slide(Page, Talk):
         """
         Make the headings
         """
-        heading_block = Group()
+        heading_block = Align(a1="sw", a2="nw", angle=180, space=0.5)
         for heading in self.headings:
             heading_level = heading[0]
             if not self.headings_bullets.has_key(heading_level):
@@ -613,18 +616,18 @@ class Slide(Page, Talk):
             heading_scale = self.headings_scales[heading_level]
             heading_indent = self.headings_indent[heading_level]
 
-            tex = Group(heading_bullet)
+            tex = Align(a1='ne', a2='nw', angle=90, space=0.2)
+            tex.append(heading_bullet)
             tex.append(TeXBox(text=heading_text,
                             fixed_width=self.area.width-5,
                             fg=heading_fg,
                             tex_scale=heading_scale))
-            Align(tex, a1='ne', a2='nw', angle=90, space=0.2)
+ 
             padding = Area(sw=tex.sw, width=heading_indent, height=0)
-            heading_proper = Group(padding, tex)
-            Align(heading_proper, a1="e", a2="w", angle=90, space=0)
+            heading_proper = Align(a1="e", a2="w", angle=90, space=0)
+            heading_proper.append(padding, tex)
             heading_block.append(heading_proper)
 
-        Align(heading_block, a1="sw", a2="nw", angle=180, space=0.5)
         return heading_block
             
     def make_waitbar(self):
@@ -661,16 +664,13 @@ class Slide(Page, Talk):
         else:
             footerText = " - %s" % (talk.speaker, )
         
-        footerTeX = Group(
-                    TeX(text="%s %s"%(talk.title_textstyle, talk.title),
+        footer = Align(a1="e", a2="w", angle=90, space=0.1)
+        footer.append(TeX(text="%s %s"%(talk.title_textstyle, talk.title),
                         fg=self.title_fg,
-                        ).scale(self.footerScale, self.footerScale),
-                    TeX(
-                        text="%s %s"%(talk.speaker_textstyle, footerText),
+                        ).scale(self.footerScale, self.footerScale))
+        footer.append(TeX(text="%s %s"%(talk.speaker_textstyle, footerText),
                         fg=self.title_fg
-                        ).scale(self.footerScale, self.footerScale),
-                    )
-        footer = Align(footerTeX, a1="e", a2="w", angle=90, space=0.1)
+                        ).scale(self.footerScale, self.footerScale))
         footer.sw = self.area.sw+P(0.4, 0.4)
         return footer
 
@@ -755,7 +755,8 @@ class Slide(Page, Talk):
         """
         Makes the titlepage of the talk
         """
-        titlepage = Group(self.make_logos())
+        titlepage = Align(a1="s", a2="n", angle=180, space=0.4)
+        titlepage.append(self.make_logos())
         ttext = "%s %s" % (talk.title_textstyle, talk.title)
         titlepage.append(TeX(ttext,
                             fg=talk.title_fg)\
@@ -764,7 +765,6 @@ class Slide(Page, Talk):
             titlepage.append(talk.make_authors())
         if talk.address is not None:
             titlepage.append(talk.make_address())
-        Align(titlepage, a1="s", a2="n", angle=180, space=0.4)
 
         return titlepage
 
@@ -821,8 +821,8 @@ class Slide(Page, Talk):
             all = self.make_titlepage(talk)
             all.c = self.area.c + P(0.0, 0.8)
         else:
-            all = Group(self.make_logos(), self.make_title())
-            Align(all, a1="s", a2="n", angle=180, space=0.4)
+            all = Align(a1="s", a2="n", angle=180, space=0.4)
+            all.append(self.make_logos(), self.make_title())
             all.nw = self.area.nw + P(2.5, -0.2)
 
         # I'm aware that this isn't a good way to do this, but
