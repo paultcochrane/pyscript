@@ -1093,21 +1093,27 @@ class Paper(Area):
 class Epsf(Area):
     '''
     Load an Eps from file
+
     @cvar width: on init - set width to this
+    @type width: float
+
     @cvar height: on init - set height to this
+    @type height: float
     '''
 
-    def __init__(self, fname, **options):
+    def __init__(self, file, **options):
         '''
-        @param fname: path to epsf file
+        @param file: path to epsf file
+        @type file: string
+
         @return: The eps figure as an area object
         '''
 
-        self.fname = fname
+        self.file = file
 
-        print "Loading %s" % fname
+        print "Loading %s" % file
         
-        fp = open(fname, 'r')
+        fp = open(file, 'r')
         self.all = fp.read(-1)
         fp.close()
 
@@ -1158,7 +1164,7 @@ class Epsf(Area):
         out.write("BeginEPSF\n")
         out.write("%s translate \n" % self.offset)
 
-        out.write("%%%%BeginDocument: %s\n" % self.fname)
+        out.write("%%%%BeginDocument: %s\n" % self.file)
         out.write(self.all)
         out.write("%%EndDocument\n")
         out.write("EndEPSF\n")
