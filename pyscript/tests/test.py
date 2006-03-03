@@ -22,7 +22,7 @@ Pyscript test utility functions
 
 __revision__ = "$Revision$"
 
-from pyscript import *
+from pyscript.render import render
 import os
 
 def test_run(obj, lib):
