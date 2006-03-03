@@ -23,7 +23,7 @@ pyscript plotting functions
 __revision__ = '$Revision$'
 
 from pyscript import Group, Path, P, TeX, Color
-from Numeric import max, min, round, arrayrange
+import Numeric
 
 class Graph(Group):
     """
@@ -58,10 +58,10 @@ class Graph(Group):
         yGraphMax = self.yGraphMax
         
         # the min and max parts of the curve
-        xMin = min(xData)
-        xMax = max(xData)
-        yMin = min(yData)
-        yMax = max(yData)
+        xMin = Numeric.min(xData)
+        xMax = Numeric.max(xData)
+        yMin = Numeric.min(yData)
+        yMax = Numeric.max(yData)
 
         # sort of automatic settings for min and max axis values
         # only really a stop-gap in case the relevant values are None
@@ -108,15 +108,15 @@ class Graph(Group):
         # to define xNumTicks and xTickSep manually, and maybe have
         # an automatic procedure for determining them if they aren't
         # specified in the calling script
-        xNumTicks = round((xMaxVal - xMinVal)/xTickSep)
+        xNumTicks = Numeric.round((xMaxVal - xMinVal)/xTickSep)
         
         if xTickSep is None:
             # try and split x data up into maxXTicks equal points and see 
             # if the numbers look "nice"
             xTickSep = (xMax - xMin)/xNumTicks
 
-        xTicksVals = arrayrange(xMinVal, xMaxVal+xTickSep, xTickSep)
-        xTicksPos = (xGraphMax/xNumTicks)*arrayrange(0, xNumTicks+1, 1)
+        xTicksVals = Numeric.arrayrange(xMinVal, xMaxVal+xTickSep, xTickSep)
+        xTicksPos = (xGraphMax/xNumTicks)*Numeric.arrayrange(0, xNumTicks+1, 1)
         # ### just for testing...
         #xTicksVals = [-10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10]
         #xTicksPos = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -127,15 +127,15 @@ class Graph(Group):
         
         # try and split y data up into maxYTicks equal points and see if 
         # the numbers look "nice"
-        yNumTicks = round((yMaxVal - yMinVal)/yTickSep)
+        yNumTicks = Numeric.round((yMaxVal - yMinVal)/yTickSep)
         
         if yTickSep is None:
             # try and split x data up into maxXTicks equal points and see 
             # if the numbers look "nice"
             yTickSep = (yMax - yMin)/yNumTicks
         
-        yTicksVals = arrayrange(yMinVal, yMaxVal+yTickSep, yTickSep)
-        yTicksPos = (yGraphMax/yNumTicks)*arrayrange(0, yNumTicks+1, 1)
+        yTicksVals = Numeric.arrayrange(yMinVal, yMaxVal+yTickSep, yTickSep)
+        yTicksPos = (yGraphMax/yNumTicks)*Numeric.arrayrange(0, yNumTicks+1, 1)
         # ### just for testing...
         #yTicksVals = \
                 # [-1, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 0.10]
@@ -194,10 +194,10 @@ class Graph(Group):
         # ### believe it or not, now we put the curve on
 
         # the min and max parts of the curve
-        xMin = min(xData)
-        xMax = max(xData)
-        yMin = min(yData)
-        yMax = max(yData)
+        xMin = Numeric.min(xData)
+        xMax = Numeric.max(xData)
+        yMin = Numeric.min(yData)
+        yMax = Numeric.max(yData)
 
         print "\nYou will probably need extrema values of about"
         print "xMin = " + str(xMin) + ", xMax = " + str(xMax)
