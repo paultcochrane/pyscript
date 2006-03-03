@@ -1,0 +1,29 @@
+% $Id$
+
+\documentclass[12pt,a4paper]{article}
+
+\begin{document}
+
+\section{Epydoc}
+
+Epydoc is used to build the API documentation of pyscript.  It strips out
+relevant information from the python code and the docstrings in the python
+code to generate a set of web pages documenting the different classes and
+functions defined.
+
+The command used to run epydoc is (from the pyscript base directory):
+\begin{verbatim}
+epydoc --html -o api -n pyscript pyscript
+\end{verbatim}
+
+\section{Pylint}
+
+Pylint is a handy tool to check the quality of the code.  It is like the old
+lint program for C, and gives a lot of checking and helpful output.  To
+generate html output from pylint use the following command from the pyscript
+main directory:
+\begin{verbatim}
+pylint --html=y pyscript > pylint.pyscript.html
+\end{verbatim}
+
+\end{document}
