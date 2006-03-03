@@ -28,7 +28,7 @@
 
 \includegraphics{figs/logo}\\[4cm]
 
-{\Huge \emph{Pyscript}}\\[1cm]
+{\Huge \emph{PyScript}}\\[1cm]
 \emph{Postscript Graphics with Python}\\[2cm]
 
 v 0.6\\[2cm]
@@ -51,7 +51,7 @@ Paul Cochrane
 
 \section{Overview}
 
-\Verb|Pyscript| is a python package for creating high-quality postscript
+\pyscript is a python package for creating high-quality postscript
 drawings.  It began from the frustration of trying to create some good figures
 for publication that contained some abritrary \LaTeX{} expressions, and has
 been largely inspired by \Verb|mpost|. What began as some quick-n-dirty hacks
@@ -115,7 +115,7 @@ In the following script, we've interdispersed
 comments explaining what we're doing, the full script is available
 with the other examples and is called \texttt{tutorial.py}.
 
-First import the \Verb|pyscript| libraries, and we'll grab some objects
+First import the \pyscript libraries, and we'll grab some objects
 from \Verb|pyscript.lib.quantumcircuits| too. Most scripts would have
 something like this at the beginning.
 \begin{python}
@@ -264,7 +264,7 @@ We're done. Sit back and admire the figure.
 %--------------------------------------------------------------------------
 \section{Aligning things}
 
-\Verb|pyscript| has a rich structure for aligning objects. This ranges
+\pyscript has a rich structure for aligning objects. This ranges
 from objects which have attributes which specify a particular point
 such as the nw corner of the object to functions such as
 \Verb|Align()| and \Verb|Distribute()| which will align and distribute a 
@@ -355,18 +355,18 @@ produces
 
 \subsection{\LaTeX Stuff}
 
-One of the useful features of \pyscript{} is the ability to use \LaTeX.
+One of the useful features of \pyscript is the ability to use \LaTeX.
 The process is kind of complicated though so things can break. It helps
 to know how it all works if you're going to find some of the subtle bugs,
 so here's a synopsis:
 \begin{enumerate}
 \item You create some \LaTeX{} with the \Verb|TeX()| object (you are using
   raw strings arent you?).
-\item \pyscript{} writes the text to a temporary file sandwiched
+\item \pyscript writes the text to a temporary file sandwiched
   between \Verb|defaults.tex_head| and \Verb|defaults.tex_tail|. 
 \item \Verb|defaults.tex_command| is excecuted on the file
 \item \Verb|dvips| is executed on the resulting DVI file.
-\item \pyscript{} reads the BoundingBox comment and throws the rest away!
+\item \pyscript reads the BoundingBox comment and throws the rest away!
 \item Finally, within \Verb|render| \emph{all} the \Verb|TeX()|
   objects are collected together. A temporary file with all the \LaTeX{}
   is generated with the individual objects delimited by postscript
@@ -415,10 +415,10 @@ Right, that enough of a rant. The useful stuff:
 
 
 %==========================================================================
-\chapter{Pyscript Objects}
+\chapter{\pyscript Objects}
 \label{cha:base-objects}
 
-These are the basic \Verb|pyscript| objects and functions. At the
+These are the basic \pyscript objects and functions. At the
 begining of each class there is a brief description of the structure
 of the class showing the relevant methods and members. See also
 figure~\ref{fig:classes} on page~\pageref{fig:classes} for an
@@ -427,10 +427,10 @@ indication of how the classes fit together.
 %--------------------------------------------------------------------------
 \section{Base Objects}
 
-These are classes which add layers of functionality to pyscript objects.
+These are classes which add layers of functionality to \pyscript objects.
 Normally you wouldn't use these classes directly unless you're creating new 
-pyscript objects. We'll decribe them here because they summarise what
-you can do with pyscript objects.
+\pyscript objects. We'll decribe them here because they summarise what
+you can do with \pyscript objects.
 
 %--------------------------------------------------------------------------
 \subsection{PsObj()}
@@ -454,7 +454,7 @@ class PsObj(object):
         return objects bounding box
 \end{python}
 
-Base class of which most (all?) \Verb|pyscript| classes are subclass.
+Base class of which most (all?) \pyscript classes are subclass.
 
 A list of parameters can be set when an object is created with
 calls like \Verb|t=Text('Hello',font='Helvetica')|
@@ -695,7 +695,7 @@ class Path(AffineObj):
 \end{python}
 
 An abritrary path (line curve etc). This is one of the more powerful
-objects in \Verb|pyscript|. \Verb|Path| takes a list of points (either
+objects in \pyscript. \Verb|Path| takes a list of points (either
 \Verb|P| or \Verb|R|) in its contruction with a specifier for a
 curve (\Verb|C|) interdispersed if necessary. For example
 \Verb|Path(p0,p1,C(c1,c2),p2,p3)| would yield something like
@@ -912,8 +912,8 @@ class Group(Area):
     def __setslice__(self,i,j,wert):
 \end{python}
 
-This is one of the key classes in \Verb|PyScript|. \Verb|Group()| acts
-like a python list and groups together  \Verb|PyScript| objects. Objects
+This is one of the key classes in \pyscript. \Verb|Group()| acts
+like a python list and groups together  \pyscript objects. Objects
 can be added to the group when you create it, e.g. \Verb|g=Group(det,b)|,
 or appended afterwards, e.g. \Verb|g.append(head,tail)|. You can access the 
 items in the group as you would a normal python list, e.g. \Verb|head=g[2]|.
@@ -1014,9 +1014,9 @@ Include an encapsulated postscript file (eps) in the figure. An eps
 file is a single page postcript file describing a diagram. There are
 many programs, such as graphing programs, that will generate eps files
 as output.  It has to obey certain rules, such as having no page
-brakes, and a bounding box.  \Verb|PyScript| will parse the file and
+brakes, and a bounding box.  \pyscript will parse the file and
 extract the bounding box and use that as the basis of the size and
-placement of the figure (so if it's wrong don't blame PyScript).
+placement of the figure (so if it's wrong don't blame \pyscript).
 \Verb|Epsf()| takes a single argument --- the path of the eps file.
 The resulting object can then be positioned using \Verb|n|,\Verb|c|,\Verb|ne|
 etc, and of course can be scaled and rotated as desired.
@@ -1032,7 +1032,7 @@ ratio.
 \chapter{Development}
 
 The aim of this section is to document some of the internals of
-\Verb|pyscript| to enable developers to modify and extend it. 
+\pyscript to enable developers to modify and extend it. 
 It should also help in solving some of the trickier problems.
 
 \begin{figure}[h]
@@ -1041,9 +1041,11 @@ It should also help in solving some of the trickier problems.
       \includegraphics[height=.9\textwidth]{class_structure}
     \end{sideways}
   \end{center}
-  \caption{Class structure of pyscript}
+  \caption{Class structure of \pyscript}
   \label{fig:classes}
 \end{figure}
+
+\section{Submitting patches}
 
 %--------------------------------------------------------------------------
 %\section{Object Attributes}
@@ -1150,9 +1152,8 @@ It should also help in solving some of the trickier problems.
 \include{libpresent}
 \include{libqi}
 \include{pyscriptOptics}  % should I call this liboptics???
+\include{pyscriptElectronics}  % should I call this libelectronics???
 
 %\include{pyscriptPlot}
-
-%\include{pyscriptElectronics}
 
 \end{document}
