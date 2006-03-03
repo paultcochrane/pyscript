@@ -52,7 +52,7 @@ class AndGate(Gate):
     @ivar width: gate width
     @type width: float
 
-    @ivar angle: gate angle, default pointing straight up (0 degrees)
+    @ivar angle: gate angle
     @type angle: float
 
     @ivar pinLength: length of pins into and out of gate
@@ -127,7 +127,7 @@ class NandGate(Gate):
     @ivar width: gate width
     @type width: float
 
-    @ivar angle: gate angle, default pointing straight up (0 degrees)
+    @ivar angle: gate angle
     @type angle: float
 
     @ivar pinLength: length of pins into and out of gate
@@ -206,7 +206,7 @@ class OrGate(Gate):
     @ivar width: gate width
     @type width: float
 
-    @ivar angle: gate angle, default pointing straight up (0 degrees)
+    @ivar angle: gate angle
     @type angle: float
 
     @ivar pinLength: length of pins into and out of gate
@@ -282,7 +282,7 @@ class NorGate(Gate):
     @ivar width: gate width
     @type width: float
 
-    @ivar angle: gate angle, default pointing straight up (0 degrees)
+    @ivar angle: gate angle
     @type angle: float
 
     @ivar pinLength: length of pins into and out of gate
@@ -362,7 +362,7 @@ class XorGate(Gate):
     @ivar width: gate width
     @type width: float
 
-    @ivar angle: gate angle, default pointing straight up (0 degrees)
+    @ivar angle: gate angle
     @type angle: float
 
     @ivar pinLength: length of pins into and out of gate
@@ -444,7 +444,7 @@ class NxorGate(Gate):
     @ivar width: gate width
     @type width: float
 
-    @ivar angle: gate angle, default pointing straight up (0 degrees)
+    @ivar angle: gate angle
     @type angle: float
 
     @ivar pinLength: length of pins into and out of gate
@@ -530,7 +530,7 @@ class NotGate(Gate):
     @ivar width: gate width
     @type width: float
 
-    @ivar angle: gate angle, default pointing straight up (0 degrees)
+    @ivar angle: gate angle
     @type angle: float
 
     @ivar pinLength: length of pins into and out of gate
@@ -607,11 +607,17 @@ class Resistor(Group):
     @ivar width: width of resistor
     @type width: float
 
-    @ivar angle: gate angle, default pointing straight up (0 degrees)
+    @ivar angle: gate angle
     @type angle: float
 
     @ivar pinLength: length of pins into and out of resistor
-    @type angle: float
+    @type pinLength: float
+
+    @ivar fg: foreground colour
+    @type fg: L{Color} object
+
+    @ivar bg: background colour
+    @type bg: L{Color} object
     """
     def __init__(self, **options):
         # intitialise base class
@@ -667,11 +673,17 @@ class Capacitor(Group):
     @ivar sep: separation of the plates of the capacitor
     @type sep: float
 
-    @ivar angle: gate angle, default pointing straight up (0 degrees)
+    @ivar angle: gate angle
     @type angle: float
 
     @ivar pinLength: length of pins into and out of capacitor
     @type pinLength: float
+
+    @ivar fg: foreground colour
+    @type fg: L{Color} object
+
+    @ivar bg: background colour
+    @type bg: L{Color} object
     """
     def __init__(self, **options):
         # intitialise base class

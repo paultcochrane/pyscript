@@ -252,31 +252,31 @@ def Z(**options):
 
 def S(**options): 
     """
-    @todo ask Alexei what this gate is
+    @todo: ask Alexei what this gate is
     """
     return GBT('$S$', **options)
 
 def T(**options): 
     """
-    @todo ask Alexei what this gate is
+    @todo: ask Alexei what this gate is
     """
     return GBT('$T$', **options)
 
 def RX(arg, **options): 
     """
-    @todo ask Alexei what this gate is
+    @todo: ask Alexei what this gate is
     """
     return GCT('$R_x(%s)$'%arg, **options)
 
 def RY(arg, **options): 
     """
-    @todo ask Alexei what this gate is
+    @todo: ask Alexei what this gate is
     """
     return GCT('$R_y(%s)$'%arg, **options)
 
 def RZ(arg, **options): 
     """
-    @todo ask Alexei what this gate is
+    @todo: ask Alexei what this gate is
     """
     return GCT('$R_z(%s)$'%arg, **options)
 
