@@ -4,7 +4,7 @@
 pyscript.lib.present
 \end{python}
 
-It's straightforward to create whole posters in \pyscript{}. 
+It's straightforward to create whole posters in \pyscript. 
 Talks can also be simply created. 
 
 \section{Common Objects}
@@ -22,7 +22,7 @@ class Box(Group, Rectangle):
 \end{python}
 
 This places a box around an object. \Verb|pad| gives the amount of padding
-around the object. \Verb|width| and \Verb|height| can be set also and these 
+around the object. \Verb|width| and \Verb|height| can be set also and these
 will override the calculated values. 
 
 %--------------------------------------------------------------------------
@@ -35,11 +35,11 @@ class  TeXArea(Group):
 \end{python}
     
 This will typeset some \LaTeX{} within a fixed width minipage environment.
-the width of the minipage is set with the \Verb|width| attribute which 
-must be supplied. The initial scale of the text can be set with \Verb|iscale|
-as per the \Verb|TeX| object. The \Verb|align| attribute is used when the \LaTeX{}
-doesn't fill the minipage --- an invisible rectangle is added with the minipage
-aligned according to this attribute.
+the width of the minipage is set with the \Verb|width| attribute which must
+be supplied. The initial scale of the text can be set with \Verb|iscale| as
+per the \Verb|TeX| object. The \Verb|align| attribute is used when the
+\LaTeX{} doesn't fill the minipage --- an invisible rectangle is added with
+the minipage aligned according to this attribute.
 
 %--------------------------------------------------------------------------
 \section{Posters}
@@ -87,7 +87,4 @@ class EmptySlide(Page):
 	def clear(self):
     def make(self, page=1, total=1):
 \end{python}
-
-
-
 
