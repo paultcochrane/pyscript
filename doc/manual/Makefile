@@ -14,7 +14,7 @@ $(FIGS) : %.pdf : %.py
 	./$<
 	epstopdf $*.eps
 
-%.pdf:  %.tex $(FIGS) pyscript_defs.tex pyscriptPlot.tex pyscriptElectronics.tex pyscriptOptics.tex
+%.pdf:  %.tex $(FIGS) pyscript_defs.tex libpresent.tex libqi.tex pyscriptElectronics.tex pyscriptOptics.tex
 	pdflatex $<
 	-bibtex $*
 	pdflatex $<
@@ -45,7 +45,7 @@ $(FIGS) : %.pdf : %.py
 figs: $(FIGS)
 
 clean:
-	-rm *~ *.mpx *.log *.aux *.blg
+	-rm -f *~ *.mpx *.log *.aux *.blg
 
 reallyclean: clean
-	-rm figs.[0-9]*.eps *.pdf *.dvi $(FIGS) *.bbl
+	-rm -f figs.[0-9]*.eps *.pdf *.dvi $(FIGS) *.bbl
