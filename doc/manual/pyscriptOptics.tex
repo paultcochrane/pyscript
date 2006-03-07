@@ -81,6 +81,15 @@ render(fig,
 
 \subsection{Mach-Zehnder Interferometer}
 
+Another commonly used interferometer is the Mach-Zehnder interferometer.  In
+this design there are two beam splitters.  The light is split on the first
+beam splitter, and travels down each arm of the interferometer to two
+mirrors which recombine the light on the second beam splitter, the output
+being detected by two detectors at the two output ports of the second beam
+splitter.  This interferometer is commonly used for explaining such concepts
+as Quantum Non-Demolition experiments, and other ``quantum weirdness''
+associated with light.
+
 \begin{python}
 # Mach-Zehnder interferometer
 
@@ -151,6 +160,89 @@ render(fig,
 \centerline{\includegraphics[width=\figwidth]{optics/mach-zehnder}}
 \caption{Mach-Zehnder interferometer}
 \label{fig:mach-zehnder}
+\end{figure}
+
+\subsection{Sagnac Interferometer}
+
+The Sagnac interferometer is another of the major interferometer
+configurations.  The light is split on the beam splitter and procedes around
+the interferometer in opposite directions then being recombined on the same
+beam splitter and the output interference is read at the output port (where
+the detector is in the diagram  This interferometer can be used in optical
+gyroscopes because a rotation in the plane of the interferometer can be
+measured since the light traveling in one direction travels a different
+distance to the light traveling in the other direction, hence giving a path
+difference and interference fringes.  An interesting point about the script
+below is that the ``north-east'' mirror has its location set by the y
+position of the centre of the ``north'' mirror and its x position set by the
+centre of the ``east'' mirror.  This means that if one changes the location
+of either of these two mirrors then the position of the ``north-east''
+mirror changes appropriately.
+
+\begin{python}
+# Sagnac interferometer
+
+# import the pyscript objects
+from pyscript import *
+# import the optics library
+from pyscript.lib.optics import *
+
+# set up some handy defaults
+defaults.units=UNITS['cm']
+
+# initialise a laser beam
+beam = Group()
+
+# the laser
+laser = Laser(c=P(0,0))
+
+# the beam splitter
+bs = BSBox(height=0.7)
+bs.w = laser.e + P(1,0)
+beam.append(Path(laser.e, bs.w))
+
+# the "north" mirror
+mirror_n = Mirror(angle=45)
+mirror_n.s = bs.n + P(0,2)
+beam.append(Path(bs.n, mirror_n.c))
+
+# the "east" mirror
+mirror_e = Mirror(angle=45)
+mirror_e.w = bs.e + P(3,0)
+beam.append(Path(bs.e, mirror_e.c))
+
+# the "north-east" mirror
+mirror_ne = Mirror(angle=135)
+mirror_ne.c = P(mirror_e.c.x, mirror_n.c.y)
+beam.append(Path(mirror_n.c, mirror_ne.c))
+beam.append(Path(mirror_e.c, mirror_ne.c))
+
+# the detector
+det = Detector(angle=90)
+det.n = bs.s + P(0,-1)
+beam.append(Path(bs.s, det.n))
+
+# set the colour of the beam
+beam.apply(fg=Color("red"))
+
+# collect all the objects together
+fig = Group(
+        beam,
+        laser,
+        bs,
+        mirror_n, mirror_e, mirror_ne,
+        det,
+        )
+
+# render the figure
+render(fig, 
+        file="sagnac.eps")
+\end{python}
+
+\begin{figure}[ht]
+\centerline{\includegraphics[width=\figwidth]{optics/sagnac}}
+\caption{Sagnac interferometer}
+\label{fig:sagnac}
 \end{figure}
 
 \subsection{A Fabry-Perot Cavity}
@@ -246,7 +338,7 @@ option.
 option.
 \end{description}
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 \centerline{\includegraphics[height=1cm]{optics/BSBox}}
 \caption{BSBox object}
 \label{fig:bsbox}
@@ -270,7 +362,7 @@ option.
 option.
 \end{description}
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 \centerline{\includegraphics[height=1cm]{optics/BSLine}}
 \caption{BSLine object}
 \label{fig:bsline}
@@ -293,7 +385,7 @@ option.
 option.
 \end{description}
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 \centerline{\includegraphics[height=1cm]{optics/Detector}}
 \caption{Detector object}
 \label{fig:detector}
@@ -316,7 +408,7 @@ option.
 option.
 \end{description}
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 \centerline{\includegraphics[height=1cm]{optics/FreeSpace}}
 \caption{Free Space object}
 \label{fig:free_space}
@@ -338,7 +430,7 @@ option.
 option.
 \end{description}
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 \centerline{\includegraphics[height=1cm]{optics/LambdaPlate}}
 \caption{Lambda Plate object}
 \label{fig:lambda_plate}
@@ -349,7 +441,7 @@ option.
 At present all this object does is generate a simple box.  However, in the
 future we hope to make this somewhat better looking.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 \centerline{\includegraphics[height=1cm]{optics/Laser}}
 \caption{Laser object}
 \label{fig:laser}
@@ -372,7 +464,7 @@ option.
 option.
 \end{description}
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 \centerline{\includegraphics[height=1cm]{optics/Lens}}
 \caption{Lens object}
 \label{fig:lens}
@@ -396,7 +488,7 @@ option.
 option.
 \end{description}
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 \centerline{\includegraphics[height=1cm]{optics/Mirror}}
 \caption{Mirror object}
 \label{fig:mirror}
@@ -419,7 +511,7 @@ option.
 option.
 \end{description}
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 \centerline{\includegraphics[height=1cm]{optics/Modulator}}
 \caption{Modulator object}
 \label{fig:modulator}
@@ -441,7 +533,7 @@ option.
 option.
 \end{description}
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 \centerline{\includegraphics[height=1cm]{optics/PhaseShifter}}
 \caption{Phase Shifter object}
 \label{fig:phase_shifter}
