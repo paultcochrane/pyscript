@@ -9,6 +9,7 @@ MAIN = align.eps\
        div_con.eps\
        fabry-perot_pdh.eps\
        flower_algorithm.eps\
+       mach-zehnder.eps\
        michelson-morely.eps\
        qcirc.eps\
        sagnac.eps\
