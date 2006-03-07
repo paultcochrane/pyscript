@@ -39,11 +39,11 @@ include pyscript/fonts/zapfdingbats.py
 
 # add pyscript library files
 include pyscript/lib/__init__.py
-# include pyscript/lib/electronics.py  # incomplete
+include pyscript/lib/electronics.py
 include pyscript/lib/misc.py
-# include pyscript/lib/optics.py  # deprecated/incomplete?
+include pyscript/lib/optics.py
 # include pyscript/lib/plot.py  # incomplete
-# include pyscript/lib/presentation.py  # deprecated?
+include pyscript/lib/presentation.py  # probably should be deprecated
 include pyscript/lib/present.py
 include pyscript/lib/qi.py
 # include pyscript/lib/quantumcircuits.py  # deprecated?
@@ -57,8 +57,12 @@ include doc/examples/bifurcate.py
 include doc/examples/detector.py
 include doc/examples/distribute.py
 include doc/examples/div_con.py
+include doc/examples/fabry-perot_pdh.py
 include doc/examples/flower_algorithm.py
+include doc/examples/mach-zehnder.py
+include doc/examples/michelson-morely.py
 include doc/examples/qcirc.py
+include doc/examples/sagnac.py
 include doc/examples/sphere.py
 include doc/examples/stateSwap.py
 include doc/examples/teleport.py
