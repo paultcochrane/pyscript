@@ -1,0 +1,80 @@
+\chapter{The Old Presentation Library}
+
+\begin{python}
+pyscript.lib.presentation
+\end{python}
+
+In addition to the newer \vrb{pyscript.lib.present} library, there also
+exists the old \vrb{pyscript.lib.presentation} library.  This is not so
+object-oriented in usage, but it works nevertheless, and hasn't been
+completely deprecated.  The \vrb{presentation} library can be used to create
+posters and talks, which can then be used to ``wow'' your colleauges at your
+next conference.
+
+\section{Common Objects}
+
+These are useful objects for both posters and talks.
+
+\subsection{TeXBox()}
+
+Typeset some \LaTeX{} within a fixed width box.
+
+\subsection{Box\_1()}
+
+A box of fixed width.  Items added to it are aligned vertically and
+separated by a specified padding.
+
+\section{Creating a talk or seminar}
+
+The Talk() object.
+
+\subsection{set\_title()}
+
+Or you can just set the title attribute directly.
+
+\subsection{set\_authors()}
+Or you can just set the title attribute directly.
+
+\subsection{set\_speaker()}
+
+\subsection{set\_address()}
+
+
+The Slide() object.
+
+\subsection{set\_title()}
+
+\begin{python}
+slide5.set_title(r"Moooo!)"
+\end{python}
+
+You can also set the title by explicitly assigning the title attribute:
+\begin{python}
+slide5.title = r"Moooo!"
+\end{python}
+
+Not much of a difference between the two I know, but some people like to
+call a set\_ function and others like to set the attribute directly, so
+we're catering to both kinds of people.
+
+\subsection{add\_heading()}
+
+\subsection{add\_fig()}
+
+Add a diagram to the slide (this is handled differently to add\_epsf() eh?)
+
+\subsection{add\_epsf()}
+
+Add an encapsulated Postscript file to the slide.  Works very similarly to
+add\_fig().
+
+\subsection{Styles for talks and seminars}
+
+You can create your own custom talk slide style and call this at the
+beginning when you create the Talk() object.  The style can then be put in
+your .pyscript directory, and called whenever you make a slide.  New styles
+can be added and so a wider range of talk backgrounds and styles can be
+made.  That was a shit explanation eh?
+
+\section{Creating a poster}
+
