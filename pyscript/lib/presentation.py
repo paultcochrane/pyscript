@@ -72,8 +72,8 @@ class TeXBox(Group):
 
 class Box_1(Group):
     '''
-    A box with of fixed width. Items added to it are aligned 
-    vertically and separated by a specified padding
+    A box of fixed width. Items added to it are aligned vertically and
+    separated by a specified padding
     
     @cvar border: width of the border (in pts)
     @type border: int
@@ -579,10 +579,17 @@ class Slide(Page, Talk):
         back.sw = obj.bbox().sw-P(gutter/2.0, gutter/2.0)
         self.figs.append(Group(back, obj))
 
+    def set_title(self, title=None):
+        """
+        Set the title of the slide
+        """
+        self.title = title
+        return
+
     def make_title(self):
         """
         Make the title of the slide (note that this is *not* the title of
-        the talk
+        the talk)
         """
         ttext = "%s %s" % (self.title_textstyle, self.title)
         return TeX(ttext, fg=self.title_fg).scale(self.title_scale*0.8,
