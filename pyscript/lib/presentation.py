@@ -340,87 +340,91 @@ class Talk(Pages):
     """
     A talk class
     """
-    bg = Color('RoyalBlue')*0.9
-    fg = bg
 
-    thelogos = []
-    logo_height = 0.8
-    
-    title = ""
-    title_fg = Color('white')
-    title_scale = 5
-    title_textstyle = ""
+    def __init__(self, **options):
+        self.bg = Color('RoyalBlue')*0.9
+        self.fg = self.bg
 
-    slide_title = ""
-    slide_title_fg = Color('white')
-    slide_title_scale = 5
-    slide_title_textstyle = ""
+        self.thelogos = []
+        self.logo_height = 0.8
+        
+        self.title = ""
+        self.title_fg = Color('white')
+        self.title_scale = 5
+        self.title_textstyle = ""
 
-    footerScale = 1
+        self.slide_title = ""
+        self.slide_title_fg = Color('white')
+        self.slide_title_scale = 5
+        self.slide_title_textstyle = ""
 
-    waitbar_fg = Color('orangered')
-    waitbar_bg = Color('black')
-    
-    authors = ""
-    authors_fg = Color('white')
-    authors_scale = 3
-    authors_textstyle = ""
+        self.footerScale = 1
 
-    speaker = ""   # i.e. who's actually giving the talk
-    speaker_fg = Color(0)
-    speaker_textstyle = ""
+        self.waitbar_fg = Color('orangered')
+        self.waitbar_bg = Color('black')
+        
+        self.authors = ""
+        self.authors_fg = Color('white')
+        self.authors_scale = 3
+        self.authors_textstyle = ""
 
-    address = ""
-    address_fg = Color('white')
-    address_scale = 2
-    address_textstyle = ""
-    
-    logos = None
+        self.speaker = ""   # i.e. who's actually giving the talk
+        self.speaker_fg = Color(0)
+        self.speaker_textstyle = ""
 
-    box_bg = Color('lavender')
-    box_fg = Color(0)
-    box_border = 2
-    
-    headings_fgs = {
-            1 : Color('white'), 
-            2 : Color('white'), 
-            3 : Color('white'),
-            "equation" : Color('white'),
-            "default" : Color('white'),
-            "space" : fg,
-            }
-    headings_scales = { 
-            1 : 3, 
-            2 : 2.5, 
-            3 : 2.2,
-            "equation" : 2.5,
-            "default" : 1.5,
-            "space" : 3,
-            }
-    headings_bullets = {
-            1 : TeX(r"$\bullet$"), #Epsf(file="redbullet.eps").scale(0.15, 0.15), #TeX(r"$\bullet$"), 
-            2 : TeX(r"--"), #Epsf(file="greenbullet.eps").scale(0.1, 0.1), #TeX(r"--"), 
-            3 : TeX(r"$\gg$"),
-            "equation" : Rectangle(height=1, fg=bg, bg=bg),
-            "default" : TeX(r"$\cdot$"),
-            "space" : Rectangle(height=1, fg=bg, bg=bg),
-            }
-    headings_indent = {
-            1 : 0,
-            2 : 0.5,
-            3 : 1,
-            "equation" : 2,
-            "default" : 2,
-            "space" : 0,
-            }
-    headings_textstyle = {
-            1 : "",
-            2 : "",
-            3 : "",
-            "equation" : "",
-            "default" : "",
-            "space" : "",
-            }
+        self.address = ""
+        self.address_fg = Color('white')
+        self.address_scale = 2
+        self.address_textstyle = ""
+        
+        self.logos = None
+
+        self.box_bg = Color('lavender')
+        self.box_fg = Color(0)
+        self.box_border = 2
+        
+        self.headings_fgs = {
+                1 : Color('white'), 
+                2 : Color('white'), 
+                3 : Color('white'),
+                "equation" : Color('white'),
+                "default" : Color('white'),
+                "space" : self.fg,
+                }
+        self.headings_scales = { 
+                1 : 3, 
+                2 : 2.5, 
+                3 : 2.2,
+                "equation" : 2.5,
+                "default" : 1.5,
+                "space" : 3,
+                }
+        self.headings_bullets = {
+#Epsf(file="redbullet.eps").scale(0.15, 0.15), #TeX(r"$\bullet$"), 
+                1 : TeX(r"$\bullet$"), 
+#Epsf(file="greenbullet.eps").scale(0.1, 0.1), #TeX(r"--"), 
+                2 : TeX(r"--"), 
+                3 : TeX(r"$\gg$"),
+                "equation" : Rectangle(height=1, fg=self.bg, bg=self.bg),
+                "default" : TeX(r"$\cdot$"),
+                "space" : Rectangle(height=1, fg=self.bg, bg=self.bg),
+                }
+        self.headings_indent = {
+                1 : 0,
+                2 : 0.5,
+                3 : 1,
+                "equation" : 2,
+                "default" : 2,
+                "space" : 0,
+                }
+        self.headings_textstyle = {
+                1 : "",
+                2 : "",
+                3 : "",
+                "equation" : "",
+                "default" : "",
+                "space" : "",
+                }
 
     def make_authors(self):
         """
@@ -462,7 +466,7 @@ class Talk(Pages):
         
         render(temp, file=file)
 
-class Slide(Page, Talk):
+class Slide(Page):
     """
     A slide class.  Use this class to generate the individual slides in a talk
     """
@@ -475,24 +479,8 @@ class Slide(Page, Talk):
     orientation = "Landscape"   
 
     def __init__(self, talk):
-
         Page.__init__(self)
         
-        # self.bg = talk.bg
-        # self.fg = talk.fg
-        self.title_fg = talk.slide_title_fg
-        self.title_scale = talk.slide_title_scale
-        self.title_textstyle = talk.slide_title_textstyle
-        # self.paper = talk.paper
-        # self.footerScale = talk.footerScale
-        # self.speaker = talk.speaker
-        # self.waitbar_fg = talk.waitbar_fg
-        # self.waitbar_bg = talk.waitbar_bg
-        self.headings_bullets = talk.headings_bullets
-        self.headings_fgs = talk.headings_fgs
-        self.headings_scales = talk.headings_scales
-        self.headings_indent = talk.headings_indent
-        self.headings_textstyle = talk.headings_textstyle
         self.headings = []
         self.epsf = []
         self.figs = []
@@ -586,14 +574,14 @@ class Slide(Page, Talk):
         self.title = title
         return
 
-    def make_title(self):
+    def make_title(self, talk):
         """
         Make the title of the slide (note that this is *not* the title of
         the talk)
         """
-        ttext = "%s %s" % (self.title_textstyle, self.title)
-        return TeX(ttext, fg=self.title_fg).scale(self.title_scale*0.8,
-                                                      self.title_scale)
+        ttext = "%s %s" % (talk.title_textstyle, self.title)
+        return TeX(ttext, fg=talk.title_fg).scale(talk.title_scale*0.8,
+                                                      talk.title_scale)
     
     def add_heading(self, level, text):
         """
@@ -607,21 +595,21 @@ class Slide(Page, Talk):
         temp = [ level, text ]
         self.headings.append(temp)
 
-    def make_headings(self):
+    def make_headings(self, talk):
         """
         Make the headings
         """
         heading_block = Align(a1="sw", a2="nw", angle=180, space=0.5)
         for heading in self.headings:
             heading_level = heading[0]
-            if not self.headings_bullets.has_key(heading_level):
+            if not talk.headings_bullets.has_key(heading_level):
                 heading_level = "default"
-            heading_text = "%s %s"%(self.headings_textstyle[heading_level]
+            heading_text = "%s %s"%(talk.headings_textstyle[heading_level]
                                                             , heading[1])
-            heading_bullet = self.headings_bullets[heading_level]
-            heading_fg = self.headings_fgs[heading_level]
-            heading_scale = self.headings_scales[heading_level]
-            heading_indent = self.headings_indent[heading_level]
+            heading_bullet = talk.headings_bullets[heading_level]
+            heading_fg = talk.headings_fgs[heading_level]
+            heading_scale = talk.headings_scales[heading_level]
+            heading_indent = talk.headings_indent[heading_level]
 
             tex = Align(a1='ne', a2='nw', angle=90, space=0.2)
             tex.append(heading_bullet)
@@ -637,7 +625,7 @@ class Slide(Page, Talk):
 
         return heading_block
             
-    def make_waitbar(self):
+    def make_waitbar(self, talk):
         """
         Make a waitbar
         """
@@ -645,8 +633,8 @@ class Slide(Page, Talk):
                         width=2.5,
                         height=0.5,
                         r=0.2,
-                        fg=self.waitbar_bg,
-                        bg=self.waitbar_bg)
+                        fg=talk.waitbar_bg,
+                        bg=talk.waitbar_bg)
 
         offset = 0.05
         waitBarFront = Rectangle(w=waitBarBack.w+P(offset, 0),
@@ -654,8 +642,8 @@ class Slide(Page, Talk):
                                 self.pageNumber/self.pages,
                         height=waitBarBack.height-2*offset,
                         r=0.2,
-                        fg=self.waitbar_fg,
-                        bg=self.waitbar_fg)
+                        fg=talk.waitbar_fg,
+                        bg=talk.waitbar_fg)
         waitBar = Group(waitBarBack, waitBarFront)
         return  waitBar
 
@@ -673,11 +661,11 @@ class Slide(Page, Talk):
         
         footer = Align(a1="e", a2="w", angle=90, space=0.1)
         footer.append(TeX(text="%s %s"%(talk.title_textstyle, talk.title),
-                        fg=self.title_fg,
-                        ).scale(self.footerScale, self.footerScale))
+                        fg=talk.title_fg,
+                        ).scale(talk.footerScale, talk.footerScale))
         footer.append(TeX(text="%s %s"%(talk.speaker_textstyle, footerText),
-                        fg=self.title_fg
-                        ).scale(self.footerScale, self.footerScale))
+                        fg=talk.title_fg
+                        ).scale(talk.footerScale, talk.footerScale))
         footer.sw = self.area.sw+P(0.4, 0.4)
         return footer
 
@@ -780,39 +768,39 @@ class Slide(Page, Talk):
         Makes the background of the slide
         """
         back = Group()
-        back.append(Rectangle(sw = self.area.sw,
-                        width = self.area.width,
-                        height = self.area.height,
-                        fg = None,
-                        bg = self.bg,
+        back.append(Rectangle(sw=self.area.sw,
+                        width=self.area.width,
+                        height=self.area.height,
+                        fg=None,
+                        bg=talk.bg,
                         )
                     )
-        back.append(Rectangle(sw = self.area.sw,
-                        width = 2.5,
-                        height = self.area.height,
-                        fg = None,
-                        bg = self.bg*0.5,
+        back.append(Rectangle(sw=self.area.sw,
+                        width=2.5,
+                        height=self.area.height,
+                        fg=None,
+                        bg=talk.bg*0.5,
                         )
                     )
-        back.append(Rectangle(sw = self.area.sw,
-                        width = self.area.width,
-                        height = 1.5,
-                        fg = None,
-                        bg = self.bg*0.5,
+        back.append(Rectangle(sw=self.area.sw,
+                        width=self.area.width,
+                        height=1.5,
+                        fg=None,
+                        bg=talk.bg*0.5,
                         )
                     )
-        back.append(Rectangle(nw = self.area.nw,
-                        width = self.area.width,
-                        height = 2.5,
-                        fg = None,
-                        bg = self.bg*0.5,
+        back.append(Rectangle(nw=self.area.nw,
+                        width=self.area.width,
+                        height=2.5,
+                        fg=None,
+                        bg=talk.bg*0.5,
                         )
                     )
-        back.append(Rectangle(nw = self.area.nw,
-                        width = 2.5,
-                        height = 2.5,
-                        fg = None,
-                        bg = Color('firebrick'),
+        back.append(Rectangle(nw=self.area.nw,
+                        width=2.5,
+                        height=2.5,
+                        fg=None,
+                        bg=Color('firebrick'),
                         )
                     )
 
@@ -829,13 +817,13 @@ class Slide(Page, Talk):
             all.c = self.area.c + P(0.0, 0.8)
         else:
             all = Align(a1="s", a2="n", angle=180, space=0.4)
-            all.append(self.make_logos(), self.make_title())
+            all.append(self.make_logos(), self.make_title(talk))
             all.nw = self.area.nw + P(2.5, -0.2)
 
         # I'm aware that this isn't a good way to do this, but
         # it's late at night, and I want to get *something* going
 
-        headings = self.make_headings()
+        headings = self.make_headings(talk)
         headings.nw = self.area.nw + P(3.0, -3.0)
     
         back = self.make_background(talk)
@@ -845,7 +833,7 @@ class Slide(Page, Talk):
                 'Created with PyScript.  http://pyscript.sourceforge.net', 
                 size=15, 
                 sw=p, 
-                fg=self.bg*0.8
+                fg=talk.bg*0.8
                 ).rotate(-90, p)
 
         self.pages = len(talk.slides)
@@ -858,7 +846,7 @@ class Slide(Page, Talk):
                 self.make_figs(),
                 signature,
                 self.make_footer(talk),
-                self.make_waitbar()
+                self.make_waitbar(talk)
                 ).scale(scale, scale)
 
         return Page(All, orientation="Landscape")
