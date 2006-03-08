@@ -463,6 +463,46 @@ class Talk(Pages):
         # exec the text
         exec(styleText)
 
+    def set_title(self, title):
+        """
+        Set the title of the talk as a whole
+
+        @param title: the title of the talk
+        @type title: string
+        """
+        self.title = title
+        return
+
+    def set_authors(self, authors):
+        """
+        Set the authors of the talk
+
+        @param authors: the author list for the talk
+        @type authors: string
+        """
+        self.authors = authors
+        return
+
+    def set_speaker(self, speaker):
+        """
+        Set the name of the person actually giving the talk/presentation
+
+        @param speaker: the name of the person giving the talk
+        @type speaker: string
+        """
+        self.speaker = speaker
+        return
+
+    def set_address(self, address):
+        """
+        Set the address for the institution (or equivalent) of the speaker
+        
+        @param address: the address to use
+        @type address: string
+        """
+        self.address = address
+        return
+
     def make_authors(self):
         """
         Generate the authors text on the titlepage
