@@ -29,6 +29,7 @@ from pyscript.defaults import defaults
 from pyscript import Color, Group, Epsf, Area, P, Align, Rectangle, TeX, \
         Page, Distribute, Text, Pages
 from pyscript.render import render
+import os
 
 class TeXBox(Group):
     '''
@@ -341,7 +342,7 @@ class Talk(Pages):
     A talk class
     """
 
-    def __init__(self, **options):
+    def __init__(self, style=None):
         self.bg = Color('RoyalBlue')*0.9
         self.fg = self.bg
 
@@ -425,6 +426,42 @@ class Talk(Pages):
                 "default" : "",
                 "space" : "",
                 }
+
+        # process the style option
+        if style is not None:
+            # make sure the file exists in either the .pyscript/styles
+            # directory, or the current directory
+            styleFname = style + ".py"
+            HOME = os.path.expandvars("$HOME")
+            if os.path.exists(HOME + "/.pyscript/styles/" + styleFname):
+                print "Found %s in .pyscript/styles dir!" % style
+                self.read_style(HOME + "/.pyscript/styles/" + styleFname)
+            elif os.path.exists(styleFname):
+                print "Found %s in current dir!" % style
+                self.read_style(styleFname)
+            else:
+                # barf
+                raise ValueError, "Style %s not found!" % style
+
+    def read_style(self, styleFname):
+        """
+        Read the talk style file
+
+        @param styleFname: The name of the style file to process
+        @type styleFname: string
+        """
+        # slurp in the text
+        fp = open(styleFname, "r")
+        lines = fp.readlines()
+        fp.close()
+
+        # make one big string...
+        styleText = ""
+        for line in lines:
+            styleText += line
+
+        # exec the text
+        exec(styleText)
 
     def make_authors(self):
         """
