@@ -1,3 +1,5 @@
+# $Id$
+
 
 MAIN = pyscript
 FIGS = 
