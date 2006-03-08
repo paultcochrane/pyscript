@@ -552,8 +552,8 @@ class Slide(Page):
     authors = None
     titlepage = False
     # size = "screen"
-    size = "a4"   # need to work out why "screen" gives extra white box on right
-    orientation = "Landscape"   
+    size = "a4"
+    orientation = "Landscape"
 
     def __init__(self, talk):
         Page.__init__(self)
@@ -643,6 +643,13 @@ class Slide(Page):
                     bg=backColor, fg=frontColor)
         back.sw = obj.bbox().sw-P(gutter/2.0, gutter/2.0)
         self.figs.append(Group(back, obj))
+
+    def set_titlepage(self):
+        """
+        Set the current slide to be the titlepage
+        """
+        self.titlepage = True
+        return
 
     def set_title(self, title=None):
         """
