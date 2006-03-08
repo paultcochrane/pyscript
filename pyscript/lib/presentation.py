@@ -519,7 +519,7 @@ class Talk(Pages):
         return TeX(ttext, fg=self.address_fg
             ).scale(self.address_scale, self.address_scale)
 
-    def make(self, *slides, **opts):
+    def make(self, *slides, **options):
         """
         Routine to collect all of slides together and render them all as
         the one document
@@ -537,9 +537,9 @@ class Talk(Pages):
             # render(temp, file=fname)
             i += 1
         # print "%i slides produced" % (i-1, )
-        if not opts.has_key('file'):
+        if not options.has_key('file'):
             raise "No filename given"
-        file = opts['file']
+        file = options['file']
         
         render(temp, file=file)
 
