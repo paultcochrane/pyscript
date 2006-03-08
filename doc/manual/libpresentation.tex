@@ -26,55 +26,171 @@ separated by a specified padding.
 
 \section{Creating a talk or seminar}
 
-The Talk() object.
+\subsection{The Talk() object}
 
-\subsection{set\_title()}
-
-Or you can just set the title attribute directly.
-
-\subsection{set\_authors()}
-Or you can just set the title attribute directly.
-
-\subsection{set\_speaker()}
-
-\subsection{set\_address()}
-
-
-The Slide() object.
-
-\subsection{set\_title()}
-
+The first thing you will need to do when you start writing a seminar
+presentation is to instantiate the \vrb{Talk()} object.  This object defines
+some overall parameters, attributes and styles for the talk as a whole.
+After you set these parameters for your particular talk, then you only need
+to worry about adding \vrb{Slide()} objects.  To set up the \vrb{Talk()}
+object for your talk you merely need to do this:
 \begin{python}
-slide5.set_title(r"Moooo!)"
+talk = Talk()
+\end{python}
+More interesting things happen when we add styles to the talk, but more on
+that later.  If you want to know about that now, go to \Sec{sec:styles}.
+
+The next thing you probably want to do is to give your talk a title.  There
+are two ways to do this: with the \vrb{set\_title()} method, or by merely
+setting the \vrb{title} attribute of the instantiated \vrb{Talk()} object.
+In other words you can either do this:
+\begin{python}
+talk.set_title(r"This is my talk")
+\end{python}
+or this:
+\begin{python}
+talk.title = r"This is my talk"
 \end{python}
 
-You can also set the title by explicitly assigning the title attribute:
+It is common that there are many people who have contributed to a particular
+piece of work being discussed in the seminar or talk, and consequently there
+will be more than one ``author'' of the talk.  However, there is usually
+only one person presenting the talk, and so we have two separate attributes
+for these situations, namely the \vrb{authors} and \vrb{speaker} attributes.
+To set the name of the authors contributing to the talk, either use the
+\vrb{set\_authors()} method, or set the attribute directly, like so:
 \begin{python}
-slide5.title = r"Moooo!"
+talk.set_authors(r"Tom, Dick, and Harry")
+\end{python}
+or:
+\begin{python}
+talk.authors = r"Tom, Dick and Harry"
+\end{python}
+For the speaker, this is almost an identical procedure, just use either the
+\vrb{set\_speaker()} method, or set the \vrb{speaker} attribute directly.
+
+You are likely to be representing a business or institute of some form, so
+it is best to give their address.  To do provide this information to the
+\vrb{presentation} library so that it can place the text appropriately, just
+use the \vrb{set\_address()} method or set the \vrb{address} attribute of
+the instantiated \vrb{Talk()} object.
+
+That's basically it as far as the \obj{Talk()} object itself goes.  The main
+amount of work is in producing the individual slides of the presentation,
+which is what we discuss next.
+
+\subsection{The Slide() object}
+
+The \vrb{Slide()} object defines a particular slide; one creates a new
+\vrb{Slide()} object for each slide in the presentation, calling them all at
+the end in the \vrb{render()} function to generate the entire talk.  
+
+The first slide in your talk will be the titlepage.  To generate the
+titlepage do something like this:
+\begin{python}
+titlepage = Slide(talk)  # instantiate a Slide object of the current 'talk'
+titlepage.titlepage = True  # tell the library that this is the titlepage
+\end{python}
+There exists a convenience function to tell the library that this is the
+titlepage, and, you guessed it, it's called \vrb{set\_titlepage()}.
+
+Slides usually have a title, some sequence of headings, possibly a figure
+(defined in \pyscript for example), or an imported EPS image, and possibly
+some equations.  The \vrb{presentation} library provides methods for doing
+all these things.  To add a slide to the presentation, one must instatiate a
+new \vrb{Slide} object, passing to it the current \vrb{Talk} object, like
+so:
+\begin{python}
+intro = Slide(talk)
 \end{python}
 
-Not much of a difference between the two I know, but some people like to
-call a set\_ function and others like to set the attribute directly, so
-we're catering to both kinds of people.
+To add a title to the slide~\footnote{Note that this is
+\textbf{not} the title of the talk!}, one can use the \vrb{set\_title()}
+method (this time of the \vrb{Slide} class), or set the \vrb{title}
+attribute directly:
+\begin{python}
+intro.set_title(r"Introduction")
+\end{python}
+or:
+\begin{python}
+intro.title = r"Introduction"
+\end{python}
+There isn't much of a difference between the two I know, but some people
+like to call a \vrb{set\_} function and others like to set the attribute
+directly, so we're catering to both kinds of people.
 
-\subsection{add\_heading()}
+To add other things like headings, figures and epsf images to your slide,
+you just need to use one of the relevant \vrb{add\_*()} functions.  In other
+words, to add a heading use the \vrb{add\_heading()} method.  This method
+takes two arguments, the first argument is the level of the heading (there
+are currently three separately defined levels of headings in the library)
+and the second argument is the heading to add.  For instance:
+\begin{python}
+intro.add_heading(1, r"What are we talking about?")
+intro.add_heading(2, r"Some stuff")
+intro.add_heading(2, r"Some other stuff")
+intro.add_heading(3, r"Something more specific to some other stuff")
+\end{python}
+Adding a heading puts one of the predefined bullets in front of the heading,
+typesets the text at a predefined size and indentation dependent upon the
+heading level.  You can change these settings by defining your own style, or
+by setting one of the myriad attributes of the talk object itself, for more
+information see \Sec{sec:styles}.
 
-\subsection{add\_fig()}
+If you want to place a diagram generated from \pyscript code to your slide,
+and have it automatically positioned by the library, then use the
+\vrb{add\_fig()} method.  For instance, if you've produced earlier in your
+\pyscript script a diagram called \vrb{mydiag} then to add it to the slide,
+merely use:
+\begin{python}
+intro.add_fig(mydiag)
+\end{python}
+You can set the location of the figure by passing one of the \pyscript anchor
+locations as an optional argument.  For example,
+\begin{python}
+intro.add_fig(mydiag, ne=intro.area.ne - P(1,1))
+\end{python}
+will locate the diagram in the ``north-east'' corner of the page one
+centimetre from the right-hand edge, and one centimetre from the top edge.
+You can set the width of the diagram as well by specifying the \vrb{width}
+option:
+\begin{python}
+intro.add_fig(mydiag, width=12, c=intro.area.c)
+\end{python}
+which will make the diagram 12cm wide, and centre it on the current page.
 
-Add a diagram to the slide (this is handled differently to add\_epsf() eh?)
+Similarly, one can add diagrams or images that already exist in EPS files.
+To do this use the \vrb{add\_epsf()} method like so:
+\begin{python}
+intro.add_epsf(file="myEpsFile.eps")
+\end{python}
+The \vrb{add\_epsf()} method processes the anchor location and width
+options in the same way the \vrb{add\_fig()} method does.
 
-\subsection{add\_epsf()}
+At the end of your script you'll want to render the output of your slides,
+and generate the talk, to do this use the \vrb{render()} function of
+\pyscript in the usual manner:
+\begin{python}
+# render it!
+render(
+    titlepage,
+    intro,
+    another_slide,
+    file="mytalk.ps")
+\end{python}
+This will generate a Postscript document called \vrb{mytalk.ps} in the same
+directory as that in which the \pyscript script was run.  Note that this is
+a Postscript file and not an EPS file; this means that the output has
+multiple pages as one would hope for a seminar!
 
-Add an encapsulated Postscript file to the slide.  Works very similarly to
-add\_fig().
+To actually give your seminar there are several tools you can use.  One of
+the most common is to turn the Postscript into PDF via \texttt{epstopdf} or
+some similar tool, and then use the full screen mode of Adobe Acrobat
+Reader~\cite{acroread} to display the talk.  Alternatively, you might like to
+use a program like \texttt{pspresent}~\cite{pspresent}.
 
 \subsection{Styles for talks and seminars}
-
-You can create your own custom talk slide style and call this at the
-beginning when you create the Talk() object.  The style can then be put in
-your .pyscript directory, and called whenever you make a slide.  New styles
-can be added and so a wider range of talk backgrounds and styles can be
-made.  That was a shit explanation eh?
+\label{sec:styles}
 
 \section{Creating a poster}
 
