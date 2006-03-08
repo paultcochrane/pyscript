@@ -2,7 +2,7 @@
 MAIN = pyscript
 FIGS = 
 
-all: $(FIGS) $(MAIN).pdf
+all: $(FIGS) $(MAIN).pdf $(MAIN).dvi
 
 view: $(FIGS) $(MAIN).pdf
 	gv $(MAIN).pdf
@@ -14,13 +14,13 @@ $(FIGS) : %.pdf : %.py
 	./$<
 	epstopdf $*.eps
 
-%.pdf:  %.tex $(FIGS) pyscript_defs.tex libpresent.tex libqi.tex pyscriptElectronics.tex pyscriptOptics.tex
+%.pdf:  %.tex $(FIGS) pyscript_defs.tex libpresent.tex libpresentation.tex libqi.tex pyscriptElectronics.tex pyscriptOptics.tex pyscript.bib
 	pdflatex $<
 	-bibtex $*
 	pdflatex $<
 	pdflatex $<
 
-%.dvi:  %.tex $(FIGS) pyscript_defs.tex
+%.dvi:  %.tex $(FIGS) pyscript_defs.tex libpresent.tex libpresentation.tex libqi.tex pyscriptElectronics.tex pyscriptOptics.tex pyscript.bib
 	latex $<
 	-bibtex $*
 	latex $<
