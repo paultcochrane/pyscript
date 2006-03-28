@@ -686,15 +686,7 @@ class Slide(Page):
         the talk)
         """
         if self.title is None or self.title == "":
-            #print "######### title None or the empty string #######"
-            # this is an ugly hack to try and fix a nasty bug:
-            # whenever there isn't a title, or the text of it isn't long
-            # enough, the slide is printed portrait once passed through
-            # ps2pdf and viewed with xpdf or acroread.  Interestingly
-            # enough, the postscript and pdf views fine with gv, and the
-            # postscript views fine with pspresent.  Don't know 100% why
-            # this is, and can't seem to fix it properly here.
-            return TeX("------------------").scale(0.1,0.1)
+            return Area(width=0, height=0)
 
         # if we just get a string, put it in a TeX object in the current style
         if isinstance(self.title, types.StringType):
