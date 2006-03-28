@@ -29,7 +29,7 @@ from pyscript.defaults import defaults
 from pyscript import Color, Group, Epsf, Area, P, Align, Rectangle, TeX, \
         Page, Distribute, Text, Pages
 from pyscript.render import render
-import os
+import os, types
 
 class TeXBox(Group):
     '''
@@ -343,10 +343,14 @@ class Talk(Pages):
     """
 
     def __init__(self, style=None):
+        Pages.__init__(self)
+
+        self.slides = []
+
         self.bg = Color('RoyalBlue')*0.9
         self.fg = self.bg
 
-        self.thelogos = []
+        self.logos = []
         self.logo_height = 0.8
         
         self.title = ""
@@ -378,11 +382,13 @@ class Talk(Pages):
         self.address_scale = 2
         self.address_textstyle = ""
         
-        self.logos = None
-
         self.box_bg = Color('lavender')
         self.box_fg = Color(0)
         self.box_border = 2
+
+        self.text_scale = 3
+        self.text_fg = Color(0)
+        self.text_textstyle = ""
         
         self.headings_fgs = {
                 1 : Color('white'), 
@@ -401,9 +407,7 @@ class Talk(Pages):
                 "space" : 3,
                 }
         self.headings_bullets = {
-#Epsf(file="redbullet.eps").scale(0.15, 0.15), #TeX(r"$\bullet$"), 
                 1 : TeX(r"$\bullet$"), 
-#Epsf(file="greenbullet.eps").scale(0.1, 0.1), #TeX(r"--"), 
                 2 : TeX(r"--"), 
                 3 : TeX(r"$\gg$"),
                 "equation" : Rectangle(height=1, fg=self.bg, bg=self.bg),
@@ -434,10 +438,10 @@ class Talk(Pages):
             styleFname = style + ".py"
             HOME = os.path.expandvars("$HOME")
             if os.path.exists(HOME + "/.pyscript/styles/" + styleFname):
-                print "Found %s in .pyscript/styles dir!" % style
+                print "Found %s in .pyscript/styles dir" % style
                 self.read_style(HOME + "/.pyscript/styles/" + styleFname)
             elif os.path.exists(styleFname):
-                print "Found %s in current dir!" % style
+                print "Found %s in current dir" % style
                 self.read_style(styleFname)
             else:
                 # barf
@@ -503,6 +507,18 @@ class Talk(Pages):
         self.address = address
         return
 
+    def add_logo(self, logo, height=None):
+        """
+        Add a logo to the talk
+
+        @param logo: eps file name of logo
+        @type logo: string
+        """
+        if height is None:
+            height = self.logo_height
+
+        self.logos.append(Epsf(file=logo, height=height))
+
     def make_authors(self):
         """
         Generate the authors text on the titlepage
@@ -515,39 +531,49 @@ class Talk(Pages):
         """
         Generate the address text on the titlepage
         """
-        ttext = "%s %s" % (self.address_textstyle, self.address)
-        return TeX(ttext, fg=self.address_fg
-            ).scale(self.address_scale, self.address_scale)
+        if isinstance(self.address, types.StringType):
+            ttext = "%s %s" % (self.address_textstyle, self.address)
+            return TeX(ttext, fg=self.address_fg
+                ).scale(self.address_scale, self.address_scale)
+        else:
+            #raise ValueError, "Can't handle non-string arguments yet"
+            return self.address
 
     def make(self, *slides, **options):
         """
         Routine to collect all of slides together and render them all as
         the one document
         """
+        # create the titlepage automatically
+        titlepage = Slide(self)
+        titlepage.set_titlepage()
+        self.slides.append(titlepage)
         
-        self.slides = slides
-        # numPages = len(slides)
+        # create the list of slides
+        for slide in slides:
+            self.slides.append(slide)
+
+        # add all the slides to the talk
         i = 1
         temp = Pages()
-        for slide in slides:
+        for slide in self.slides:
             slide.pageNumber = i
             print 'Adding slide', str(i), '...'
             temp.append(slide.make(self))
-            # fname = '%s%02d%s' % ("slide", i, ".eps")
-            # render(temp, file=fname)
             i += 1
-        # print "%i slides produced" % (i-1, )
+
+        # determine the file name to use
         if not options.has_key('file'):
-            raise "No filename given"
+            raise ValueError, "No filename given"
         file = options['file']
         
+        # render it!
         render(temp, file=file)
 
 class Slide(Page):
     """
     A slide class.  Use this class to generate the individual slides in a talk
     """
-
     pageNumber = None
     authors = None
     titlepage = False
@@ -561,42 +587,38 @@ class Slide(Page):
         self.headings = []
         self.epsf = []
         self.figs = []
-        self.thelogos = []
         self.area = self.area()
-
-    def logos(self, *files):
-        """
-        Grab the logos (if any)
-        """
-        
-        self.thelogos = []
-        
-        for file in files:
-            self.thelogos.append(Epsf(file, height=self.logo_height))
+        self.title = None
+        self.logos = talk.logos
+        self.text_scale = talk.text_scale
+        self.text_textstyle = talk.text_textstyle
+        self.text_fg = talk.text_fg
+        self.textObjs = []
 
     def make_logos(self):
         """
         Put the logos on the page
         """
-
-        if len(self.thelogos) == 0:
+        if len(self.logos) == 0:
             return Area(width=0, height=0)
-        elif len(self.thelogos) == 1:
+        elif len(self.logos) == 1:
             return Group(
-                Area(width=self.area.width, height=0, nw=P(0, 0)),
-                self.thelogos[0]
+                Area(width=self.area.width-0.4, height=0),
+                self.logos[0]
                 )
 
         width = self.area.width -\
-                self.thelogos[0].bbox().width -\
-                self.thelogos[-1].bbox().width -\
-                0.2
+                self.logos[0].bbox().width -\
+                self.logos[-1].bbox().width -\
+                0.4
 
-        for logo in self.thelogos[1:-1]:
+        for logo in self.logos[1:-1]:
             width -= logo.bbox().width
 
-        space = width/(len(self.thelogos)-1)
-        a = Align(self.thelogos, a1="e", a2="w", angle=90, space=space)
+        space = width/(len(self.logos)-1)
+        a = Align(a1="e", a2="w", angle=90, space=space)
+        for logo in self.logos:
+            a.append(logo)
 
         return a
 
@@ -663,9 +685,25 @@ class Slide(Page):
         Make the title of the slide (note that this is *not* the title of
         the talk)
         """
-        ttext = "%s %s" % (talk.title_textstyle, self.title)
-        return TeX(ttext, fg=talk.title_fg).scale(talk.title_scale*0.8,
+        if self.title is None or self.title == "":
+            #print "######### title None or the empty string #######"
+            # this is an ugly hack to try and fix a nasty bug:
+            # whenever there isn't a title, or the text of it isn't long
+            # enough, the slide is printed portrait once passed through
+            # ps2pdf and viewed with xpdf or acroread.  Interestingly
+            # enough, the postscript and pdf views fine with gv, and the
+            # postscript views fine with pspresent.  Don't know 100% why
+            # this is, and can't seem to fix it properly here.
+            return TeX("------------------").scale(0.1,0.1)
+
+        # if we just get a string, put it in a TeX object in the current style
+        if isinstance(self.title, types.StringType):
+            ttext = "%s %s" % (talk.title_textstyle, self.title)
+            return TeX(ttext, fg=talk.title_fg).scale(talk.title_scale*0.8,
                                                       talk.title_scale)
+        else:
+            # just return the object itself
+            return self.title
     
     def add_heading(self, level, text):
         """
@@ -673,11 +711,72 @@ class Slide(Page):
 
         @param level: the heading level as a number starting from 1 (the most
         significant level)
+        @type level: int (1,2,3) or string ("space", "equation")
 
         @param text: the text to be used for the heading
+        @type text: string
         """
         temp = [ level, text ]
         self.headings.append(temp)
+
+    def add_text(self, text, **options):
+        """
+        Add, and arbitrarily place, text on the slide
+
+        @param text: the text to place
+        @type text: string, TeX object or Text object
+        """
+        # process options
+        if options.has_key('bg'):
+            backColor = options['bg']
+        else:
+            backColor = Color('white')
+
+        if options.has_key('fg'):
+            frontColor = options['fg']
+        else:
+            frontColor = self.text_fg
+
+        if options.has_key('scale'):
+            scale = options['scale']
+        else:
+            scale = self.text_scale
+
+        # check for what kind of object we have...
+        if isinstance(text, types.StringType):
+            # prepend the style if it is just a string
+            text = self.text_textstyle + " " + text
+            obj = TeX(text, fg=frontColor).scale(scale, scale)
+        else:
+            raise ValueError, \
+                    "Cannot yet handle non-string objects in Slide.add_text()"
+
+        # there must be a better way to do this!!!
+        if options.has_key('e'):
+            obj.e = options['e']
+        elif options.has_key('se'):
+            obj.se = options['se']
+        elif options.has_key('s'):
+            obj.s = options['s']
+        elif options.has_key('sw'):
+            obj.sw = options['sw']
+        elif options.has_key('w'):
+            obj.w = options['w']
+        elif options.has_key('nw'):
+            obj.nw = options['nw']
+        elif options.has_key('n'): 
+            obj.n = options['n']
+        elif options.has_key('ne'):
+            obj.ne = options['ne']
+        elif options.has_key('c'):
+            obj.c = options['c']
+        else:
+            obj.sw = P(0.0, 0.0)
+
+        #obj = TeX(r"test", fg=frontColor)
+        #obj.c = self.area.c
+
+        self.textObjs.append(obj)
 
     def make_headings(self, talk):
         """
@@ -830,16 +929,30 @@ class Slide(Page):
             figs.append(fig)
         return figs
 
+    def make_textObjs(self):
+        """
+        Collects all the text objects together
+        """
+        textObjs = Group()
+        for text in self.textObjs:
+            textObjs.append(text)
+        return textObjs
+
     def make_titlepage(self, talk):
         """
         Makes the titlepage of the talk
         """
         titlepage = Align(a1="s", a2="n", angle=180, space=0.4)
-        titlepage.append(self.make_logos())
-        ttext = "%s %s" % (talk.title_textstyle, talk.title)
-        titlepage.append(TeX(ttext,
-                            fg=talk.title_fg)\
-                            .scale(talk.title_scale, talk.title_scale))
+
+        if isinstance(talk.title, types.StringType):
+            ttext = "%s %s" % (talk.title_textstyle, talk.title)
+            titlepage.append(TeX(ttext,
+                                fg=talk.title_fg)\
+                                .scale(talk.title_scale, talk.title_scale))
+        else:
+            #raise ValueError, "Can't yet handle non-string arguments")
+            titlepage.append(Text(ttext))
+
         if talk.authors is not None:
             titlepage.append(talk.make_authors())
         if talk.address is not None:
@@ -901,7 +1014,7 @@ class Slide(Page):
             all.c = self.area.c + P(0.0, 0.8)
         else:
             all = Align(a1="s", a2="n", angle=180, space=0.4)
-            all.append(self.make_logos(), self.make_title(talk))
+            all.append(self.make_title(talk))
             all.nw = self.area.nw + P(2.5, -0.2)
 
         # I'm aware that this isn't a good way to do this, but
@@ -920,6 +1033,9 @@ class Slide(Page):
                 fg=talk.bg*0.8
                 ).rotate(-90, p)
 
+        logos = self.make_logos()
+        logos.nw = self.area.nw + P(0.2,-0.2)
+
         self.pages = len(talk.slides)
 
         All = Group(
@@ -928,11 +1044,13 @@ class Slide(Page):
                 headings,
                 self.make_epsf(),
                 self.make_figs(),
+                self.make_textObjs(),
                 signature,
                 self.make_footer(talk),
+                logos,
                 self.make_waitbar(talk)
                 ).scale(scale, scale)
 
-        return Page(All, orientation="Landscape")
+        return Page(All, orientation=self.orientation)
 
 # vim: expandtab shiftwidth=4:
