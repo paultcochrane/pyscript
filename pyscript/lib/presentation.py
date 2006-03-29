@@ -519,7 +519,7 @@ class Talk(Pages):
 
         self.logos.append(Epsf(file=logo, height=height))
 
-    def make_authors(self):
+    def _make_authors(self):
         """
         Generate the authors text on the titlepage
         """
@@ -527,7 +527,7 @@ class Talk(Pages):
         return TeX(ttext, fg=self.authors_fg
             ).scale(self.authors_scale, self.authors_scale)
 
-    def make_address(self):
+    def _make_address(self):
         """
         Generate the address text on the titlepage
         """
@@ -559,7 +559,7 @@ class Talk(Pages):
         for slide in self.slides:
             slide.pageNumber = i
             print 'Adding slide', str(i), '...'
-            temp.append(slide.make(self))
+            temp.append(slide._make(self))
             i += 1
 
         # determine the file name to use
@@ -574,16 +574,14 @@ class Slide(Page):
     """
     A slide class.  Use this class to generate the individual slides in a talk
     """
-    pageNumber = None
-    authors = None
-    titlepage = False
-    # size = "screen"
-    size = "a4"
-    orientation = "Landscape"
-
     def __init__(self, talk):
         Page.__init__(self)
         
+        self.size = "a4"
+        self.orientation = "Landscape"
+        self.pageNumber = None
+        self.titlepage = False
+        self.authors = None
         self.headings = []
         self.epsf = []
         self.figs = []
@@ -595,7 +593,7 @@ class Slide(Page):
         self.text_fg = talk.text_fg
         self.textObjs = []
 
-    def make_logos(self):
+    def _make_logos(self):
         """
         Put the logos on the page
         """
@@ -624,31 +622,11 @@ class Slide(Page):
 
     def add_fig(self, obj, **options):
         """
-        Chuck an arbitrary figure onto the page, with a white background
+        Put an arbitrary figure onto the page, with a white background
+
+        @param obj: the PyScript object to use for the figure
+        @type obj: PyScript object
         """
-
-        # there must be a better way to do this!!!
-        if options.has_key('e'):
-            obj.e = options['e']
-        elif options.has_key('se'):
-            obj.se = options['se']
-        elif options.has_key('s'):
-            obj.s = options['s']
-        elif options.has_key('sw'):
-            obj.sw = options['sw']
-        elif options.has_key('w'):
-            obj.w = options['w']
-        elif options.has_key('nw'):
-            obj.nw = options['nw']
-        elif options.has_key('n'): 
-            obj.n = options['n']
-        elif options.has_key('ne'):
-            obj.ne = options['ne']
-        elif options.has_key('c'):
-            obj.c = options['c']
-        else:
-            obj.sw = P(0.0, 0.0)
-
         if options.has_key('bg'):
             backColor = options['bg']
         else:
@@ -659,12 +637,72 @@ class Slide(Page):
         else:
             frontColor = None
 
+        if options.has_key('height'):
+            figHeight = options['height']
+        else:
+            figHeight = None
+
+        if options.has_key('width'):
+            figWidth = options['width']
+        else:
+            figWidth = None
+
         gutter = 0.1
         back = Rectangle(width=obj.bbox().width+gutter,
                     height=obj.bbox().height+gutter,
                     bg=backColor, fg=frontColor)
         back.sw = obj.bbox().sw-P(gutter/2.0, gutter/2.0)
-        self.figs.append(Group(back, obj))
+
+        fig = Group(back, obj)
+
+        # now scale the height/width appropriately if figWidth and/or
+        # figHeight are set
+        if figHeight is not None and figWidth is None:
+            if fig.bbox().height == 0.0:
+                raise ValueError, "Initial figure height is zero!!"
+            else:
+                scale = figHeight/fig.bbox().height
+            fig.scale(scale, scale)
+        elif figHeight is None and figWidth is not None:
+            if fig.bbox().width == 0.0:
+                raise ValueError, "Initial figure width is zero!!"
+            else:
+                scale = figWidth/fig.bbox().width
+            fig.scale(scale, scale)
+        elif figHeight is not None and figWidth is not None:
+            if fig.bbox().height == 0.0:
+                raise ValueError, "Initial figure height is zero!!"
+            elif fig.bbox().width == 0.0:
+                raise ValueError, "Initial figure width is zero!!"
+            else:
+                scalex = figWidth/fig.bbox().width
+                scaley = figHeight/fig.bbox().height
+                fig.scale(scalex, scaley)
+
+        # there must be a better way to do this!!!
+        if options.has_key('e'):
+            fig.e = options['e']
+        elif options.has_key('se'):
+            fig.se = options['se']
+        elif options.has_key('s'):
+            fig.s = options['s']
+        elif options.has_key('sw'):
+            fig.sw = options['sw']
+        elif options.has_key('w'):
+            fig.w = options['w']
+        elif options.has_key('nw'):
+            fig.nw = options['nw']
+        elif options.has_key('n'): 
+            fig.n = options['n']
+        elif options.has_key('ne'):
+            fig.ne = options['ne']
+        elif options.has_key('c'):
+            fig.c = options['c']
+        else:
+            fig.sw = P(0.0, 0.0)
+
+        # add the figure to the list of figures
+        self.figs.append(fig)
 
     def set_titlepage(self):
         """
@@ -680,7 +718,7 @@ class Slide(Page):
         self.title = title
         return
 
-    def make_title(self, talk):
+    def _make_title(self, talk):
         """
         Make the title of the slide (note that this is *not* the title of
         the talk)
@@ -770,7 +808,7 @@ class Slide(Page):
 
         self.textObjs.append(obj)
 
-    def make_headings(self, talk):
+    def _make_headings(self, talk):
         """
         Make the headings
         """
@@ -800,7 +838,7 @@ class Slide(Page):
 
         return heading_block
             
-    def make_waitbar(self, talk):
+    def _make_waitbar(self, talk):
         """
         Make a waitbar
         """
@@ -822,7 +860,7 @@ class Slide(Page):
         waitBar = Group(waitBarBack, waitBarFront)
         return  waitBar
 
-    def make_footer(self, talk):
+    def _make_footer(self, talk):
         """
         Make the footer.  A text block giving the title and the name of the
         person giving the talk
@@ -903,7 +941,7 @@ class Slide(Page):
         figure = Group(background, picture)
         self.epsf.append(figure)
 
-    def make_epsf(self):
+    def _make_epsf(self):
         """
         Collects all of the eps images together
         """
@@ -912,7 +950,7 @@ class Slide(Page):
             pictures.append(file)
         return pictures
 
-    def make_figs(self):
+    def _make_figs(self):
         """
         Collects all of the figures together
         """
@@ -921,7 +959,7 @@ class Slide(Page):
             figs.append(fig)
         return figs
 
-    def make_textObjs(self):
+    def _make_textObjs(self):
         """
         Collects all the text objects together
         """
@@ -930,7 +968,7 @@ class Slide(Page):
             textObjs.append(text)
         return textObjs
 
-    def make_titlepage(self, talk):
+    def _make_titlepage(self, talk):
         """
         Makes the titlepage of the talk
         """
@@ -946,13 +984,13 @@ class Slide(Page):
             titlepage.append(Text(ttext))
 
         if talk.authors is not None:
-            titlepage.append(talk.make_authors())
+            titlepage.append(talk._make_authors())
         if talk.address is not None:
-            titlepage.append(talk.make_address())
+            titlepage.append(talk._make_address())
 
         return titlepage
 
-    def make_background(self, talk):
+    def _make_background(self, talk):
         """
         Makes the background of the slide
         """
@@ -995,27 +1033,27 @@ class Slide(Page):
 
         return back
         
-    def make(self, talk, scale=1):
+    def _make(self, talk, scale=1):
         """
         Make the slide.  Collect all of the objects together into one Page()
         object ready for rendering.
         """
         
         if self.titlepage:
-            all = self.make_titlepage(talk)
+            all = self._make_titlepage(talk)
             all.c = self.area.c + P(0.0, 0.8)
         else:
             all = Align(a1="s", a2="n", angle=180, space=0.4)
-            all.append(self.make_title(talk))
+            all.append(self._make_title(talk))
             all.nw = self.area.nw + P(2.5, -0.2)
 
         # I'm aware that this isn't a good way to do this, but
         # it's late at night, and I want to get *something* going
 
-        headings = self.make_headings(talk)
+        headings = self._make_headings(talk)
         headings.nw = self.area.nw + P(3.0, -3.0)
     
-        back = self.make_background(talk)
+        back = self._make_background(talk)
 
         p = self.area.se + P(-0.1, 0.1)
         signature = Text(
@@ -1025,7 +1063,7 @@ class Slide(Page):
                 fg=talk.bg*0.8
                 ).rotate(-90, p)
 
-        logos = self.make_logos()
+        logos = self._make_logos()
         logos.nw = self.area.nw + P(0.2,-0.2)
 
         self.pages = len(talk.slides)
@@ -1034,13 +1072,13 @@ class Slide(Page):
                 back,
                 all,
                 headings,
-                self.make_epsf(),
-                self.make_figs(),
-                self.make_textObjs(),
+                self._make_epsf(),
+                self._make_figs(),
+                self._make_textObjs(),
                 signature,
-                self.make_footer(talk),
+                self._make_footer(talk),
                 logos,
-                self.make_waitbar(talk)
+                self._make_waitbar(talk)
                 ).scale(scale, scale)
 
         return Page(All, orientation=self.orientation)
