@@ -27,7 +27,7 @@ __revision__ = '$Revision$'
 
 from pyscript.defaults import defaults
 from pyscript import Color, Group, Epsf, Area, P, Align, Rectangle, TeX, \
-        Page, Distribute, Text, Pages
+        Page, Distribute, Text, Pages, VAlign, Path
 from pyscript.render import render
 import os, types
 
@@ -35,31 +35,48 @@ class TeXBox(Group):
     '''
     Typeset some LaTeX within a fixed width box.
     
-    @cvar fixed_width: the width of the box
+    @ivar fixed_width: the width of the box
     @type fixed_width: float
 
-    @cvar tex_scale: The amount by which to scale the TeX
+    @ivar tex_scale: The amount by which to scale the TeX
     @type tex_scale: float
 
-    @cvar align: alignment of the LaTeX to box if it is smaller
+    @ivar align: alignment of the LaTeX to box if it is smaller
     @type align: anchor string
     '''
-
-    fixed_width = 9.4
-    tex_scale = 0.7
-    fg = Color(0)
-    align = "w"
-    text_style = ""
 
     def __init__(self, text, **options):
         Group.__init__(self, **options)
 
+        self.text = text
+        self.fixed_width = 9.4
+        self.tex_scale = 0.7
+        self.fg = Color(0)
+        self.align = "w"
+        self.text_style = ""
+
+    def set_fg(self, fg):
+        self.fg = fg
+
+    def set_fixed_width(self, fixed_width):
+        self.fixed_width = fixed_width
+
+    def set_tex_scale(self, tex_scale):
+        self.tex_scale = tex_scale
+
+    def set_align(self, align):
+        self.align = align
+
+    def set_text_style(self, text_style):
+        self.text_style = text_style
+
+    def make(self):
         width_pp = int(self.fixed_width/float(self.tex_scale)*defaults.units)
 
         al = Align(a1=self.align, a2=self.align, space=0)
 
         t = TeX(r'\begin{minipage}{%dpt}%s %s\end{minipage}' \
-                % (width_pp, self.text_style, text), 
+                % (width_pp, self.text_style, self.text), 
                 fg=self.fg)
 
         t.scale(self.tex_scale, self.tex_scale)
@@ -69,7 +86,7 @@ class TeXBox(Group):
         al.append(a)
 
         self.append(al)
-        apply(self, (), options)
+        #apply(self, (), options)  # why do we do this???
 
 class Box_1(Group):
     '''
@@ -122,10 +139,640 @@ class Box_1(Group):
 
         self.insert(0, r)
 
+class CodeBox(Group):
+    """
+    A box with a 'dog-ear' to contain code fragments
+    """
+
+    def __init__(self, item, **options):
+        Group.__init__(self, **options)
+
+        # if we have a string object as input, wrap it in a TeXBox
+        if (isinstance(item, types.StringType)):
+            obj = TeXBox(item)
+
+        bg = Color('Orange')*1.3
+        fg = Color('black')*0.4
+        border = 0.75
+        fixed_width = 2.5
+        pad = 0.2
+        dogear = 0.25
+        gb = obj.bbox()
+        h = gb.height
+        w = gb.width
+
+        self.append(Path(
+            P(-pad, -pad),
+            P(-pad, h+pad),
+            P(w+pad, h+pad),
+            P(w+pad, -pad+dogear),
+            P(w+pad-dogear, -pad),
+            P(w+pad-dogear, -pad+dogear),
+            P(w+pad, -pad+dogear),
+            P(w+pad-dogear, -pad),
+            P(-pad, -pad),
+            bg=bg,
+            fg=fg,
+            linewidth=border,
+            miterlimit=1.0)
+            )
+        obj.c = self.bbox().c
+
+        self.append(obj)
+
+class Poster(Page):
+    """
+    A poster class.
+
+    More docs forthcoming...
+    """
+    def __init__(self, size, style=None):
+        Page.__init__(self)
+
+        # set stuff up
+        self.size = size
+        if style is not None:
+            self._load_style(style)
+        else:
+            self.orientation = "Portrait"
+            self.num_columns = 2
+
+            # set the default style settings
+            self.title = ""
+            self.title_fg = Color("yellow")*2.0
+            self.title_scale = 1.4
+            self.title_width = 0.8  # as a fraction of the total poster width
+            self.title_text_style = "\sf"
+
+            self.authors = ""
+            self.authors_fg = Color("yellow")
+            self.authors_scale = 1
+            self.authors_width = 0.8  # as a fraction of the total poster width
+            self.authors_text_style = "\sf"
+
+            self.address = ""
+            self.address_fg = Color("yellow")
+            self.address_scale = 0.9
+            self.address_width = 0.8  # as a fraction of the total poster width
+            self.address_text_style = "\sf"
+
+            self.abstract = ""
+            self.abstract_fg = Color("gold")*1.1
+            self.abstract_scale = 0.8
+            self.abstract_width = 0.92  # relative to total width of poster
+            self.abstract_text_style = ""
+
+            self.gutter = 0.2
+            self.pad = 0  # should get set by add_column()
+
+            self.bg = Color("royalblue")*0.8
+
+            self.signature_fg = Color("white")
+
+            self.logo_height = 1.2
+
+        self.logos = []
+        self.columns = []
+
+        self.area = self.area()
+
+        # subtract the gutter to get the printing area
+        self.printing_area = Area(
+                sw=self.area.sw + P(1, 1)*self.gutter,
+                width=self.area.width - 2*self.gutter,
+                height=self.area.height - 2*self.gutter
+                )
+
+    def set_title(self, title):
+        """
+        Set the title to use for the poster
+
+        @param title: the text of the poster title
+        @type title: string
+        """
+        self.title = title
+        pass
+
+    def set_authors(self, authors):
+        """
+        Set the authors of the poster
+
+        @param authors: the text of the poster authors
+        @type authors: string
+        """
+        self.authors = authors
+        pass
+
+    def set_address(self, address):
+        """
+        Set the address of the institution of those presenting the poster
+
+        @param address: the text of the address
+        @type address: string
+        """
+        self.address = address
+        pass
+
+    def set_abstract(self, abstract):
+        """
+        Set the abstract of the poster
+
+        @param abstract: the text of the poster abstract
+        @type abstract: string
+        """
+        self.abstract = abstract
+        pass
+
+    def set_size(self, size):
+        """
+        Set the size of the poster.
+        
+        These are standard page sizes.   It is a good idea to develop a
+        poster at a size of "a4" and then for the final poster use "a0".  It
+        is also handy when at a poster session at a conference to have a4
+        size versions of the a0 poster to give out to people, so the a4
+        setting is also handy for that.
+
+        @param size: the size of the poster
+        @type size: string
+        """
+        self.size = size
+        pass
+
+    def set_style(self, style):
+        """
+        Set the style of the poster.  This is the name of a set of
+        predefined fonts, sizes, colours etc for the text, the columns of
+        the poster and the poster background.
+
+        @param style: the text of the name of the poster style to use
+        @type style: string
+        """
+        self.style = style
+        pass
+
+    def set_orientation(self, orientation):
+        """
+        Set the orientation of the poster.  Options are "portrait" or
+        "landscape".
+
+        @param orientation: the page orientation of the poster
+        @type orientation: string
+        """
+        self.orientation = orientation
+        pass
+
+    def set_num_columns(self, num_columns):
+        """
+        Set the number of columns to use for the poster.  Typically one
+        would use two columns for portrait, and three for landscape.
+
+        @param num_columns: the number of columns to use
+        @type num_columns: int
+        """
+        self.num_columns = num_columns
+        pass
+
+    def add_logo(self, logo, height=None, width=None):
+        """
+        Add a logo to the poster.
+
+        If only one logo is added to the poster, it is by default located at
+        the top left-hand corner.  The second logo is then positioned in the
+        top right-hand corner.  The third is positioned in the top middle.
+        If you add more than that, the logos are distributed evenly across
+        the top of the poster.
+
+        @param logo: the file name of the eps file of the logo to add
+        @type logo: text
+
+        @param height: the height of the logo
+        @type height: float
+
+        @param anchor: anchor location of the logo (if you want it positioned
+        somewhere other than the default)
+        @type anchor: string
+        """
+        if height is None:
+            height = self.logo_height
+
+        obj = Epsf(logo, height=height)
+        self.logos.append(obj)
+
+    def add_logos(self, *logos, **options):
+        """
+        Add several logos to the poster at one time.
+
+        If only one logo is added to the poster, it is by default located at
+        the top left-hand corner.  The second logo is then positioned in the
+        top right-hand corner.  The third is positioned in the top middle.
+        If you add more than that, the logos are distributed evenly across
+        the top of the poster.
+
+        @param logo: the file name of the eps file of the logo to add
+        @type logo: text
+
+        @param height: the height of the logo
+        @type height: float
+        """
+        # process the options, if any
+        if options.has_key('height'):
+            height = options['height']
+        else:
+            height = self.logo_height
+
+        pass
+
+    def add_column(self, column, side):
+        """
+        Add a column of the poster.
+
+        @param column: the Column object to add as the poster column
+        @type column: Column object
+
+        @param side: the side on which the column is to be on the poster.
+        Valid values are "left", "middle" (useful for landscape only) and
+        "right".
+        @type side: string
+        """
+        # there must be a better way to write this if statement,
+        # something like if side is not in [left, middle, right] ???
+        if side != 'left' and side != 'middle' and side != 'right':
+            errMsg = "You must specify either 'left', 'middle', or 'right'\n"
+            errMsg += "I got: '%s'" % side
+            raise ValueError, errMsg
+                    
+
+        self.columns.append(column)
+
+    def _make_title(self):
+        """
+        Make the title
+        """
+        titlebox = TeXBox(text=self.title)
+        titlebox.set_fg(self.title_fg)
+        titlebox.set_fixed_width(self.printing_area.width*self.title_width)
+        titlebox.set_tex_scale(self.title_scale)
+        titlebox.set_align("c")
+        titlebox.set_text_style(self.title_text_style)
+        titlebox.make()
+
+        return titlebox
+
+    def _make_authors(self):
+        """
+        Make the authors
+        """
+        authorbox = TeXBox(self.authors)
+        authorbox.set_fg(self.authors_fg)
+        authorbox.set_tex_scale(self.authors_scale)
+        authorbox.set_fixed_width(self.printing_area.width*self.authors_width)
+        authorbox.set_align("c")
+        authorbox.set_text_style(self.authors_text_style)
+        authorbox.make()
+
+        return authorbox
+
+    def _make_address(self):
+        """
+        Make the address
+        """
+        addressbox = TeXBox(self.address)
+        addressbox.set_fg(self.address_fg)
+        addressbox.set_tex_scale(self.address_scale)
+        addressbox.set_fixed_width(self.printing_area.width*self.address_width)
+        addressbox.set_align("c")
+        addressbox.set_text_style(self.address_text_style)
+        addressbox.make()
+
+        return addressbox
+
+    def _make_abstract(self):
+        """
+        Make the abstract
+        """
+        abstractbox = TeXBox(self.abstract)
+        abstractbox.set_fg(self.abstract_fg)
+        abstractbox.set_tex_scale(self.abstract_scale)
+        abstractbox.set_fixed_width(
+                self.printing_area.width*self.abstract_width)
+        abstractbox.set_align("c")
+        abstractbox.set_text_style(self.abstract_text_style)
+        abstractbox.make()
+
+        return abstractbox
+
+    def _make_logos(self):
+        """
+        Make the logos
+        """
+        logos = Align(a1="e", a2="w", angle=90, space=None)
+        for logo in self.logos:
+            logos.append(logo)
+
+        Distribute(logos, a1="e", a2="w",
+                p1=self.printing_area.nw,
+                p2=self.printing_area.ne,
+                )
+
+        return logos
+
+    def _make_columns(self):
+        """
+        Make the columns
+        """
+
+        print "Number of columns is: %d" % len(self.columns)
+
+        # vertically align the columns items, but with no spacing yet
+        for col in self.columns:
+            VAlign(col, space=None)
+
+        # distribute the columns horizontally
+        if self.num_columns == 2:
+            Distribute(Area(width=0, height=0),
+                    self.columns[0], self.columns[1],
+                    Area(width=0, height=0),
+                    p1=self.printing_area.w,
+                    p2=self.printing_area.e,
+                    a1="e", a2="w")
+        elif self.num_columns == 3:
+            Distribute(Area(width=0, height=0),
+                    self.columns[0], self.columns[1], self.columns[2],
+                    Area(width=0, height=0),
+                    p1=self.printing_area.w,
+                    p2=self.printing_area.e,
+                    a1="e", a2="w")
+        else:
+            raise ValueError, \
+                "Incorrect number of columns. Should be 2 or 3. I got %d" % \
+                self.num_columns
+
+        # find the distance between two of the columns
+        self.pad = (self.columns[0].bbox().w - self.columns[1].bbox().e)[0]
+
+        # vertically align the column items
+        for col in self.columns:
+            VAlign(col, space=self.pad)
+
+        # now align the columns themselves
+        all_cols = Align(angle=90, space=None, a1="ne", a2="nw")
+        for col in self.columns:
+            all_cols.append(col)
+
+        return all_cols
+
+    def _make_background(self):
+        """
+        Make the background of the poster
+        """
+        area = self.area()
+
+        return Rectangle(width=area.width,
+                height=area.height,
+                fg=None,
+                bg=self.bg
+                )
+
+    def make(self, file):
+        """
+        Make the poster.
+
+        @param file: the file name of the poster output eps file
+        @type file: string
+        """
+        all = Align(a1="s", a2="n", angle=180, space=self.pad)
+        all.append(self._make_logos())
+        all.append(self._make_title())
+        all.append(self._make_authors())
+        all.append(self._make_address())
+        all.append(self._make_abstract())
+        all.append(self._make_columns())
+
+        all.n = self.printing_area.n - P(0, 0.1)
+
+        back = self._make_background()
+
+        p = self.printing_area.se+P(0, 1.2)
+        signature = Text(
+                "Created with PyScript.  http://pyscript.sourceforge.net",
+                size=6, sw=p, fg=self.signature_fg).rotate(-90, p)
+
+        self.append(back)
+        self.append(all)
+        self.append(signature)
+
+        # actually generate the postscript
+        render(self, file=file)
+
+class Column(VAlign):  # I *think* this should inherit from VAlign...
+    """
+    A column of a poster.  Basically just a container for various boxes.
+
+    More docs forthcoming...
+    """
+    def __init__(self, poster):
+        VAlign.__init__(self)
+
+        self.boxes = []
+
+    def add_box(self, box):
+        """
+        Add a box to the column
+
+        @param box: the box to add to the column
+        @type box: ColumnBox object
+        """
+        self.append(box._make())
+
+    def _make(self):
+        """
+        Make the column
+        """
+        for box in self.boxes:
+            self.append(box._make())
+
+        return self
+
+class ColumnBox(Group):
+    """
+    A box, containing various objects, with a fixed width, but variable
+    height
+
+    Should add more docs here too...
+    """
+    def __init__(self, poster):
+        Group.__init__(self)
+
+        self.title = ""
+        self.items = []
+
+    def set_title(self, title):
+        """
+        Set the title of the box within the column
+
+        @param title: the title of the column box
+        @type title: string
+        """
+        self.title = title
+
+    def add_TeXBox(self, text):
+        """
+        Adds a TeXBox object to the column
+
+        @param text: the text of the TeXBox object to add
+        @type text: string
+        """
+        texbox = TeXBox(text)
+        texbox.make()
+        # other settings here...
+        self.items.append(texbox)
+
+    def add_fig(self, fig, width=1.0, height=1.0):
+        """
+        Add an arbitrary figure to the column box, with a white background.
+
+        This could be a previously defined pyscript diagram (for instance).
+        If only one of the height or width is given then the figure is
+        scaled appropriately, maintaining the original aspect ratio.
+
+        @param fig: the figure to add
+        @type fig: pyscript object
+
+        @param width: the width of the figure
+        @type width: float
+
+        @param height: the height of the figure
+        @type height: float
+        """
+        pass
+
+    def add_epsf(self, file, width=1.0, height=1.0):
+        """
+        Add an eps file to the column box.
+
+        If only one of the height or width is given then the figure is
+        scaled appropriately, maintaining the original aspect ratio.
+
+        @param file: the file name of the eps file to add
+        @type fig: string
+
+        @param width: the width of the figure
+        @type width: float
+
+        @param height: the height of the figure
+        @type height: float
+        """
+        pass
+
+    def add_object(self, obj):
+        """
+        Add a pre-defined object to the box, this could be an Align or Group
+        object for example
+
+        @param obj: the object to be added
+        @type obj: pyscript object
+        """
+        pass
+
+    def add_text(self, text):
+        """
+        Add arbitrarily placed text to the box
+
+        @param text: the text to be added
+        @type text: string
+        """
+        pass
+
+    def _make_title(self):
+        """
+        Make the title
+        """
+        titlebox = TeXBox(self.title)
+        titlebox.set_align("c")
+        titlebox.set_tex_scale(1.1)
+        titlebox.set_fixed_width(9.4)
+        titlebox.set_text_style(r"\sf")
+        titlebox.set_fg(Color("orangered")*0.95)
+        titlebox.make()
+
+        return titlebox
+
+    def _make(self):
+        """
+        Make the column box object
+        """
+        valign = VAlign(space=0.1)
+        valign.append(self._make_title())
+        print "Number of items in the column box is: %d" % len(self.items)
+        for item in self.items:
+            valign.append(item)
+
+        # the reason for the BasicBox class is to let the overall poster
+        # style handle the width, foreground, etc. etc.
+        box = BasicBox()
+        box.set_height(valign.bbox().height + 2*box.pad)
+        box.set_width(9.9)  # absorb into style
+        box.set_anchor("n", valign.bbox().n+P(0, 0.2))
+        #box.n = valign.bbox().n+P(0, 0.2)  # absorb into style ???
+        box.set_bg(Color("LightGoldenRod")*1.1) # absorb into style
+        box.set_border(1) # absorb into style
+
+        # append the objects to the group
+        self.append(box)
+        self.append(valign)
+
+        return self
+
+class BasicBox(Rectangle):
+    """
+    A basic box, with border, and background to use in behind textual and
+    other objects
+    """
+    def __init__(self):
+        Rectangle.__init__(self)
+
+        self.bg = Color("lavender")
+        self.fg = Color(0)
+        self.border = 1
+        self.fixed_width = 9.6
+        self.pad = 0.2
+        self.radius = 0
+        self.width = 9.9
+        self.height = 1
+        self.anchor = "n"
+
+    def set_height(self, height):
+        self.height = height
+
+    def set_width(self, width):
+        self.width = width
+
+    def set_bg(self, bg):
+        self.bg = bg
+
+    def set_fg(self, fg):
+        self.fg = fg
+
+    def set_border(self, border):
+        self.linewidth = border
+
+    def set_radius(self, radius):
+        """
+        Set the radius of the corners of the box, if they are rounded
+        """
+        self.r = radius
+
+    def set_pad(self, pad):
+        self.pad = pad
+
+    def set_anchor(self, anchor, location):
+        exec("self.%s = location" % anchor)
+
 class Poster_1(Page):
     '''
     A poster style, portrait orientation very similar to a 
-    journal articles front page. Title, authors and abstract across
+    journal article's front page. Title, authors and abstract across
     top. two columns for boxes with details. It is set up for A4 paper
     which can then be scaled for A0 etc.
     
@@ -162,44 +809,42 @@ class Poster_1(Page):
     @cvar col2: a Group() containing right column objects
 
     '''
-    size = "A4"
-    gutter = .2 # paper margin for A4 in cm
-
-    bg = Color('DarkSlateBlue')
-
-    title = ""
-    title_fg = Color('Yellow')
-    title_scale = 1.4
-    title_width = .8
-
-    address = ""
-    address_fg = Color(0)
-    address_scale = 1
-    address_width = .8
-
-    authors = ""
-    authors_fg = Color(0)
-    authors_scale = 1
-    authors_width = .8
-    
-    abstract = ""
-    abstract_fg = Color(0)
-    abstract_scale = .8
-    abstract_width = .8
-    
-    logo_height = .8
-    logos = ()
-
-    col1 = Group()
-    col2 = Group()
-
-    signature_fg = bg*0.8
-    
-    printing_area = None
-
     def __init__(self):
 
         Page.__init__(self)
+        
+        self.size = "A4"
+        self.gutter = 0.2 # paper margin for A4 in cm
+
+        self.bg = Color('DarkSlateBlue')
+
+        self.title = ""
+        self.title_fg = Color('Yellow')
+        self.title_scale = 1.4
+        self.title_width = 0.8
+
+        self.address = ""
+        self.address_fg = Color(0)
+        self.address_scale = 1
+        self.address_width = 0.8
+
+        self.authors = ""
+        self.authors_fg = Color(0)
+        self.authors_scale = 1
+        self.authors_width = 0.8
+        
+        self.abstract = ""
+        self.abstract_fg = Color(0)
+        self.abstract_scale = 0.8
+        self.abstract_width = 0.8
+        
+        self.logo_height = 0.8
+        self.logos = ()
+
+        self.col1 = Group()
+        self.col2 = Group()
+
+        self.signature_fg = bg*0.8
         
         area = self.area()
         
@@ -210,7 +855,28 @@ class Poster_1(Page):
             height=area.height-2*self.gutter
             )
 
-    def make_logos(self):
+    def add_fig(file, width=5.0):
+        """
+        This method needs to be fixed up.  It's not to put a figure on the
+        page, but an eps file...
+        """
+        
+        fig = Epsf(file)
+        rect1 = Rectangle(c=fig.c,
+                width=fig.bbox().width+0.1,
+                height=fig.bbox().height+0.1,
+                fg=Color('black'),
+                bg=Color('white'),
+                linewidth=0.5,
+                )
+        out_fig = Group(rect1,fig)
+        out_fig.scale(width/out_fig.bbox().width,width/out_fig.bbox().width)
+        return out_fig
+
+    def add_epsf():
+        pass
+
+    def _make_logos(self):
 
         #thelogos = Group()
         thelogos = Align(a1="e", a2="w", angle=90, space=None)
@@ -225,8 +891,7 @@ class Poster_1(Page):
 
         return thelogos
 
-
-    def make_title(self):
+    def _make_title(self):
         '''
         Return a title object
         '''
@@ -236,7 +901,7 @@ class Poster_1(Page):
                       tex_scale=self.title_scale,
                       align="c")
 
-    def make_address(self):
+    def _make_address(self):
         """
         Return an address object
         """
@@ -246,7 +911,7 @@ class Poster_1(Page):
                     tex_scale=self.address_scale,
                     align="c")
 
-    def make_abstract(self):
+    def _make_abstract(self):
         '''
         Return the abstract object
         '''
@@ -256,7 +921,7 @@ class Poster_1(Page):
                       tex_scale=self.abstract_scale,
                       fg=self.abstract_fg, align="c")
 
-    def make_authors(self):
+    def _make_authors(self):
         '''
         Return authorlist object
         '''
@@ -267,7 +932,7 @@ class Poster_1(Page):
                       fixed_width=self.printing_area.width*self.authors_width,
                       align="c")
 
-    def make_background(self):
+    def _make_background(self):
         '''
         Return background (block color)
         '''
@@ -278,7 +943,6 @@ class Poster_1(Page):
                          fg=None,
                          bg=self.bg
                          )
-    
         
     def make(self):
         '''
@@ -299,7 +963,6 @@ class Poster_1(Page):
                    p1=self.printing_area.w,
                    p2=self.printing_area.e, a1="e", a2="w")
         
-        
         # find the distance between the cols
         pad = (self.col2.bbox().w-self.col1.bbox().e)[0]
 
@@ -312,18 +975,18 @@ class Poster_1(Page):
                 angle=90, space=None, a1="ne", a2="nw")
         
         all = Align(
-            self.make_logos(),
-            self.make_title(),
-            self.make_authors(),
-            self.make_address(),
-            self.make_abstract(),
+            self._make_logos(),
+            self._make_title(),
+            self._make_authors(),
+            self._make_address(),
+            self._make_abstract(),
             cols,
             a1="s", a2="n", angle=180, space=pad
             )
 
-        all.n = self.printing_area.n-P(0, .1)
+        all.n = self.printing_area.n-P(0, 0.1)
 
-        back = self.make_background()
+        back = self._make_background()
 
         p = self.printing_area.se+P(0, 1.2)
         signature = Text(
