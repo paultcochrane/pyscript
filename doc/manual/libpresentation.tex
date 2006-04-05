@@ -77,6 +77,15 @@ it is best to give their address.  To do provide this information to the
 use the \vrb{set\_address()} method or set the \vrb{address} attribute of
 the instantiated \vrb{Talk()} object.
 
+It is possible that your business or institute has a logo that you'd like to
+use.  If so, convert it to an EPS file, and you can add it to the talk using
+the \vrb{add\_logo()} method like so:
+\begin{python}
+talk.add_logo("myepslogo.eps", height=2)
+\end{python}
+You can set the height of the logo using the \vrb{height} attribute as shown
+in the example above.
+
 That's basically it as far as the \obj{Talk()} object itself goes.  The main
 amount of work is in producing the individual slides of the presentation,
 which is what we discuss next.
@@ -87,14 +96,10 @@ The \vrb{Slide()} object defines a particular slide; one creates a new
 \vrb{Slide()} object for each slide in the presentation, calling them all at
 the end in the \vrb{render()} function to generate the entire talk.  
 
-The first slide in your talk will be the titlepage.  To generate the
-titlepage do something like this:
-\begin{python}
-titlepage = Slide(talk)  # instantiate a Slide object of the current 'talk'
-titlepage.titlepage = True  # tell the library that this is the titlepage
-\end{python}
-There exists a convenience function to tell the library that this is the
-titlepage, and, you guessed it, it's called \vrb{set\_titlepage()}.
+The first slide in your talk will be the titlepage.  However, since getting
+you to make a new \vrb{Slide()} object just to generate the title page is
+silly (well, you've just given the title page all it needs to know eh?) the
+library automatically generates the title page slide for you.
 
 Slides usually have a title, some sequence of headings, possibly a figure
 (defined in \pyscript for example), or an imported EPS image, and possibly
@@ -164,18 +169,29 @@ which will make the diagram 12cm wide, and centre it on the current page.
 Similarly, one can add diagrams or images that already exist in EPS files.
 To do this use the \vrb{add\_epsf()} method like so:
 \begin{python}
-intro.add_epsf(file="myEpsFile.eps")
+intro.add_epsf(file="myEpsFile.eps", c=intro.area.c, width=14)
 \end{python}
-The \vrb{add\_epsf()} method processes the anchor location and width
+The \vrb{add\_epsf()} method processes the anchor location, width and height
 options in the same way the \vrb{add\_fig()} method does.
 
-At the end of your script you'll want to render the output of your slides,
-and generate the talk, to do this use the \vrb{render()} function of
-\pyscript in the usual manner:
+You might like to add some text to your slide and position it arbitrarily on
+the page, as opposed to have \vrb{presentation.py} work out where to put it
+for you (as is done with the \vrb{add\_heading()} method).  Therefore, there
+is the convenience function \vrb{add\_text()}.  Here is an example:
 \begin{python}
-# render it!
-render(
-    titlepage,
+intro.add_text("Hello there!", e=intro.area.e-P(-2,-2), scale=2)
+\end{python}
+Just to be different, the \vrb{add\_text()} method has a scale attribute as
+opposed to a height or width attribute.  This is really silly, and should
+probably be changed.  If you read this sentence, please put a feature
+request to change this on the \href{http://pyscript.sf.net}{pyscript} web
+page :-).
+
+At the end of your script you'll want to make the talk in its entirety, to
+do this use the \vrb{make()} method of the \vrb{Talk()} class like so:
+\begin{python}
+# make it!
+talk.make(
     intro,
     another_slide,
     file="mytalk.ps")
@@ -186,13 +202,128 @@ a Postscript file and not an EPS file; this means that the output has
 multiple pages as one would hope for a seminar!
 
 To actually give your seminar there are several tools you can use.  One of
-the most common is to turn the Postscript into PDF via \texttt{epstopdf} or
-some similar tool, and then use the full screen mode of Adobe Acrobat
-Reader~\cite{acroread} to display the talk.  Alternatively, you might like to
-use a program like \texttt{pspresent}~\cite{pspresent}.
+the most common is to turn the Postscript into PDF via \ttt{ps2pdf} or some
+similar tool, and then use the full screen mode of Adobe Acrobat
+Reader~\cite{acroread} to display the talk.  Alternatively, you might like
+to use a program like \ttt{pspresent}~\cite{pspresent}.  Please note that
+due to a bug in Ghostscript version 7 (and possibly below) if there is
+insufficient text on a page, the postscript will be converted by
+\ttt{ps2pdf} incorrectly to give a portait-orientated page, as opposed to a
+landscape page.  The postscript will view correctly in Ghostview (and so
+will the pdf incidentally), however, the pdf will view incorrectly in
+\ttt{xpdf} and \ttt{acroread}.  This bug seems to have been fixed in
+Ghostscript version 8.
 
 \subsection{Styles for talks and seminars}
 \label{sec:styles}
+
+To change your talk style from the default you can specify one of the
+predefined styles by passing the \vrb{style} option to the \vrb{Talk()}
+class on instantiation.  For instance:
+\begin{python}
+talk = Talk(style="prosper-darkblue")
+\end{python}
+which will load the style that looks a lot like the ``darkblue'' style of
+the \href{prosper}{prosper} \LaTeX{} package.  To load the style, \pyscript
+will look in either the \ttt{~/.pyscript/styles/} directory or the current
+directory for a python file whose file name will be the name of the style
+with `\ttt{.py}' appended.
+
+If you are feeling really keen, you can write your own style.  One of the
+best ways to do this is to copy one of the ones provided with the \pyscript
+distribution.  Let's go through the details of the ``prosper-darkblue''
+style now.
+
+\begin{python}
+# talk style for PyScript, following the Darkblue design of prosper
+
+HOME = os.path.expandvars("$HOME")
+stylesDir = HOME + "/.pyscript/styles/"
+
+# set the foreground and background colour of the title text of the talk
+self.title_fg = Color('white')
+self.title_bg = Color('white')
+
+# set the talk title's text style
+self.title_textstyle = r"\bf\sf"
+
+# set the text style for the text of who is giving the talk
+self.speaker_textstyle = r"\sf"
+
+# set the colour and text style of the address of the speaker of the talk
+self.address_fg = Color('white')
+self.address_textstyle = r"\sf"
+
+# set the colour and text style of the authors of the talk (not necessarily
+# the speaker of the talk)
+self.authors_fg = Color('white')
+self.authors_textstyle = r"\sf"
+
+# set the colour and text style of the title of the *slide*
+self.slide_title_fg = Color('lightgray')
+self.slide_title_textstyle = r"\bf"
+
+# set the colour, scale, textstyle, bullet and indent type for a level 1 heading
+self.headings_fgs[1] = Color('white')
+self.headings_scales[1] = 3
+self.headings_textstyle[1] = r"\sf"
+self.headings_bullets[1] = Epsf(file=stylesDir+"redbullet.eps").scale(0.2,0.2)
+self.headings_indent[1] = 0
+
+# set the colour, scale, textstyle, bullet and indent type for a level 2 heading
+self.headings_fgs[2] = Color('white')
+self.headings_scales[1] = 2.5
+self.headings_textstyle[2] = r"\sf"
+self.headings_bullets[2] = Epsf(file=stylesDir+"greenbullet.eps").scale(0.15,0.15)
+self.headings_indent[2] = 0.5
+
+# set the colour, scale, textstyle, bullet and indent type for a level 3 heading
+self.headings_fgs[3] = Color('white')
+self.headings_scales[1] = 2.2
+self.headings_textstyle[3] = r"\sf"
+self.headings_bullets[3] = Epsf(file=stylesDir+"yellowbullet.eps").scale(0.1,0.1)
+self.headings_indent[3] = 1
+
+# set the colour, textstyle and scale for placed text
+self.text_scale = 3.0
+self.text_fg = Color('white')
+self.text_textstyle = r"\sf"
+\end{python}
+%stopzone  % help for vim
+
+First off we work out where the styles directory is, and since it should be
+in \ttt{~/.pyscript/styles} we define this with the \ttt{stylesDir}
+variable.  Note that this is a python file like any other, all it's doing is
+expecting you to add a certain set of values that \pyscript's
+\vrb{presentation.py} library knows about.  
+
+Next we set the title foreground and background colour by setting the
+\vrb{title\_fg} and \vrb{title\_bg} variables.  The text style is bold
+(\ttt{\\bf}) and a sans serif (\ttt{\\sf}) font.  Note that this uses
+\LaTeX{} to specify these styles as internally \pyscript \vrb{TeX} objects
+are used.  If this is a problem for you, just send us a bug report or
+feature request on the \href{http://pyscript.sf.net}{pyscript} web page and
+we'll try and fix it for you as soon as we can.
+
+Next the text style for the speaker element of the title page is set, and
+the colour and text style for the authors and address elements.
+
+Now we process the elements for the slides themselves.  We need to set a
+foreground colour and text style for the title of the slide.  We also need
+to specify the scale, foreground colour, text style bullet and indentation
+amount to use for the three levels of headings defined in the
+\vrb{presentation.py} library.  Note that one has to specify for which level
+the style is being set by the square brackets: e.g.~\vrb{headings\_fg[1]}.  
+
+One doesn't have to set the bullets to a text or \LaTeX kind of string, but
+also to EPS files, which is what we have done in the above example where
+red, green and yellow circles are used for the various heading levels.
+We've scaled them here (using the \pyscript \vrb{scale} method) so that they
+have different sizes and one can more easily tell when viewing the talk that
+one level has precedence over the other.
+
+If one wishes to place arbitrary text on the page, one can specify the
+default scale, colour and text style here too.
 
 \section{Creating a poster}
 
