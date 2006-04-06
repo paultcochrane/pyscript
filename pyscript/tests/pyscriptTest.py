@@ -21,7 +21,7 @@ class PyScriptTest(Group):
             self.text = text
 
         self.objects.append( HAlign( object, Text(self.text) ) )
-	print "Appending %s" % object.__class__
+        print "Appending %s" % object.__class__
 
         return
 
