@@ -1,0 +1,36 @@
+<!-- $Id$ -->
+
+<table class="blurb" cellpadding="5" cellspacing="0" border="0" width="100%">
+  <tr>
+    <th class="blurb">Related Software</th>
+  </tr>
+  <tr>
+    <td> 
+      <ul>
+        <li> 
+        <a href="http://cm.bell-labs.com/who/hobby/MetaPost.html">MetaPost</a>: 
+        A spin off from MetaFont, and the original inspiration for
+        PyScript. You can do some really cool things with MetaPost, but
+        the scripting language is awkward.
+        </li>
+        <li> 
+        <a href="http://glx.sourceforge.net/">GLE</a>: Graphics Layout
+        Engine. Very similar in concept to Pyscript, but has it's own
+        scripting language that is close to Postscript. It uses
+        LaTeX-like expressions without actually using LaTeX. I got
+        fustrated with it and decided to write my own ;)
+        </li>
+        <li> 
+        <a href="http://pyx.sourceforge.net/">PYX</a>: A very
+        similar project to pyscript. Some of the contructions are closer
+        to postscript than the object-orientation of pyscript. Well
+        worth checking out.
+        </li>
+      </ul>
+    </td> 
+  </tr>
+</table>
+
+<!--
+vim: expandtab shiftwidth=2:
+-->

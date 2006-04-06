@@ -1,0 +1,23 @@
+<!-- $Id$ -->
+
+<table class="blurb" cellpadding="5" cellspacing="0" border="0" width="100%">
+  <tr><th class="blurb">Docs</th></tr>
+  <tr>
+    <td>There are two sources of documentation,
+    <ul>
+      <li> 
+      <a href="pyscript.pdf">pyscript.pdf</a>: a hand-crafted manual. This 
+      is somewhat incomplete at the moment, but hey, you get that.
+      </li>
+      <li> 
+      <a href="api/index.html">API</a>: machine generated API, from the 
+      comments in the files themselves.
+      </li>
+    </ul>
+    </td>
+  </tr>
+</table>	
+
+<!--
+vim: expandtab shiftwidth=2:
+-->
