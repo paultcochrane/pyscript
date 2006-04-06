@@ -144,12 +144,11 @@ class CodeBox(Group):
     A box with a 'dog-ear' to contain code fragments
     """
 
-    def __init__(self, item, **options):
+    def __init__(self, text, **options):
         Group.__init__(self, **options)
 
-        # if we have a string object as input, wrap it in a TeXBox
-        if (isinstance(item, types.StringType)):
-            obj = TeXBox(item)
+        obj = TeXBox(text)
+        obj.make()
 
         bg = Color('Orange')*1.3
         fg = Color('black')*0.4
@@ -202,7 +201,7 @@ class Poster(Page):
             self.title_fg = Color("yellow")*2.0
             self.title_scale = 1.4
             self.title_width = 0.8  # as a fraction of the total poster width
-            self.title_text_style = "\sf"
+            self.title_text_style = "\large \sf"
 
             self.authors = ""
             self.authors_fg = Color("yellow")
@@ -402,7 +401,6 @@ class Poster(Page):
             errMsg += "I got: '%s'" % side
             raise ValueError, errMsg
                     
-
         self.columns.append(column)
 
     def _make_title(self):
@@ -482,7 +480,7 @@ class Poster(Page):
         Make the columns
         """
 
-        print "Number of columns is: %d" % len(self.columns)
+        #print "Number of columns is: %d" % len(self.columns)
 
         # vertically align the columns items, but with no spacing yet
         for col in self.columns:
@@ -541,7 +539,7 @@ class Poster(Page):
         @param file: the file name of the poster output eps file
         @type file: string
         """
-        all = Align(a1="s", a2="n", angle=180, space=self.pad)
+        all = Align(a1="s", a2="n", angle=180, space=0.2)
         all.append(self._make_logos())
         all.append(self._make_title())
         all.append(self._make_authors())
@@ -575,6 +573,7 @@ class Column(VAlign):  # I *think* this should inherit from VAlign...
         VAlign.__init__(self)
 
         self.boxes = []
+        self.space = 0.2
 
     def add_box(self, box):
         """
@@ -647,7 +646,7 @@ class ColumnBox(Group):
         """
         pass
 
-    def add_epsf(self, file, width=1.0, height=1.0):
+    def add_epsf(self, file, **options):
         """
         Add an eps file to the column box.
 
@@ -663,7 +662,27 @@ class ColumnBox(Group):
         @param height: the height of the figure
         @type height: float
         """
-        pass
+        # process the options, if any
+        if options.has_key('height'):
+            height = options['height']
+        else:
+            height = None
+
+        if options.has_key('width'):
+            width = options['width']
+        else:
+            width = None
+
+        if height is not None and width is None:
+            eps = Epsf(file=file, height=height)
+        elif height is None and width is not None:
+            eps = Epsf(file=file, width=width)
+        elif height is not None and width is not None:
+            eps = Epsf(file=file, width=width, height=height)
+        else:
+            eps = Epsf(file=file, height=1.0)
+
+        self.items.append(eps)
 
     def add_object(self, obj):
         """
@@ -673,7 +692,7 @@ class ColumnBox(Group):
         @param obj: the object to be added
         @type obj: pyscript object
         """
-        pass
+        self.items.append(obj)
 
     def add_text(self, text):
         """
@@ -682,7 +701,9 @@ class ColumnBox(Group):
         @param text: the text to be added
         @type text: string
         """
-        pass
+        tex = TeX(text)
+
+        self.items.append(tex)
 
     def _make_title(self):
         """
@@ -690,7 +711,7 @@ class ColumnBox(Group):
         """
         titlebox = TeXBox(self.title)
         titlebox.set_align("c")
-        titlebox.set_tex_scale(1.1)
+        titlebox.set_tex_scale(1.4)
         titlebox.set_fixed_width(9.4)
         titlebox.set_text_style(r"\sf")
         titlebox.set_fg(Color("orangered")*0.95)
@@ -704,7 +725,7 @@ class ColumnBox(Group):
         """
         valign = VAlign(space=0.1)
         valign.append(self._make_title())
-        print "Number of items in the column box is: %d" % len(self.items)
+        #print "Number of items in the column box is: %d" % len(self.items)
         for item in self.items:
             valign.append(item)
 
