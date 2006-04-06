@@ -8,8 +8,9 @@
       <td>
         <p>
         PyScript is a <a href="http://www.python.org">python</a> module for 
-        producing high quality postscript graphics. Rather than use a GUI to draw a 
-        picture, the picture is programmed using python and the PyScript objects.
+        producing high quality postscript graphics. Rather than use a GUI to 
+        draw a picture, the picture is programmed using python and the 
+        PyScript objects.
         </p>
         <p>Some of the key features are:</p>
         <ul>
