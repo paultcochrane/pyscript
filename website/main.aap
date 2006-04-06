@@ -2,10 +2,12 @@
 # $Id$
 
 Files = 
-    index.html
     docs.html
-    gallery.html
+    index.html
     links.html
+    gallery.html
+
+partsDir = htmlbuild/
 
 # publish stuff
 publishFiles = 
@@ -33,7 +35,30 @@ all: $Files
     publish: $publishFiles
 	:publishall
 @else:
-    :execute eg/main.aap
-    :print you now need to say "publish"
+    updatedStart = $(<)td class="updated"$(>)$BR $(<)i$(>)Last updated: 
+    updatedEnd = $(<)/i$(>)$(<)br /$(>)$BR
+    comments = comments to: $(<)a href="mailto:paultcochrane@users.sourceforge.net"$(>)webmaster$(<)/a$(>)$BR $(<)/td$(>)$BR
 
+    :rule %.html : %/%_header.part \
+            $(partsDir)banner.part %/%_body.part \
+            $(partsDir)general_footer.part
+        @import time
+        :eval time.strftime("%A %d %B %Y", time.localtime(time.time()))
+	    | :print $updatedStart $stdin$updatedEnd $comments
+	    | :cat $(match)/$(match)_header.part \
+                    $(partsDir)banner.part \
+                    $(match)/$(match)_body.part \
+		    $(partsDir)general_footer.part >! $target
+
+    #:rule %.html : $(partsDir)doctype.part %/%_header.part \
+            #$(partsDir)banner.part $(partsDir)spacer_start.part \
+            #%/%_body.part $(partsDir)spacer_end.part \
+            #$(partsDir)general_footer.part
+        #@import time
+        #:eval time.strftime("%A %d %B %Y", time.localtime(time.time()))
+            #| :print $updatedStart $stdin$updatedEnd $comments
+            #| :cat $(partsDir)doctype.part $(match)/$(match)_header.part \
+                    #$(partsDir)banner.part $(partsDir)spacer_start.part \
+                    #$(match)/$(match)_body.part $(partsDir)spacer_end.part - \
+                    #$(partsDir)general_footer.part >! $target
 
