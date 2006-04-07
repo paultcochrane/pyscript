@@ -118,3 +118,7 @@ rm -rf $RPM_BUILD_ROOT
 
 * Fri Mar 30 2006 Paul Cochrane <paultcochrane@gmail.com>
 - Finally got building to work properly
+
+* Fri Apr 7 2006 Paul Cochrane <paultcochrane@gmail.com>
+- Corrected Group tag, added dist to the Release tag, and changed the
+  Copyright tag to License as it now is (and corrected the tag value).
