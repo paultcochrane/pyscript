@@ -3,13 +3,13 @@ Name:      pyscript
 Version:   0.5
 Release:   1%{?dist}
 URL:       http://pyscript.sourceforge.net
-Source:    http://sourceforge.net/project/showfiles.php?group_id=50346
+Source:    http://dl.sourceforge.net/sourceforge/pyscript/pyscript-0.5.tar.gz
 License:   GPL
 Group:     Applications/Publishing
 Requires:  python, tetex
 Patch:     qi.patch
 BuildRoot: /tmp/%{name}-%{version}-buildroot
-Prefix:    /usr/local
+Prefix:    /usr
 
 %description
 PyScript is a Python module for producing high quality postscript graphics.
@@ -30,7 +30,7 @@ python setup.py build
 
 %install
 cd %{name}-%{version}
-python setup.py install --prefix=$RPM_BUILD_ROOT/usr/local
+python setup.py install --prefix=$RPM_BUILD_ROOT/usr
 
 %clean
 rm -f %{name}-%{version}.tar.gz
@@ -113,12 +113,12 @@ rm -rf $RPM_BUILD_ROOT
 %{prefix}/lib/python2.3/site-packages/pyscript/lib/quantumcircuits.pyc
 
 %changelog
-* Fri Mar 3 2006 Paul Cochrane <paultcochrane@gmail.com>
-- New spec file made for pyscript-0.5
+* Fri Apr 7 2006 Paul Cochrane <paultcochrane@gmail.com>
+- Corrected Group tag, added dist to the Release tag, and changed the
+  Copyright tag to License as it now is (and corrected the tag value).
 
 * Fri Mar 30 2006 Paul Cochrane <paultcochrane@gmail.com>
 - Finally got building to work properly
 
-* Fri Apr 7 2006 Paul Cochrane <paultcochrane@gmail.com>
-- Corrected Group tag, added dist to the Release tag, and changed the
-  Copyright tag to License as it now is (and corrected the tag value).
+* Fri Mar 3 2006 Paul Cochrane <paultcochrane@gmail.com>
+- New spec file made for pyscript-0.5
