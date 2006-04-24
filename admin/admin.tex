@@ -23,7 +23,39 @@ lint program for C, and gives a lot of checking and helpful output.  To
 generate html output from pylint use the following command from the pyscript
 main directory:
 \begin{verbatim}
-pylint --html=y pyscript > pylint.pyscript.html
+pylint --enable-similarities=n --ignore=fonts --html=y pyscript > pylint.pyscript.html
 \end{verbatim}
+
+\section{Release procedure}
+
+\begin{enumerate}
+\item Update CHANGES file
+\item Update MANIFEST.in
+\item Update BUGS file
+\item Update README file
+\item Update TODO file
+\item Make sure user manual is up to date
+\item Make sure epydoc isn't throwing any nasty errors, and if so, fix them
+\item Make sure pylint isn't picking up errors, if so, fix them (warnings
+and refactoring messages are probably ok...)
+\item Verify that build installs correctly (use e.g.~debootstrap, rpmstrap)
+\item Tag sources to current version (format: )
+\item Build distribution (\texttt{python setup.py sdist})
+\item Do a file release on sf.net
+\item Test that the release downloads and builds correctly
+\item Make a .rpm (Fedora Core 3 and Fedora Core 4) of the release and 
+add to file release on sf.net
+\item Make a .deb (Sarge) of the release and add to file release on sf.net
+\item Make a Gentoo ebuild and post to Gentoo Bugzilla
+\item Make a News announcement on sf.net pyscript project page
+\item Update website to report and reflect current version
+\item Update user manual on website
+\item Build the API from the distribution, \textbf{not} from the repository 
+version.  This is because the repository version has stuff in it that isn't
+yet public, and the testing stuff for instance doesn't need to be part of
+what is put up on the web
+\item Update API on website (use epydoc; see above)
+\item Post an announcement of release to comp.lang.python
+\end{enumerate}
 
 \end{document}
