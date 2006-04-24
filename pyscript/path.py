@@ -501,7 +501,7 @@ class Path(AffineObj):
     closed = 0
 
     #ArrowHead instances:
-    heads=[]
+    heads = []
 
     #_pathlettes=[]
 
@@ -548,17 +548,17 @@ class Path(AffineObj):
                 raise ValueError, "Unknown path control"
 
         # now add arrowheads
-        heads=[]
+        heads = []
         for head in self.heads:
         
             # make a copy so this class has it's own instance 
-            h=head.copy()
+            h = head.copy()
 
             # position it appropriately:
-            h.__init__(tip=self.P(head.pos),angle=self.tangent(head.pos).arg)
+            h.__init__(tip=self.P(head.pos), angle=self.tangent(head.pos).arg)
     
             heads.append(h)
-        self.heads=heads 
+        self.heads = heads 
            
 
     def bbox(self):
@@ -691,6 +691,6 @@ class DoubleArrow(Path):
     Path object with arrow at both ends ... just for convenience
     """
     #heads = [defaults.arrowhead(pos=1),defaults.arrowhead(pos=1,reverse=1)]
-    heads = [ArrowHead(1),ArrowHead(0,reverse=1)]
+    heads = [ArrowHead(1), ArrowHead(0, reverse=1)]
 
 # vim: expandtab shiftwidth=4:
