@@ -1,5 +1,5 @@
 """
-Pyscript font module for Courier Bold
+PyScript font module for Courier Bold
 """
 __revision__ = '$Revision$'
 attrs = {

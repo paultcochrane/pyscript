@@ -1,5 +1,5 @@
 """
-Pyscript font module for Times Italic
+PyScript font module for Times Italic
 """
 __revision__ = '$Revision$'
 attrs = {

@@ -1,5 +1,5 @@
 """
-Pyscript font module for Helvetica Oblique
+PyScript font module for Helvetica Oblique
 """
 __revision__ = '$Revision$'
 attrs = {

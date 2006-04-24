@@ -1,5 +1,5 @@
 """
-Pyscript font module for ITC Zapf Dingbats
+PyScript font module for ITC Zapf Dingbats
 """
 __revision__ = '$Revision$'
 attrs = {

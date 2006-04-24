@@ -1,5 +1,5 @@
 """
-Pyscript font module for Symbol
+PyScript font module for Symbol
 """
 __revision__ = '$Revision$'
 attrs = {

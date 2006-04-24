@@ -1,5 +1,5 @@
 """
-Pyscript font module for Courier Oblique
+PyScript font module for Courier Oblique
 """
 __revision__ = '$Revision$'
 attrs = {

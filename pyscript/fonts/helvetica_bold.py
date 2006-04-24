@@ -1,5 +1,5 @@
 """
-Pyscript font module for Helvetica Bold
+PyScript font module for Helvetica Bold
 """
 __revision__ = '$Revision$'
 attrs = {

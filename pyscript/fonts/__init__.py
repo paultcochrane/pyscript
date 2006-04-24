@@ -1,5 +1,5 @@
 """
-Fonts module for pyscript
+Fonts module for PyScript
 """
 
 __revision__ = '$Revision$'
