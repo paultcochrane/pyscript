@@ -2,10 +2,9 @@ from pyscript import *
 
 defaults.units=UNITS['mm']
 defaults.linewidth=1
-dashedline="[2 3] 0"
 
 black = Color("Black")
-grey = Color("LightGrey")
+grey = Color("LightGray")
 laserCol = Color("OrangeRed")
 pumpCol = Color("RoyalBlue")
 
@@ -44,13 +43,13 @@ def fibre(c):
     return Group(
         Path(loops.e,
              loops.e+x1,
-             C(loops.e+x2),
+             C(loops.e+x2, loops.e+x2),
              loops.e+x3
              #loops.e+x4
              ),
         Path(loops.w,
              loops.w-x1,
-             C(loops.w-x2),
+             C(loops.w-x2, loops.w-x2),
              loops.w-x3
              #loops.w-x4
              ),
@@ -77,6 +76,9 @@ def fibrecoupler(c,angle):
              )
         )
 
+    lens = Circle(r=4)
+    lens.scale(0.3,1)
+    lens.c = lenspos
     coupler = Group(
         
         box,
@@ -88,7 +90,7 @@ def fibrecoupler(c,angle):
              fibrepos,
              bg=black
              ),
-        Circle(r=4,c=lenspos).scale(0.3,1),
+	lens,
         iris
         ).rotate(angle,p=c)
 
@@ -181,31 +183,33 @@ point2 = analyser2.itoe(analyser2[4].w)
 
 fibre1 = fibre(P(220,10))
 fibre1.scale(1,-1,p=fibre1.c)
-fibre1.move(point1+P(10,-5)-fibre1.itoe(fibre1[0].path[-1]))
+#fibre1.move(point1+P(10,-5)-fibre1.itoe(fibre1[0].path[-1]))
+fibre1.move(point1+P(10,-5)-fibre1.itoe(fibre1[0].P(1)))
+
 fibre2 = fibre(P(220,10))
-fibre2.move(point2+P(10,5)-fibre2.itoe(fibre2[0].path[-1]))
+#fibre2.move(point2+P(10,5)-fibre2.itoe(fibre2[0].path[-1]))
+fibre2.move(point2+P(10,5)-fibre2.itoe(fibre2[0].P(1)))
 
 detector1 = Group(
     Rectangle(c=P(240,10),width=10,height=10,bg=black),
     Circle(r=5,c=P(245,10),bg=black),
 )
-detector1.move(fibre1.itoe(fibre1[1].path[-1])-detector1[1].w)
+#detector1.move(fibre1.itoe(fibre1[1].path[-1])-detector1[1].w)
+detector1.move(fibre1.itoe(fibre1[1].P(1))-detector1[1].w)
 detector2 = Group(
     Rectangle(c=P(240,10),width=10,height=10,bg=black),
     Circle(r=5,c=P(245,10),bg=black),
 )
-detector2.move(fibre2.itoe(fibre2[1].path[-1])-detector2[1].w)
-
-
+#detector2.move(fibre2.itoe(fibre2[1].path[-1])-detector2[1].w)
+detector2.move(fibre2.itoe(fibre2[1].P(1))-detector2[1].w)
 
 render(
-
     laser(P(70,10)),
 
     Path(P(70,10),P(110,10),linewidth=2,fg=pumpCol),
     arrowhead(P(100,10),1,3,90,pumpCol),
 
-    Path(P(110,10),P(140,10),linewidth=2,dash=dashedline,fg=pumpCol),
+    Path(P(110,10),P(140,10),linewidth=2,fg=pumpCol),
     arrowhead(P(130,10),1,3,90,pumpCol),
     Rectangle(c=P(140,10),width=4,height=4,fg=None,bg=black),
 
@@ -221,12 +225,12 @@ render(
 
     Path(
     point1,
-    C(point1+P(5,-5)),
+    C(point1+P(5,-5), point1+P(5,-5)),
     point1+P(10,-5),
     ),
     Path(
     point2,
-    C(point2+P(5,5)),
+    C(point2+P(5,5), point2+P(5,5)),
     point2+P(10,5),
     ),
 
@@ -235,7 +239,6 @@ render(
     # label preparation hologram
 
     # insert fibre between coupler and fibre loop
-
     fibre1,
     Rectangle(width=20,height=7,c=fibre1.c,bg=Color(1)),
     ScaledText(r'SMF',c=fibre1.c),
@@ -244,7 +247,6 @@ render(
     ScaledText(r'SMF',c=fibre2.c),
 
     # insert fibre between coupler and detector
-
     detector1,
     ScaledText(r'detector 1',nw=detector1.itoe(detector1[1].s)+P(-3,-3)),
     # label detector
