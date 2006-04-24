@@ -17,10 +17,10 @@
 # $Id$
 
 '''
-pyscript Presentation library (posters and talks)
+PyScript presentation library (posters and talks)
 
 There are some common useful component classes such as TeXBox and Box_1, 
-followed by poster and talk classes
+followed by Poster and Talk classes
 '''
 
 __revision__ = '$Revision$'
@@ -45,32 +45,52 @@ class TeXBox(Group):
     @type align: anchor string
     '''
 
-    def __init__(self, text, **options):
+    def __init__(self, text, fixed_width=9.4, tex_scale=0.7, align="w",
+            fg = Color(0), text_style="",
+            **options):
         Group.__init__(self, **options)
 
         self.text = text
-        self.fixed_width = 9.4
-        self.tex_scale = 0.7
-        self.fg = Color(0)
-        self.align = "w"
-        self.text_style = ""
+        self.fixed_width = fixed_width
+        self.tex_scale = tex_scale
+        self.fg = fg
+        self.align = align
+        self.text_style = text_style
 
     def set_fg(self, fg):
+        """
+        Set the foreground colour
+        """
         self.fg = fg
 
     def set_fixed_width(self, fixed_width):
+        """
+        Set the fixed width attribute
+        """
         self.fixed_width = fixed_width
 
     def set_tex_scale(self, tex_scale):
+        """
+        Set the scale of TeX objects
+        """
         self.tex_scale = tex_scale
 
     def set_align(self, align):
+        """
+        Set the anchor point where to align objects
+        """
         self.align = align
 
     def set_text_style(self, text_style):
+        """
+        Set the text style (in LaTeX)
+        """
         self.text_style = text_style
 
     def make(self):
+        """
+        Make the TeXBox
+        """
         width_pp = int(self.fixed_width/float(self.tex_scale)*defaults.units)
 
         al = Align(a1=self.align, a2=self.align, space=0)
@@ -86,6 +106,7 @@ class TeXBox(Group):
         al.append(a)
 
         self.append(al)
+        return self
         #apply(self, (), options)  # why do we do this???
 
 class Box_1(Group):
@@ -153,7 +174,7 @@ class CodeBox(Group):
         bg = Color('Orange')*1.3
         fg = Color('black')*0.4
         border = 0.75
-        fixed_width = 2.5
+        #fixed_width = 2.5
         pad = 0.2
         dogear = 0.25
         gb = obj.bbox()
@@ -190,45 +211,83 @@ class Poster(Page):
 
         # set stuff up
         self.size = size
+        self.orientation = "Portrait"
+        self.num_columns = 2
+
+        # set the default style settings
+        self.title = ""
+        self.title_fg = Color(0)
+        self.title_scale = 1.4
+        self.title_width = 0.8  # as a fraction of the total poster width
+        self.title_text_style = "\large"
+
+        self.authors = ""
+        self.authors_fg = Color(0)
+        self.authors_scale = 1
+        self.authors_width = 0.8  # as a fraction of the total poster width
+        self.authors_text_style = ""
+
+        self.address = ""
+        self.address_fg = Color(0)
+        self.address_scale = 0.9
+        self.address_width = 0.8  # as a fraction of the total poster width
+        self.address_text_style = ""
+
+        self.abstract = ""
+        self.abstract_fg = Color(0)
+        self.abstract_scale = 0.8
+        self.abstract_width = 0.92  # relative to total width of poster
+        self.abstract_text_style = ""
+
+        self.gutter = 0.2
+        self.pad = 0  # should get set by add_column()
+        self.item_sep = 0.3
+
+        self.bg = Color(1)
+
+        self.signature_fg = Color(0)
+
+        self.logo_height = 1.2
+
+        # styles for columns
+        self.column_item_sep = 0.3
+
+        # styles for column boxes
+        # the title's style...
+        self.column_box_title_align = "c"
+        self.column_box_title_tex_scale = 1.4
+        self.column_box_title_fixed_width = 9.4
+        self.column_box_title_text_style = r""
+        self.column_box_title_fg = Color(0)
+
+        # the text styles of the column box
+        self.column_box_text_align = "w"
+        self.column_box_tex_scale = 0.7
+        self.column_box_text_width = 9.4
+        self.column_box_text_style = r""
+        self.column_box_text_fg = Color(0)
+
+        # the column box styles
+        self.column_box_item_sep = 0.1
+        self.column_box_width = 9.9
+        self.column_box_bg = Color(1)
+        self.column_box_border = 1
+
+        # process the style option
         if style is not None:
-            self._load_style(style)
-        else:
-            self.orientation = "Portrait"
-            self.num_columns = 2
-
-            # set the default style settings
-            self.title = ""
-            self.title_fg = Color("yellow")*2.0
-            self.title_scale = 1.4
-            self.title_width = 0.8  # as a fraction of the total poster width
-            self.title_text_style = "\large \sf"
-
-            self.authors = ""
-            self.authors_fg = Color("yellow")
-            self.authors_scale = 1
-            self.authors_width = 0.8  # as a fraction of the total poster width
-            self.authors_text_style = "\sf"
-
-            self.address = ""
-            self.address_fg = Color("yellow")
-            self.address_scale = 0.9
-            self.address_width = 0.8  # as a fraction of the total poster width
-            self.address_text_style = "\sf"
-
-            self.abstract = ""
-            self.abstract_fg = Color("gold")*1.1
-            self.abstract_scale = 0.8
-            self.abstract_width = 0.92  # relative to total width of poster
-            self.abstract_text_style = ""
-
-            self.gutter = 0.2
-            self.pad = 0  # should get set by add_column()
-
-            self.bg = Color("royalblue")*0.8
-
-            self.signature_fg = Color("white")
-
-            self.logo_height = 1.2
+            # make sure the file exists in either the .pyscript/styles
+            # directory, or the current directory
+            styleFname = style + ".py"
+            HOME = os.path.expandvars("$HOME")
+            if os.path.exists(HOME + "/.pyscript/styles/" + styleFname):
+                print "Found %s in .pyscript/styles dir" % style
+                self._read_style(HOME + "/.pyscript/styles/" + styleFname)
+            elif os.path.exists(styleFname):
+                print "Found %s in current dir" % style
+                self._read_style(styleFname)
+            else:
+                # barf
+                raise ValueError, "Style %s not found!" % style
 
         self.logos = []
         self.columns = []
@@ -241,6 +300,26 @@ class Poster(Page):
                 width=self.area.width - 2*self.gutter,
                 height=self.area.height - 2*self.gutter
                 )
+
+    def _read_style(self, styleFname):
+        """
+        Read the talk style file
+
+        @param styleFname: The name of the style file to process
+        @type styleFname: string
+        """
+        # slurp in the text
+        fp = open(styleFname, "r")
+        lines = fp.readlines()
+        fp.close()
+
+        # make one big string...
+        styleText = ""
+        for line in lines:
+            styleText += line
+
+        # exec the text
+        exec(styleText)
 
     def set_title(self, title):
         """
@@ -332,7 +411,7 @@ class Poster(Page):
         self.num_columns = num_columns
         pass
 
-    def add_logo(self, logo, height=None, width=None):
+    def add_logo(self, logo, height=None):
         """
         Add a logo to the poster.
 
@@ -347,10 +426,6 @@ class Poster(Page):
 
         @param height: the height of the logo
         @type height: float
-
-        @param anchor: anchor location of the logo (if you want it positioned
-        somewhere other than the default)
-        @type anchor: string
         """
         if height is None:
             height = self.logo_height
@@ -368,10 +443,10 @@ class Poster(Page):
         If you add more than that, the logos are distributed evenly across
         the top of the poster.
 
-        @param logo: the file name of the eps file of the logo to add
-        @type logo: text
+        @param logos: list of file names of the eps files of the logos to add
+        @type logos: list of strings
 
-        @param height: the height of the logo
+        @keyword height: the height of the logo
         @type height: float
         """
         # process the options, if any
@@ -380,7 +455,9 @@ class Poster(Page):
         else:
             height = self.logo_height
 
-        pass
+        for logo in logos:
+            obj = Epsf(logo, height=height)
+            self.logos.append(obj)
 
     def add_column(self, column, side):
         """
@@ -401,7 +478,7 @@ class Poster(Page):
             errMsg += "I got: '%s'" % side
             raise ValueError, errMsg
                     
-        self.columns.append(column)
+        self.columns.append(column._make())
 
     def _make_title(self):
         """
@@ -483,8 +560,8 @@ class Poster(Page):
         #print "Number of columns is: %d" % len(self.columns)
 
         # vertically align the columns items, but with no spacing yet
-        for col in self.columns:
-            VAlign(col, space=None)
+        #for col in self.columns:
+            #VAlign(col, space=None)
 
         # distribute the columns horizontally
         if self.num_columns == 2:
@@ -507,16 +584,20 @@ class Poster(Page):
                 self.num_columns
 
         # find the distance between two of the columns
-        self.pad = (self.columns[0].bbox().w - self.columns[1].bbox().e)[0]
+        self.pad = (self.columns[1].bbox().w - self.columns[0].bbox().e)[0]
 
         # vertically align the column items
-        for col in self.columns:
-            VAlign(col, space=self.pad)
+        #print self.pad
+        #for col in self.columns:
+            #VAlign(col, space=self.pad)
 
         # now align the columns themselves
         all_cols = Align(angle=90, space=None, a1="ne", a2="nw")
         for col in self.columns:
-            all_cols.append(col)
+            #col.set_space(self.pad)
+            col.set_space(0)
+            #print col.get_space()
+            all_cols.append(col._make())
 
         return all_cols
 
@@ -539,7 +620,7 @@ class Poster(Page):
         @param file: the file name of the poster output eps file
         @type file: string
         """
-        all = Align(a1="s", a2="n", angle=180, space=0.2)
+        all = Align(a1="s", a2="n", angle=180, space=self.item_sep)
         all.append(self._make_logos())
         all.append(self._make_title())
         all.append(self._make_authors())
@@ -571,9 +652,10 @@ class Column(VAlign):  # I *think* this should inherit from VAlign...
     """
     def __init__(self, poster):
         VAlign.__init__(self)
+        #Group.__init__(self)
 
         self.boxes = []
-        self.space = 0.2
+        self.space = poster.column_item_sep
 
     def add_box(self, box):
         """
@@ -584,10 +666,27 @@ class Column(VAlign):  # I *think* this should inherit from VAlign...
         """
         self.append(box._make())
 
+    def set_space(self, space):
+        """
+        Set the spacing of the column items
+
+        @param space: the space between the items
+        @type space: float
+        """
+        #print "Column.set_space()"
+        self.space = space
+
+    def get_space(self):
+        """
+        Get the spacing of the column items
+        """
+        return self.space
+
     def _make(self):
         """
         Make the column
         """
+        #print "Column._make()"
         for box in self.boxes:
             self.append(box._make())
 
@@ -602,6 +701,23 @@ class ColumnBox(Group):
     """
     def __init__(self, poster):
         Group.__init__(self)
+
+        self.title_align = poster.column_box_title_align
+        self.title_tex_scale = poster.column_box_title_tex_scale
+        self.title_fixed_width = poster.column_box_title_fixed_width
+        self.title_text_style = poster.column_box_title_text_style
+        self.title_fg = poster.column_box_title_fg
+
+        self.align = poster.column_box_text_align
+        self.tex_scale = poster.column_box_tex_scale
+        self.fixed_width = poster.column_box_text_width
+        self.text_style = poster.column_box_text_style
+        self.fg = poster.column_box_text_fg
+
+        self.item_sep = poster.column_box_item_sep
+        self.box_width = poster.column_box_width
+        self.box_bg = poster.column_box_bg
+        self.box_border = poster.column_box_border
 
         self.title = ""
         self.items = []
@@ -627,26 +743,60 @@ class ColumnBox(Group):
         # other settings here...
         self.items.append(texbox)
 
-    def add_fig(self, fig, width=1.0, height=1.0):
+    def add_fig(self, fig, height=None, width=None, bg=Color(1)):
         """
-        Add an arbitrary figure to the column box, with a white background.
+        Add an arbitrary figure to the column box, with a background.
 
         This could be a previously defined pyscript diagram (for instance).
         If only one of the height or width is given then the figure is
         scaled appropriately, maintaining the original aspect ratio.
 
         @param fig: the figure to add
-        @type fig: pyscript object
+        @type fig: PyScript object
 
         @param width: the width of the figure
         @type width: float
 
         @param height: the height of the figure
         @type height: float
-        """
-        pass
 
-    def add_epsf(self, file, **options):
+        @param bg: the colour of the figure background 
+        @type bg: Color object
+        """
+        # get the figure's current height and width
+        oldHeight = fig.bbox().height
+        oldWidth = fig.bbox().width
+
+        # scale the figure appropriately
+        if height is not None and width is None:
+            scale = height/oldHeight
+            fig = fig.scale(scale, scale)
+        elif height is None and width is not None:
+            scale = width/oldWidth
+            fig = fig.scale(scale, scale)
+        elif height is not None and width is not None:
+            xscale = width/oldWidth
+            yscale = height/oldHeight
+            fig = fig.scale(xscale, yscale)
+        else:
+            # leave well alone...
+            pass
+
+        # put a white background on it
+        gutter = 0.1
+        rect = Rectangle(width=fig.bbox().width+gutter, 
+                height=fig.bbox().height+gutter,
+                c=fig.bbox().c,
+                bg=bg, fg=None)
+
+        # group everything together
+        all = Group()
+        all.append(rect, fig)
+
+        # append it to the list of items in the ColumnBox
+        self.items.append(all)
+
+    def add_epsf(self, file, height=None, width=None):
         """
         Add an eps file to the column box.
 
@@ -654,7 +804,7 @@ class ColumnBox(Group):
         scaled appropriately, maintaining the original aspect ratio.
 
         @param file: the file name of the eps file to add
-        @type fig: string
+        @type file: string
 
         @param width: the width of the figure
         @type width: float
@@ -662,17 +812,7 @@ class ColumnBox(Group):
         @param height: the height of the figure
         @type height: float
         """
-        # process the options, if any
-        if options.has_key('height'):
-            height = options['height']
-        else:
-            height = None
-
-        if options.has_key('width'):
-            width = options['width']
-        else:
-            width = None
-
+        # load the eps with the appropriate dimensions
         if height is not None and width is None:
             eps = Epsf(file=file, height=height)
         elif height is None and width is not None:
@@ -680,8 +820,10 @@ class ColumnBox(Group):
         elif height is not None and width is not None:
             eps = Epsf(file=file, width=width, height=height)
         else:
-            eps = Epsf(file=file, height=1.0)
+            # use the file's own size
+            eps = Epsf(file=file)
 
+        # append it to the list of items in the ColumnBox
         self.items.append(eps)
 
     def add_object(self, obj):
@@ -710,11 +852,11 @@ class ColumnBox(Group):
         Make the title
         """
         titlebox = TeXBox(self.title)
-        titlebox.set_align("c")
-        titlebox.set_tex_scale(1.4)
-        titlebox.set_fixed_width(9.4)
-        titlebox.set_text_style(r"\sf")
-        titlebox.set_fg(Color("orangered")*0.95)
+        titlebox.set_align(self.title_align)
+        titlebox.set_tex_scale(self.title_tex_scale)
+        titlebox.set_fixed_width(self.title_fixed_width)
+        titlebox.set_text_style(self.title_text_style)
+        titlebox.set_fg(self.title_fg)
         titlebox.make()
 
         return titlebox
@@ -723,7 +865,7 @@ class ColumnBox(Group):
         """
         Make the column box object
         """
-        valign = VAlign(space=0.1)
+        valign = VAlign(space=self.item_sep)
         valign.append(self._make_title())
         #print "Number of items in the column box is: %d" % len(self.items)
         for item in self.items:
@@ -733,11 +875,11 @@ class ColumnBox(Group):
         # style handle the width, foreground, etc. etc.
         box = BasicBox()
         box.set_height(valign.bbox().height + 2*box.pad)
-        box.set_width(9.9)  # absorb into style
+        box.set_width(self.box_width)
         box.set_anchor("n", valign.bbox().n+P(0, 0.2))
         #box.n = valign.bbox().n+P(0, 0.2)  # absorb into style ???
-        box.set_bg(Color("LightGoldenRod")*1.1) # absorb into style
-        box.set_border(1) # absorb into style
+        box.set_bg(self.box_bg)
+        box.set_border(self.box_border)
 
         # append the objects to the group
         self.append(box)
@@ -764,18 +906,33 @@ class BasicBox(Rectangle):
         self.anchor = "n"
 
     def set_height(self, height):
+        """
+        Set the height of the box
+        """
         self.height = height
 
     def set_width(self, width):
+        """
+        Set the width of the box
+        """
         self.width = width
 
     def set_bg(self, bg):
+        """
+        Set the background colour
+        """
         self.bg = bg
 
     def set_fg(self, fg):
+        """
+        Set the foreground colour
+        """
         self.fg = fg
 
     def set_border(self, border):
+        """
+        Set the width of the border around the box
+        """
         self.linewidth = border
 
     def set_radius(self, radius):
@@ -785,9 +942,15 @@ class BasicBox(Rectangle):
         self.r = radius
 
     def set_pad(self, pad):
+        """
+        Set the padding around the box
+        """
         self.pad = pad
 
     def set_anchor(self, anchor, location):
+        """
+        Set the anchor location (c, n, ne, e, se, s, sw, w, nw)
+        """
         exec("self.%s = location" % anchor)
 
 class Poster_1(Page):
@@ -830,6 +993,10 @@ class Poster_1(Page):
     @cvar col2: a Group() containing right column objects
 
     '''
+    col1 = Group()
+    col2 = Group()
+    logos = ()
+
     def __init__(self):
 
         Page.__init__(self)
@@ -860,12 +1027,12 @@ class Poster_1(Page):
         self.abstract_width = 0.8
         
         self.logo_height = 0.8
-        self.logos = ()
+        #self.logos = ()
 
-        self.col1 = Group()
-        self.col2 = Group()
+        #self.col1 = Group()
+        #self.col2 = Group()
 
-        self.signature_fg = bg*0.8
+        self.signature_fg = self.bg*0.8
         
         area = self.area()
         
@@ -876,7 +1043,7 @@ class Poster_1(Page):
             height=area.height-2*self.gutter
             )
 
-    def add_fig(file, width=5.0):
+    def add_fig(self, file, width=5.0):
         """
         This method needs to be fixed up.  It's not to put a figure on the
         page, but an eps file...
@@ -894,10 +1061,16 @@ class Poster_1(Page):
         out_fig.scale(width/out_fig.bbox().width,width/out_fig.bbox().width)
         return out_fig
 
-    def add_epsf():
+    def add_epsf(self):
+        """
+        Add and EPS file to the poster
+        """
         pass
 
     def _make_logos(self):
+        """
+        Make and return a Group object of the logos
+        """
 
         #thelogos = Group()
         thelogos = Align(a1="e", a2="w", angle=90, space=None)
@@ -920,7 +1093,7 @@ class Poster_1(Page):
         return TeXBox(self.title, fg=self.title_fg,
                       fixed_width=self.printing_area.width*self.title_width,
                       tex_scale=self.title_scale,
-                      align="c")
+                      align="c").make()
 
     def _make_address(self):
         """
@@ -930,7 +1103,7 @@ class Poster_1(Page):
                     fg=self.address_fg,
                     fixed_width=self.printing_area.width*self.address_width,
                     tex_scale=self.address_scale,
-                    align="c")
+                    align="c").make()
 
     def _make_abstract(self):
         '''
@@ -940,7 +1113,7 @@ class Poster_1(Page):
         return TeXBox(self.abstract,
                       fixed_width=self.printing_area.width*self.abstract_width,
                       tex_scale=self.abstract_scale,
-                      fg=self.abstract_fg, align="c")
+                      fg=self.abstract_fg, align="c").make()
 
     def _make_authors(self):
         '''
@@ -951,7 +1124,7 @@ class Poster_1(Page):
                       fg=self.authors_fg,
                       tex_scale=self.authors_scale,
                       fixed_width=self.printing_area.width*self.authors_width,
-                      align="c")
+                      align="c").make()
 
     def _make_background(self):
         '''
@@ -982,7 +1155,8 @@ class Poster_1(Page):
                    self.col1, self.col2,
                    Area(width=0, height=0),
                    p1=self.printing_area.w,
-                   p2=self.printing_area.e, a1="e", a2="w")
+                   p2=self.printing_area.e, 
+                   a1="e", a2="w")
         
         # find the distance between the cols
         pad = (self.col2.bbox().w-self.col1.bbox().e)[0]
@@ -1123,15 +1297,15 @@ class Talk(Pages):
             HOME = os.path.expandvars("$HOME")
             if os.path.exists(HOME + "/.pyscript/styles/" + styleFname):
                 print "Found %s in .pyscript/styles dir" % style
-                self.read_style(HOME + "/.pyscript/styles/" + styleFname)
+                self._read_style(HOME + "/.pyscript/styles/" + styleFname)
             elif os.path.exists(styleFname):
                 print "Found %s in current dir" % style
-                self.read_style(styleFname)
+                self._read_style(styleFname)
             else:
                 # barf
                 raise ValueError, "Style %s not found!" % style
 
-    def read_style(self, styleFname):
+    def _read_style(self, styleFname):
         """
         Read the talk style file
 
@@ -1264,6 +1438,7 @@ class Slide(Page):
         self.size = "a4"
         self.orientation = "Landscape"
         self.pageNumber = None
+        self.pages = 0  # need to set up an initial value
         self.titlepage = False
         self.authors = None
         self.headings = []
@@ -1441,11 +1616,6 @@ class Slide(Page):
         @type text: string, TeX object or Text object
         """
         # process options
-        if options.has_key('bg'):
-            backColor = options['bg']
-        else:
-            backColor = Color('white')
-
         if options.has_key('fg'):
             frontColor = options['fg']
         else:
@@ -1501,7 +1671,7 @@ class Slide(Page):
             heading_level = heading[0]
             if not talk.headings_bullets.has_key(heading_level):
                 heading_level = "default"
-            heading_text = "%s %s"%(talk.headings_textstyle[heading_level]
+            heading_text = "%s %s" % (talk.headings_textstyle[heading_level]
                                                             , heading[1])
             heading_bullet = talk.headings_bullets[heading_level]
             heading_fg = talk.headings_fgs[heading_level]
@@ -1576,10 +1746,12 @@ class Slide(Page):
         @keyword width: the width of the image in the current default units.  
         If only this variable is given, then the aspect ratio of the image is
         maintained.
+        @type width: float
 
         @keyword height: the height of the image in the current default
         units.  If only this variable is given, then the aspect ratio of 
         the image is maintainted.
+        @type height: float
 
         @keyword c, n, ne, e, se, s, sw, w, nw: the location of the anchor point
         """
@@ -1748,7 +1920,7 @@ class Slide(Page):
                 ).rotate(-90, p)
 
         logos = self._make_logos()
-        logos.nw = self.area.nw + P(0.2,-0.2)
+        logos.nw = self.area.nw + P(0.2, -0.2)
 
         self.pages = len(talk.slides)
 
