@@ -29,18 +29,16 @@ __revision__ = '$Revision$'
 from math import sqrt, sin, cos, pi, atan2
 from pyscript.base import PsObj
 
-
 class Matrix:
     '''
     2x2 matrix class
     '''
     type = 'Matrix'
  
-    def __init__(self, a = 0.0, b = 0.0, c = 0.0, d = 0.0):
+    def __init__(self, a=0.0, b=0.0, c=0.0, d=0.0):
         # / a b \
         # \ c d /
         self.data = [a, b, c, d]
- 
 
     def body(self):
         """
@@ -150,9 +148,15 @@ class Matrix:
             raise TypeError, "error in right matrix multiplication"
 
     def det(self):
+        """
+        Return the matrix determinant
+        """
         return self[0]*self[3]-self[1]*self[2]
 
     def inverse(self):
+        """
+        Find the inverse of the matrix
+        """
 
         d = self.det()
 
@@ -172,8 +176,6 @@ class Matrix:
             tmp[i] = self[i]/n
         return tmp
   
-
-
 # -------------------------------------------------------------------------
 # P = Vector (relative to origin) ie a point
 # -------------------------------------------------------------------------
@@ -289,12 +291,17 @@ class P(PsObj):
         return self/float(self.length)
     U = property(_get_U, None)
 
-
     def _get_arg(self):
+        """
+        Get angle (argument) of the vector
+        """
         return atan2(self.x, self.y)/pi*180
     arg = property(_get_arg, None)
 
     def cross(self, other):
+        """
+        Calculate the cross product of two vectors
+        """
         if isinstance(other, P):
             tmp = P()
             tmp[0] = self[1]*other[2]-self[2]*other[1]
@@ -303,11 +310,9 @@ class P(PsObj):
         else:
             raise TypeError, "non-vector (%s) in cross product" % type(other)
 
-
 # -------------------------------------------------------------------------
 # R = Vector (relative to last point) function dependent!
 # -------------------------------------------------------------------------
-
 class R(P):
     """
     Relative point vector
