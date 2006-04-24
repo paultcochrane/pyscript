@@ -1,4 +1,22 @@
 
+0.6
+~~~
+
+- Extended and rewrote sections of the Talk() class of the 'presentation'
+  library (note that this is different to the 'present' library).  Also more
+  completely documented the class in the user manual
+- Implemented the use of user-defined styles for talks
+- Complete rewrite of the Poster() class of the 'presentation' library; now
+  has a more similar interface to that of the Talk() class of the same
+  library.  Also documented the class in the user manual
+- Implemented the use of user-defined styles for posters
+- More completely implemented the 'electronics' object library; documented
+  the objects in the user manual
+- Extended the 'optics' object library and documented its usage in the
+  manual
+- Added some examples of usage of the 'optics' library
+- Many changes in 'qi' (quantum information) library.  No longer causes
+  error at installation :-)
 - Added Arrow() convenince class ... a Path with a predefined arrowhead
 - integrated Path and Arrowhead ... path now has a heads attribute which
   is a list of arrowheads to draw on path
@@ -31,7 +49,7 @@
 ~~~
 
 - rewrote Path object: the internals have completely changed. 
-  There have been some  incompatible changes with previous versions
+  There have been some incompatible changes with previous versions
   but its now much closer to what I envisaged for the object
   Changes:
     - C() no longer takes numerical arguments
