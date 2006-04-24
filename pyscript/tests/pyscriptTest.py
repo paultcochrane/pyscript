@@ -1,9 +1,14 @@
 # $Id$
 
+__revision__ = "$Revision$"
+
 from pyscript.groups import Group, VAlign, HAlign
 from pyscript.objects import Text
 
 class PyScriptTest(Group):
+    """
+    A basic attempt at a PyScript test suite
+    """
     def __init__(self, **options):
         Group.__init__(self, **options)
         self.text = "undecorated"
