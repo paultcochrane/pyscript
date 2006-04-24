@@ -15,7 +15,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 '''
-pyscript Presentation library (posters and talks)
+PyScript presentation library (posters and talks)
 '''
 
 from pyscript.defaults import defaults
@@ -183,6 +183,9 @@ class Pause(object):
     can appear anywhere in the talk
     '''
     def bbox(self):
+        """
+        Return the bounding box
+        """
         return Bbox()
 
 # ----------------------------------------------------------------------
@@ -246,6 +249,9 @@ class Talk(Pages):
 
 # ----------------------------------------------------------------------
 class EmptySlide(Page):
+    """
+    An empty slide class
+    """
 
     title = None
     orientation = "Landscape"
@@ -330,6 +336,9 @@ class EmptySlide(Page):
         return apply(self.append, items, {'a1':'c', 'a2':'c'})
 
     def main(self):
+        """
+        Return the bounding box of the slide
+        """
         bbox = self.bbox()
         return bbox
 
