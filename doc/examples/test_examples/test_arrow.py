@@ -13,6 +13,7 @@ from pyscriptTest import PyScriptTest
 defaults.units=UNITS['cm']
 
 arrows  = PyScriptTest()
+path = Path(P(0,0), P(0,1))
 
 # test init
 arrows.test( Arrow(P(0,0), P(0,1)) ) 
