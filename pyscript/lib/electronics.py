@@ -17,9 +17,9 @@
 # $Id$
 
 """
-pyscript Electronics objects library
+PyScript electronics objects library
 
-thanks to Adrian Jonstone's lcircuit macros from CTAN for the ideas and names
+Thanks to Adrian Jonstone's lcircuit macros from CTAN for the ideas and names
 """
 
 __revision__ = '$Revision$'

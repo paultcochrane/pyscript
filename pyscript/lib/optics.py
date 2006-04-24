@@ -17,7 +17,7 @@
 # $Id$
 
 '''
-pyscript Optics objects library
+PyScript optics objects library
 '''
 
 __revision__ = '$Revision$'
