@@ -39,7 +39,8 @@ pylint --enable-similarities=n --ignore=fonts --html=y pyscript > pylint.pyscrip
 \item Make sure pylint isn't picking up errors, if so, fix them (warnings
 and refactoring messages are probably ok...)
 \item Verify that build installs correctly (use e.g.~debootstrap, rpmstrap)
-\item Tag sources to current version (format: )
+\item Tag sources to current version (format: e.g. v0-6-0; command: cvs tag
+vx-y-z, where x, y and z are the relevant version digits)
 \item Build distribution (\texttt{python setup.py sdist})
 \item Do a file release on sf.net
 \item Test that the release downloads and builds correctly
