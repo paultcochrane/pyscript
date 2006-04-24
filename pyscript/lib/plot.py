@@ -17,7 +17,7 @@
 # $Id$
 
 '''
-pyscript plotting functions
+PyScript plotting functions
 '''
 
 __revision__ = '$Revision$'
