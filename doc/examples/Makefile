@@ -17,9 +17,10 @@ MAIN = align.eps\
        stateSwap.eps\
        teleport.eps\
        tex.eps\
-       tutorial.eps
+       tutorial.eps\
+       twoqubitQST.eps
 
-all: $(MAIN)
+all: $(MAIN) Makefile
 
 view: $(MAIN)
 	$(foreach i, $(MAIN), $(shell gv $i))
