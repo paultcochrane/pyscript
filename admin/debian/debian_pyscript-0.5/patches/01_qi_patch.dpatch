@@ -1,0 +1,48 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 01_qi_patch.dpatch by Paul Cochrane <root@localhost>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Patches qi.py library file
+
+@DPATCH@
+
+--- qi.py	2004-05-04 02:25:27.000000000 -0400
++++ qi_new.py	2006-03-30 09:53:42.924047509 -0500
+@@ -241,26 +241,18 @@
+     def __init__(self,*qubits,**dict):
+ 
+         apply(Group.__init__, (self,), dict)
+-
+-		# create wires ...
+-		if len(qubits)==1 and isinstance(qubits[0],Integer):
+-			n = qubits[0]
+-
+-			wires=[]
+-			for w in range(n):
+-				wires.append(Qubit())
+-
+-		else:
+-			wires=qubits
+-			
++        # create wires ...
++        if len(qubits)==1 and isinstance(qubits[0],Integer):
++            n = qubits[0]
++            wires=[]
++            for w in range(n):
++                wires.append(Qubit())
++        else:
++            wires=qubits
+ 
+     def add(self,gate):
+-		'''
+-		Add gates to the quantum circuit
+-		'''
++        '''
++        Add gates to the quantum circuit
++        '''
+         pass
+ 
+-
+-
+-
+-
