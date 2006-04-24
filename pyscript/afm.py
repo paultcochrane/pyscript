@@ -177,7 +177,7 @@ class ConvertAFM:
 
         # docstring
         out.write('"""\n')
-        out.write("Pyscript font module for %s\n" %
+        out.write("PyScript font module for %s\n" %
                 self._attrs['FullName'])
         out.write('"""\n')
 
