@@ -7,8 +7,8 @@ pyscript.lib.presentation
 \end{python}
 
 In addition to the newer \vrb{pyscript.lib.present} library, there also
-exists the old \vrb{pyscript.lib.presentation} library.  This is not so
-object-oriented in usage, but it works nevertheless, and hasn't been
+exists the old \vrb{pyscript.lib.presentation} library.  This is not quite
+so object-oriented in usage, but it works nevertheless, and hasn't been
 completely deprecated.  The \vrb{presentation} library can be used to create
 posters and talks, which can then be used to ``wow'' your colleauges at your
 next conference.
@@ -230,9 +230,9 @@ directory for a python file whose file name will be the name of the style
 with `\ttt{.py}' appended.
 
 If you are feeling really keen, you can write your own style.  One of the
-best ways to do this is to copy one of the ones provided with the \pyscript
-distribution.  Let's go through the details of the ``prosper-darkblue''
-style now.
+best ways to do this is to copy and then modify one of the ones provided
+with the \pyscript distribution.  Let's go through the details of the
+``prosper-darkblue'' style now.
 
 \begin{python}
 # talk style for PyScript, following the Darkblue design of prosper
@@ -325,5 +325,154 @@ one level has precedence over the other.
 If one wishes to place arbitrary text on the page, one can specify the
 default scale, colour and text style here too.
 
+Styles can be found in the \vrb{contrib/} directory of the \pyscript
+distribution.
+
 \section{Creating a poster}
 
+\subsection{The Poster() object}
+
+The very first thing to do when making a new poster is to instantiate the
+\vrb{Poster()} object.  You do this like so:
+\begin{python}
+poster = Poster(size="a4")
+\end{python}
+Note that the size of the poster has been set here explicitly.  A handy
+thing about using postscript is that if you want an a0 poster, you just need
+to change the size paramter to ``a0'' and the size of the poster will
+change, but not the actual amount of postcript.  The reason we add this size
+declaration to the poster class is because it is often handy to have a4 size
+versions of your poster when you are at a poster session at a conference to
+give to people who have viewed your a0 size poster.
+
+Your poster will then require a title, a list of authors, an address of the
+insititution you are representing and the abstract that you submitted (or
+are using) for the poster.  You set these properties using the relevant
+\vrb{set\_()} methods of the \vrb{Poster()} class.  For instance:
+\begin{python}
+poster.set_title("My poster")
+
+poster.set_authors("Me, him, and her")
+
+poster.set_address("Over the hills, and far away")
+
+poster.set_abstract("""
+I should have written something better when I applied for the conference: I
+might have got a talk instead...
+""")
+\end{python}
+
+One often wants to put logos onto a poster.  The \vrb{Poster()} class lets
+you do this easily by using the \vrb{add\_logo()} method.  Just supply the
+name of an EPS file and the height you want to use for the logo, and the
+class will place it at the top of your poster for you.  E.g.:
+\begin{python}
+poster.add_logo("my_first_logo.eps", height=1.2)
+poster.add_logo("my_second_logo.eps", height=1.2)
+\end{python}
+The first logo is placed at the top left-hand corner.  The next logo will be
+placed in the top right-hand corner.  If you specify more logos then they
+will be distributed evenly across the top of the poster.  If you want, you
+can also specify a list of logo names all at the one time, instead of having
+to call \vrb{add\_logo()} several times.  You do this with the
+\vrb{add\_logos()} method:
+\begin{python}
+poster.add_logos("my_first_logo.eps", "my_second_logo.eps", height=1.2)
+\end{python}
+Obviously, when you use this method, all logos are given the same height.
+
+A poster is usually split up into columns.  For a portrait-orientated
+poster, one usually has two columns; for a landscape-orientated poster three
+columns.  A column is made up of one or more ``column boxes'' which define
+the actual content in the poster.  So, to make your first column, you need
+to make a new \vrb{Column()} object:
+\begin{python}
+col1 = Column(poster)
+\end{python}
+Note that we have passed the current \vrb{poster} object through as an
+argument.  This is so that any styles defined in the poster can flow through
+to the subobjects.  We will eventually add this column to the poster as a
+whole, but not yet, as we need to fill the column with some content first.
+To do this instantiate a \vrb{ColumnBox()} object like so:
+\begin{python}
+intro = ColumnBox(poster)
+intro.set_title("Introduction")
+intro.add_TeXBox(r"""
+Here is some \LaTeX{}
+""")
+\end{python}
+Again, the \vrb{poster} object is passed in as an argument so we can make
+use of previously defined styles.  We then set the title of the column box
+with the \vrb{set\_title()} method, and then added a \vrb{TeXBox()} object,
+which can contain arbitrary \LaTeX{} expressions, with the
+\vrb{add\_TeXBox()} method.
+
+There are more things than just \vrb{TeXBox}es that you can add to a column
+box; you can add an already-defined \pyscript object, or an EPS file.  Say
+you want to align two images up together, and display them side by side
+within the column box.  To do this you would set up an \vrb{Align()} object,
+append the EPS files as \vrb{Epsf()} objects and then add the \vrb{Align()}
+object to the column box with the \vrb{add\_object()} method.  E.g.:
+\begin{python}
+# the figures
+fig1 = Epsf("fig1.eps")
+fig2 = Epsf("fig2.eps")
+
+# make the Align object
+figs = Align(a1="ne", a2="nw", angle=90, space=0.2)
+figs.append(fig1, fig2)
+
+# add the Align object to the column box
+intro.add_object(figs)
+\end{python}
+
+The \vrb{add\_epsf()} method is merely a convenience function so that you
+don't have to define an \vrb{Epsf()} object first and then add it with the
+\vrb{add\_object()} method.  You can do all that work if you want to though!
+
+We are now ready to add the column box to the column.  We do this with the
+\vrb{add\_box()} method of the \vrb{Column()} object:
+\begin{python}
+col1.add_box(intro)
+\end{python}
+
+We can now add the column to the poster itself, and yes, you guessed it, to
+do this we use the \vrb{add\_column()} method of the \vrb{Poster()} object:
+\begin{python}
+poster.add_column(col1)
+\end{python}
+Since this is the first column, it will automatically be the left-most
+column.  Any other columns that you add will be added to the right of it.
+So, for instance, if one were making a poster in portrait mode then one
+would simply add two columns; the \vrb{Poster()} class should handle
+aligning most of the bits and pieces for you.
+
+For more complex examples, have a look in the \vrb{examples/} directory of
+the \pyscript distribution.  The \vrb{Poster()} class is a complete rewrite
+and extension of the older \vrb{Poster\_1()} class, so it is likely that
+there will be problems with the way that it has been designed and so the
+interface might change slightly in the future.  If you are having problems,
+feel free to email the developers!  If you read this sentence, you might
+want to email the developers anyway!  :-)
+
+\subsection{Styles for posters}
+\label{sec:poster-styles}
+
+To change your poster style from the default you can specify one of the
+predefined styles by passing the \vrb{style} option to the \vrb{Poster()}
+class on instantiation.  For instance:
+\begin{python}
+poster = Poster(size="a4", style="ccp2004-poster")
+\end{python}
+which will load the style that PTC used at the Conference on Computational
+Physics in 2004 (hence ccp2004).  Just like with styles for talks, to load
+the style, \pyscript will look in either the \ttt{~/.pyscript/styles/}
+directory or the current directory for a python file whose file name will be
+the name of the style with `\ttt{.py}' appended.
+
+If you are feeling really keen, you can write your own style.  One of the
+best ways to do this is to copy and then modify one of the ones provided
+with the \pyscript distribution.
+
+Styles can be found in the \vrb{contrib/} directory of the \pyscript
+distribution.
