@@ -68,6 +68,7 @@ include doc/examples/stateSwap.py
 include doc/examples/teleport.py
 include doc/examples/tex.py
 include doc/examples/tutorial.py
+include doc/examples/twoqubitQST.py
 
 include doc/examples/ccp2004_poster.py
 
