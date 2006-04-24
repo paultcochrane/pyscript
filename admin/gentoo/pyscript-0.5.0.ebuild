@@ -5,7 +5,7 @@
 inherit distutils
 
 DESCRIPTION="Python module for producing high quality postscript graphics"
-SRC_URI="mirror://sourceforge/pyscript/pyscript-${PV}.tar.gz"
+SRC_URI="http://dl.sourceforge.net/sourceforge/pyscript/pyscript-${PV}.tar.gz"
 HOMEPAGE="http://pyscript.sourceforge.net/"
 LICENSE="GPL-2"
 SLOT="0"
@@ -14,7 +14,7 @@ IUSE="doc"
 DEPEND="virtual/python
 	virtual/tetex"
 
-DOCS="AUTHORS CHANGES README BUGS"
+DOCS="AUTHORS CHANGES README BUGS LICENSE"
 
 src_unpack() {
 	unpack ${A}
