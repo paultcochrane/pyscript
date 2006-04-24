@@ -4,6 +4,7 @@ include CHANGES
 include LICENSE
 include TODO
 include BUGS
+include MANIFEST
 include setup.py
 include bin/pyscript
 
@@ -40,13 +41,12 @@ include pyscript/fonts/zapfdingbats.py
 # add pyscript library files
 include pyscript/lib/__init__.py
 include pyscript/lib/electronics.py
-include pyscript/lib/misc.py
 include pyscript/lib/optics.py
-# include pyscript/lib/plot.py  # incomplete
-include pyscript/lib/presentation.py  # probably should be deprecated
+exclude pyscript/lib/plot.py  # incomplete
+include pyscript/lib/presentation.py
 include pyscript/lib/present.py
 include pyscript/lib/qi.py
-# include pyscript/lib/quantumcircuits.py  # deprecated?
+include pyscript/lib/quantumcircuits.py
 
 # add the current set of examples
 include doc/examples/Makefile
@@ -69,6 +69,15 @@ include doc/examples/teleport.py
 include doc/examples/tex.py
 include doc/examples/tutorial.py
 
+include doc/examples/ccp2004_poster.py
+
 # add the manual (as it currently stands)
 include doc/manual/pyscript.pdf
 
+# add the styles for talks and posters
+include contrib/styles/prosper-darkblue.py
+include contrib/styles/yellowbullet.eps
+include contrib/styles/redbullet.eps
+include contrib/styles/greenbullet.eps
+
+include contrib/styles/ccp2004-poster.py
