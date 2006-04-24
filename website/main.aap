@@ -21,6 +21,11 @@ publishFiles =
     eg/*.py
     eg/*.eps
     eg/*.html
+    api/*.html
+    api/*.css
+    api/*.jpg
+    api/public/*.html
+    api/private/*.html
 :attr {publish = scp://paultcochrane@shell.sourceforge.net//home/groups/p/py/pyscript/htdocs/%file%} $publishFiles
 
 # generating the source
