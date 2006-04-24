@@ -1,0 +1,55 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH PYSCRIPT 1 "April  7, 2006"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+pyscript \- Postscript graphics with Python
+.SH SYNOPSIS
+.B pyscript
+.RI [ options ] " file"
+.br
+.SH DESCRIPTION
+.B pyscript 
+is a Python module for producing high quality postscript graphics.
+Rather than use a GUI to draw a picture, the picture is programmed using
+Python and the 
+.B pyscript 
+objects.
+.PP
+.SH OPTIONS
+This program follows the usual GNU command line syntax, with long
+options starting with two dashes (`-').
+A summary of options is included below.
+.TP
+.B \-h, \-\-help
+Show summary of options.
+.TP
+.B \-v, \-\-version
+Show version of program.
+.B \-o, \-\-output
+Specify the output postscript file name.
+.B \-l, \-\-logfile
+Specify the output log file name.  Default: pyscript.log
+.br
+The program is documented fully by the 
+.B pyscript
+manual, which should be available in /usr/share/doc/pyscript.
+.SH AUTHOR
+pyscript was written by Alexei Gilchrist <aalexei@users.sourceforge.net> 
+and Paul Cochrane <paultcochrane@users.sourceforge.net>.
+.PP
+This manual page was written by Paul Cochrane <paultcochrane@gmail.com>,
+for the Debian project (but may be used by others).

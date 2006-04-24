@@ -1,0 +1,8 @@
+pyscript (0.5-1) unstable; urgency=low
+
+  * Initial Release.
+  * This is my first Debian package.
+  * Added a Makefile that calls the python setup.py script appropriately
+
+ -- Paul Cochrane <paultcochrane@gmail.com>  Fri,  7 Apr 2006 14:31:36 +0000
+

@@ -1,0 +1,10 @@
+Document: pyscript
+Title: Debian pyscript Manual
+Author: Alexei Gilchrist and Paul Cochrane
+Abstract: This manual describes what pyscript is
+ and how it can be used to create
+ publication-quality postscript diagrams.
+Section: Apps/Tools
+
+Format: PDF
+Files: /usr/share/doc/pyscript/pyscript.pdf.gz
