@@ -1,4 +1,4 @@
-from pyscript.lib.presentation import Poster_1,Box_1,TeXBox
+from pyscript.lib.presentation import Poster_1,Box_1,TeXBox,CodeBox
 
 defaults.tex_head+=r"\newcommand{\xmds}{\textsc{xmds}\xspace}"
 
@@ -16,7 +16,7 @@ def add_fig(fname,width=5.0):
     out_fig.scale(width/out_fig.bbox().width,width/out_fig.bbox().width)
     return out_fig
 
-def CodeBox(item):
+def CodeBox_1(item):
     # bg=Color('Plum')*1.3
     bg=Color('Orange')*1.3
     fg=Color('black')*0.4
@@ -169,8 +169,7 @@ class Poster(Poster_1):
         something lacking in an area at the interface between theory and experiment, which already
         have a well-ingrained culture of comparison and verification~\cite{Ceperley:1999:1}
         \end{itemize}
-        """
-               ),
+        """).make(),
         ),
         Box(
 	Rectangle(height=0.2,fg=Box.bg,bg=Box.bg),
@@ -209,7 +208,7 @@ class Poster(Poster_1):
           \item split-step semi-implicit method~\cite{Drummond:1983:1}
           \end{itemize}
         \end{itemize}
-        ''',fixed_width=5.1),
+        ''', fixed_width=5.1).make(),
         TeXBox(r'''
         \begin{itemize}
         \item \xmds can handle any number of:
@@ -221,7 +220,7 @@ class Poster(Poster_1):
           \item random variables
           \end{itemize}
         \end{itemize}
-        ''',fixed_width=4.5),
+        ''',fixed_width=4.5).make(),
               a1='ne', a2='nw', angle=90, space=-0.2),
         TeXBox(r'''
 	\vspace*{-3mm}
@@ -233,7 +232,7 @@ class Poster(Poster_1):
         \item Automatically parallelises stochastic and deterministic problems
         using MPI
         \end{itemize}
-        '''),
+        ''').make(),
 	Rectangle(height=0.2,fg=Box.bg,bg=Box.bg),
 	pad=0
         ),
@@ -255,7 +254,7 @@ class Poster(Poster_1):
         simulation data, so the data and the variables that generated it are
         kept together for future reference
         \end{itemize}
-        '''),
+        ''').make(),
         ),
 	Box(
         Title(r"Nonlinear Schr\"{o}dinger Equation"),
@@ -267,11 +266,11 @@ class Poster(Poster_1):
         \end{equation}
         Where $\phi$ is the field, $z$ is the spatial dimension,
         $t$ is time and $\Gamma(t)$ is a damping term.
-        """),
+        """).make(),
         Align(
-        add_fig("nlse.eps",width=4.29),
+        #add_fig("nlse.eps",width=4.29),
         CodeBox(
-        TeX(r'''\begin{xmdsCode}
+        TeX(r'''\begin{verbatim}
   <simulation>  <!-- outline xmds code; greatly compressed for space -->
   <name>nlse</name> <prop_dim>z</prop_dim>
   <field>  <!-- field to be integrated over -->
@@ -297,7 +296,7 @@ class Poster(Poster_1):
     </group>
   </output>
   </simulation>
-        \end{xmdsCode}''').scale(0.3,0.3),
+        \end{verbatim}''').scale(0.3,0.3),
         ),
         a1="ne", a2="nw", angle=90, space=0.3),
 	),
@@ -314,7 +313,7 @@ class Poster(Poster_1):
         %simulation so that can restart the simulation from this point at next run
         %of the simulation
         \end{itemize}
-        '''),
+        ''').make(),
         ),
         )
     
@@ -330,7 +329,7 @@ class Poster(Poster_1):
         \left[\xi_1(x,t) + i\xi_2(x,t)\right].
         \label{eq:fibre}
         \end{equation}
-        """),
+        """).make(),
         Align(
         Align(
         add_fig("fibre1.eps",width=4),
@@ -352,7 +351,7 @@ class Poster(Poster_1):
         C/C++ code and then compiles the simulation binary using a C++ compiler.
         The simulation when executed generates XSIL output, which can
         then be converted for display in your favourite graphing package.
-        '''),
+        ''').make(),
         Align(
         add_fig("xmdsProcess.eps",width=3),
         add_fig("xmdsFunctionality.eps",width=3),
@@ -369,7 +368,7 @@ class Poster(Poster_1):
         \item Benchmarking of simulations
         \item User-defined preferences
         \end{itemize}
-        ''',fixed_width=4.5),
+        ''',fixed_width=4.5).make(),
         TeXBox(r'''
         \begin{itemize}
         \setlength{\itemsep}{-2mm}
@@ -377,7 +376,7 @@ class Poster(Poster_1):
         \item Command line arguments to simulations
         \item \xmds script template output
         \end{itemize}
-        ''',fixed_width=5),
+        ''',fixed_width=5).make(),
         ), a1="ne", a2="nw", angle=90, space=0.1,
         ),
         ),
@@ -386,23 +385,23 @@ class Poster(Poster_1):
         TeXBox(r'''
         \xmds will save you time by solving your problems very quickly.
         So why not give it a go?  See \texttt{http://www.xmds.org} and try it out.
-        '''),
+        ''').make(),
         ),
 	Box(
         Title('References'),
-        TeXBox(references),
+        TeXBox(references).make(),
 	),
         )
 # -------------------------------------------------------------
 
 
 poster=Poster()
-poster.size = "a0"
+poster.size = "a4"
 
 print "Rendering picture..."
 render(
-    #poster.make(),
-    poster.make().scale(4.0,4.0),
+    poster.make(),
+    #poster.make().scale(4.0,4.0),
     file="xmdsPoster.eps",
     )
 
