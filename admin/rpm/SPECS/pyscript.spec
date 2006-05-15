@@ -1,6 +1,6 @@
 Name:      pyscript
 Version:   0.6
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   PyScript - Postscript graphics with Python
 
 Group:     Applications/Publishing
@@ -10,7 +10,7 @@ Source0:   http://dl.sourceforge.net/sourceforge/pyscript/pyscript-0.6.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: python
-Requires:  python, tetex
+Requires:  tetex
 
 # define python_sitelib
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
@@ -74,7 +74,12 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %{python_sitelib}/pyscript/lib/quantumcircuits.pyo
 
 %changelog
-* Mon May 15 2006 Paul Cochrane <paultcochrane@gmail.com>
+* Mon May 15 2006 Paul Cochrane <paultcochrane@gmail.com> 0.6-4
+- Removed python from Requires list as this will be taken care of
+  automatically.
+- Added version numbers to the changelog headers.  rpmlint now happy.
+
+* Mon May 15 2006 Paul Cochrane <paultcochrane@gmail.com> 0.6-3
 - On further advice from <tjikkun@xs4all.nl>; Bugzilla ref: #191218
   And from the python packaging guidelines the following changes have been
   made:
@@ -87,7 +92,7 @@ rm -rf $RPM_BUILD_ROOT
 - Use of the %{__python} macro, and an improved version of the install
   command.
 
-* Fri May 12 2006 Paul Cochrane <paultcochrane@gmail.com>
+* Fri May 12 2006 Paul Cochrane <paultcochrane@gmail.com> 0.6-2
 - On advice from: <tjikkun@xs4all.nl>; Bugzilla ref: #191218
 - Removed Prefix, and made non-relocatable
 - Corrected BuildRoot
@@ -99,16 +104,16 @@ rm -rf $RPM_BUILD_ROOT
 - Increased release number
 - Added %{_libdir} and %{_bindir} macros in relevant locations
 
-* Mon Apr 24 2006 Paul Cochrane <paultcochrane@gmail.com>
+* Mon Apr 24 2006 Paul Cochrane <paultcochrane@gmail.com> 0.6-1
 - Updated for PyScript version 0.6
 - Removed patch commands as not required for version 0.6
 
-* Fri Apr 7 2006 Paul Cochrane <paultcochrane@gmail.com>
+* Fri Apr 7 2006 Paul Cochrane <paultcochrane@gmail.com> 
 - Corrected Group tag, added dist to the Release tag, and changed the
   Copyright tag to License as it now is (and corrected the tag value).
 
-* Fri Mar 30 2006 Paul Cochrane <paultcochrane@gmail.com>
+* Fri Mar 30 2006 Paul Cochrane <paultcochrane@gmail.com> 0.6-1
 - Finally got building to work properly
 
-* Fri Mar 3 2006 Paul Cochrane <paultcochrane@gmail.com>
+* Fri Mar 3 2006 Paul Cochrane <paultcochrane@gmail.com> 0.6-1
 - New spec file made for pyscript-0.5
