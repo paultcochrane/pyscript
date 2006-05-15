@@ -51,7 +51,7 @@ class ArrowHead(AffineObj):
     @cvar start: tuple giving starting point for path
     @cvar shape: list of tuples giving arguments to postscripts curveto operator
     @cvar closed: whether to close the path or not
-    @cvar fg: line color of None for no line
+    @cvar fg: line color or None for no line
     @cvar bg: fill color or None for no fill
     @cvar linewidth: linewidth
     @cvar linejoin: 0=miter, 1=round, 2=bevel
