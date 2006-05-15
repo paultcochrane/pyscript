@@ -12,7 +12,7 @@ a=setup(name="pyscript",
       url="http://pyscript.sourceforge.net",
       license="GPL",
       keywords="presentation scientific/engineering graphics drawing",
-      platforms="OS Independent"
+      platforms="OS Independent",
       packages=['pyscript','pyscript.lib','pyscript.fonts'],
       scripts=['bin/pyscript'],
 )
