@@ -552,8 +552,15 @@ class Path(AffineObj):
         for head in self.heads:
         
             # make a copy so this class has it's own instance 
-            h = head.copy()
+                
+            h=head.copy()
 
+            # line colors overide arrow they blend
+            # (how would a user overide this?)
+            if options.has_key('fg'):
+                h(fg=options['fg'])
+                h(bg=options['fg'])
+            
             # position it appropriately:
             h.__init__(tip=self.P(head.pos), angle=self.tangent(head.pos).arg)
     

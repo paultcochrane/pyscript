@@ -665,7 +665,7 @@ class Rectangle(Area):
     @cvar bg: fill color or None for empty
     @type bg: L{Color} object
 
-    @cvar r: radius of corners
+    @cvar r: radius of corners (saturates at min(width/2,height/2))
     @type r: float
 
     @cvar width: width of rectangle
