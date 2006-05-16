@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "this should be run from the main directory"
+
+epydoc -o website/api build/lib/pyscript/*.py build/lib/pyscript/lib/*.py

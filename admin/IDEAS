@@ -1,0 +1,61 @@
+These are ideas of where we could take pyscript
+
+---------------------------------------------------------------------
+Debug mode
+
+every PsObj has a .debug() method which returns a group of objects
+to help with visual debugging.
+
+At the very least the objects boundingbox is returned as a rectangle.
+things like Path could also return control points for the beziers etc
+
+Maybe this could be turned on/off per object ... 
+
+---------------------------------------------------------------------
+pdf output
+
+switch from ps to pdf .....
+
+Benefits:   
+
+- more portable?
+- pdfmarks
+- transparency model
+- gradients
+- much bigger audience
+- wider range of applications (eg presentations)
+- uses postscript operators anyway
+
+Down side:
+
+- LaTeX ... can we get all the necessary info from pdflatex ?
+  or do we need some circuitous path via dvips
+
+
+---------------------------------------------------------------------
+svg output
+
+pro:
+
+  - bigger range of operations
+  - transparency etc
+  - GUI!  eg inkscape
+  - bigger audience
+
+con:
+
+  - LaTeX - no decent converters  (this is a show stopper at the moment)
+
+
+---------------------------------------------------------------------
+multiple output
+
+  - harder work
+  - lowest common denominator?
+
+---------------------------------------------------------------------
+3D pyscript
+
+add z dimension to objects (they remain flat) and allow affine transormations
+in 3d with projection onto x-y plane
+
