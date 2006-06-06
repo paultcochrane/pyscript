@@ -27,6 +27,10 @@ view: $(FIGS) $(MAIN).pdf
 acro: $(FIGS) $(MAIN).pdf
 	acroread $(MAIN).pdf
 
+pdf: $(MAIN).pdf
+
+dvi: $(MAIN).dvi
+
 $(FIGS) : %.pdf : %.py
 	./$<
 	epstopdf $*.eps
