@@ -73,6 +73,54 @@ include doc/examples/twoqubitQST.py
 include doc/examples/ccp2004_poster.py
 
 # add the manual (as it currently stands)
+include doc/manual/Makefile
+include doc/manual/pyscript_defs.tex
+include doc/manual/pyscript.bib
+include doc/manual/pyscript.tex
+include doc/manual/libpresent.tex
+include doc/manual/libpresentation.tex
+include doc/manual/libqi.tex
+include doc/manual/pyscriptOptics.tex
+include doc/manual/pyscriptElectronics.tex
+include doc/manual/figs/logo.pdf
+include doc/manual/figs/tutorial.pdf
+include doc/manual/figs/fig_position_eg1.pdf
+include doc/manual/figs/fig_position_eg2.pdf
+include doc/manual/figs/fig_area.pdf
+include doc/manual/figs/fig_rectangle.pdf
+include doc/manual/figs/fig_circle.pdf
+include doc/manual/figs/fig_circle_eg1.pdf
+include doc/manual/figs/fig_circle_eg2.pdf
+include doc/manual/figs/fig_path.pdf
+include doc/manual/figs/fig_path_eg.pdf
+include doc/manual/figs/fig_text_kerning.pdf
+include doc/manual/figs/fig_tex_eg.pdf
+include doc/manual/figs/fig_colorchart.pdf
+include doc/manual/class_structure.pdf
+include doc/manual/optics/michelson-morely.pdf
+include doc/manual/optics/mach-zehnder.pdf
+include doc/manual/optics/sagnac.pdf
+include doc/manual/optics/fabry-perot_pdh.pdf
+include doc/manual/optics/BSBox.pdf
+include doc/manual/optics/BSLine.pdf
+include doc/manual/optics/Detector.pdf
+include doc/manual/optics/FreeSpace.pdf
+include doc/manual/optics/LambdaPlate.pdf
+include doc/manual/optics/Laser.pdf
+include doc/manual/optics/Lens.pdf
+include doc/manual/optics/Mirror.pdf
+include doc/manual/optics/Modulator.pdf
+include doc/manual/optics/PhaseShifter.pdf
+include doc/manual/electronics/AndGate.pdf
+include doc/manual/electronics/NandGate.pdf
+include doc/manual/electronics/OrGate.pdf
+include doc/manual/electronics/NorGate.pdf
+include doc/manual/electronics/XorGate.pdf
+include doc/manual/electronics/NxorGate.pdf
+include doc/manual/electronics/NotGate.pdf
+include doc/manual/electronics/Resistor.pdf
+include doc/manual/electronics/Capacitor.pdf
+
 include doc/manual/pyscript.pdf
 
 # add the styles for talks and posters
