@@ -19,7 +19,7 @@
 MAIN = pyscript
 FIGS = 
 
-all: $(FIGS) $(MAIN).pdf $(MAIN).dvi
+all: $(FIGS) $(MAIN).pdf
 
 view: $(FIGS) $(MAIN).pdf
 	gv $(MAIN).pdf
