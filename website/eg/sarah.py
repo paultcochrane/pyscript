@@ -1,3 +1,5 @@
+#!/usr/bin/env pyscript
+
 from pyscript import *
 from math import *
 
@@ -32,7 +34,7 @@ def arrow(s,e,**dict):
 render(
     arrow(P(0,0),P(0,4)),
     arrow(P(0,0),P(5,0)),
-    Path(P(2,3.8),P(2,0),dash='[ 2] 0',fg=Color(.5)),
+    Path(P(2,3.8),P(2,0),dash=Dash(2),fg=Color(.5)),
 
     Path(P(.5,2),P(2,2),linewidth=1),
     Path(P(4,3.7),
@@ -40,7 +42,7 @@ render(
          P(2,2),
          C(P(2,1),P(3,.5)),
          P(4,.3),linewidth=1),
-    Path(P(2,2),P(4,2),dash='[ 3] 0',linewidth=1),
+    Path(P(2,2),P(4,2),dash=Dash(3),linewidth=1),
 
     TeX(r'$\bar{\lambda}_c$',n=P(2,-.1)),
 
