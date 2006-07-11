@@ -17,7 +17,7 @@
         <tr>
           <td>
             <center>
-              <a href="eg/tutorial.png"><img src="./eg/tutorial.png" alt="tutorial.png" width="209" height="146"></a>
+              <a href="eg/tutorial_large.png"><img src="./eg/tutorial.png" alt="tutorial.png" width="209" height="146"></a>
               <br>
               <a href="eg/tutorial.eps">tutorial.eps</a>
               <br>
@@ -32,7 +32,7 @@
         <tr>
           <td>
             <center>
-              <a href="eg/tex.png"><img src="./eg/tex.png" alt="tex.png"></a>
+              <a href="eg/tex_large.png"><img src="./eg/tex.png" alt="tex.png"></a>
               <br>
               <a href="eg/tex.eps">tex.eps</a>
               <br>
@@ -47,7 +47,7 @@
         <tr>
           <td>
             <center>
-              <a href="eg/detector.png"><img src="./eg/detector.png" alt="detector.png"></a>
+              <a href="eg/detector_large.png"><img src="./eg/detector.png" alt="detector.png"></a>
               <br>
               <a href="eg/detector.eps">detector.eps</a>
               <br>
@@ -64,7 +64,7 @@
         <tr>
           <td>
             <center>
-              <a href="eg/sarah.png"><img src="./eg/sarah.png" alt="sarah.png"></a>
+              <a href="eg/sarah_large.png"><img src="./eg/sarah.png" alt="sarah.png"></a>
               <br>
               <a href="eg/sarah.eps">sarah.eps</a>
               <br>
@@ -79,7 +79,7 @@
         <tr>
           <td>
             <center>
-              <a href="eg/atom.png"><img src="./eg/atom.png" alt="atom.png"></a>
+              <a href="eg/atom_large.png"><img src="./eg/atom.png" alt="atom.png"></a>
               <br>
               <a href="eg/atom.eps">atom.eps</a>
               <br>
@@ -94,7 +94,7 @@
         <tr>
           <td>
             <center>
-              <a href="eg/sphere.png"><img src="./eg/sphere.png" alt="sphere.png"></a>
+              <a href="eg/sphere_large.png"><img src="./eg/sphere.png" alt="sphere.png"></a>
               <br>
               <a href="eg/sphere.eps">sphere.eps</a>
               <br>
@@ -111,7 +111,7 @@
         <tr>
           <td>
             <center>
-              <a href="eg/cryptClonerDiag.png"><img src="./eg/cryptClonerDiag.png" alt="cryptClonerDiag.png"></a>
+              <a href="eg/cryptClonerDiag_large.png"><img src="./eg/cryptClonerDiag.png" alt="cryptClonerDiag.png"></a>
               <br>
               <a href="eg/cryptClonerDiag.eps">cryptClonerDiag.eps</a>
               <br>
@@ -126,7 +126,7 @@
         <tr>
           <td>
             <center>
-              <a href="eg/twoqubitQST.png"><img src="./eg/twoqubitQST.png" alt="twoqubitQST.png"></a>
+              <a href="eg/twoqubitQST_large.png"><img src="./eg/twoqubitQST.png" alt="twoqubitQST.png"></a>
               <br>
               <a href="eg/twoqubitQST.eps">twoqubitQST.eps</a>
               <br>
@@ -141,7 +141,7 @@
         <tr>
           <td>
             <center>
-              <a href="eg/coherentQST.png"><img src="./eg/coherentQST.png" alt="coherentQST.png"></a>
+              <a href="eg/coherentQST_large.png"><img src="./eg/coherentQST.png" alt="coherentQST.png"></a>
               <br>
               <a href="eg/coherentQST.eps">coherentQST.eps</a>
               <br>
@@ -160,7 +160,7 @@
             <center>
               <a href="eg/aggie.png"><img src="./eg/aggie.png" alt="aggie.png"></a>
               <br>
-              <a href="eg/aggie.eps">aggie.eps</a>
+              <a href="eg/aggie.pdf">aggie.pdf</a>
               <br>
               (reproduced with permission)
             </center>
