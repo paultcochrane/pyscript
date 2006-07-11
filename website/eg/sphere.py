@@ -1,15 +1,19 @@
-#!/usr/bin/env python
+#!/usr/bin/env pyscript
 
-import sys
-sys.path.insert(0,'../../')
-sys.path.insert(0,'../../pyscript')
-sys.path.insert(0,'../../pyscript/lib')
+# $Id$
 
+"""
+A Poincare sphere.  The example shows a sphere with axes labeled and a
+vector pointing to a point on the surface of the sphere.
+"""
+
+# import the pyscript libraries
 from pyscript import *
 
-#----------------------------------------------------------------------------------------------
+# define the default units for the diagram
 defaults.units=UNITS['cm']
 
+# define some handy LaTeX macros
 defaults.tex_head=r"""
 \documentclass{article}
 \pagestyle{empty}
@@ -21,74 +25,72 @@ defaults.tex_head=r"""
 \begin{document}
 """
 
-def ArrowHead(tip=P(0,0),width=0.2,height=0.2,dir="e",fg=Color("black"),bg=Color("black"),angle=0,dent=0.2):
+# define an arrow head function
+def ArrowHead(tip=P(0,0), width=0.2, height=0.2, 
+        fg=Color("black"), bg=Color("black"), angle=0, dent=0.2):
     """
     ArrowHead object
     """
-    # need to chuck some bezier spline stuff in here to make nicer arrowheads
-#      ah = Path(e,C(?,?,?,?),
-#                e+P(-h,w/2.0),e+P(-h*(1-dent),0),e+P(-h,-w/2.0),
-#                C(?,?,?,?),e,fg=fg,bg=bg)
+    tmptip = P(0,0)
 
-    if dir == "e":
-        ah = Path(tip,
-                  tip+P(-height,width/2.0),tip+P(-height*(1-dent),0),tip+P(-height,-width/2.0),
-                  tip,fg=fg,bg=bg)
-    elif dir == "n":
-        ah = Path(tip,
-                  tip+P(width/2.0,-height),tip+P(0,-height*(1-dent)),tip+P(-width/2.0,-height),
-                  tip,fg=fg,bg=bg)
-    elif dir == "w":
-        ah = Path(tip,
-                  tip-P(-height,width/2.0),tip-P(-height*(1-dent),0),tip-P(-height,-width/2.0),
-                  tip,fg=fg,bg=bg)
-    elif dir == "s":
-        ah = Path(tip,
-                  tip-P(width/2.0,-height),tip-P(0,-height*(1-dent)),tip-P(-width/2.0,-height),
-                  tip,fg=fg,bg=bg)
+    ah = Path(tmptip, tmptip + P(width/2.0,-height),
+                tmptip + P(0,-height*(1-dent)),
+                tmptip + P(-width/2.0,-height), tmptip,
+                fg=fg, bg=bg)
 
-    ah.rotate(angle,p=ah.bbox().sw)
-
+    ah.rotate(angle)
+    ah.move(tip-tmptip)
+    
     return ah
 
+# define the circle in the x-z plane
+circ1 = Circle(c=P(0,0))
 
-circ1 = Circle(c=P(0,0), start=0,end=360)
+# define the circle in the x-y plane
+circ2front = Circle(c=P(0,0), start=90, end=270)
+circ2back = Circle(c=P(0,0), start=270, end=90, dash=Dash(3))
+circ2 = Group(circ2front, circ2back)
+circ2.scale(1, 0.3)
 
-circ2front = Circle(c=P(0,0), start=90,end=270)
-circ2back = Circle(c=P(0,0), start=270,end=90,dash="[ 3 ] 0")
-circ2 = Group(circ2front,circ2back)
-circ2.scale(1,0.3)
-
-circ3front = Circle(c=P(0,0), start=90,end=270)
-circ3back = Circle(c=P(0,0), start=270,end=90,dash="[ 3 ] 0")
-circ3 = Group(circ3front,circ3back)
+# define the circle in the y-z plane
+circ3front = Circle(c=P(0,0), start=90, end=270)
+circ3back = Circle(c=P(0,0), start=270, end=90, dash=Dash(3))
+circ3 = Group(circ3front, circ3back)
 x2 = 0.78
-circ3.scale(x2,0.3*x2)
+circ3.scale(x2, 0.3*x2)
 circ3.c = P(0,-0.6)
 
-zaxis = Path(P(0,-1.2),P(0,1.2),linewidth=0.3)
-xaxis = Path(P(-1.2,0),P(1.2,0),linewidth=0.3)
-yaxis = Path(P(-0.7,0),P(0.7,0),linewidth=0.3)
-yaxis.rotate(p=yaxis.P(.5),angle=-30)
+# define the axes
+zaxis = Path(P(0,-1.2), P(0,1.2))
+xaxis = Path(P(-1.2,0), P(1.2,0))
+yaxis = Path(P(-0.7,0), P(0.7,0))
+yaxis.rotate(p=yaxis.P(.5), angle=-30)
 
-xArrow = ArrowHead(tip=xaxis.end+P(0,0),width=0.07,height=0.07)
-yArrow = ArrowHead(tip=yaxis.end+P(0.09,0),angle=-30,width=0.07,height=0.07)
-zArrow = ArrowHead(tip=zaxis.end,dir="n",width=0.07,height=0.07)
+# define the arrows for each axis
+xArrow = ArrowHead(tip=xaxis.end, width=0.07, height=0.07, angle=90)
+yArrow = ArrowHead(tip=yaxis.end, angle=90-30, width=0.07, height=0.07)
+zArrow = ArrowHead(tip=zaxis.end, width=0.07, height=0.07)
 
-xLabel = TeX(sw=xaxis.bbox().ne,text="$\mathbf{J}_x$").scale(0.5,0.5)
-yLabel = TeX(sw=yaxis.bbox().ne,text="$\mathbf{J}_y$").scale(0.5,0.5)
-zLabel = TeX(sw=zaxis.bbox().ne,text="$\mathbf{J}_z$").scale(0.5,0.5)
+# define the labels
+xLabel = TeX("$\mathbf{J}_x$").scale(.5)(sw=xaxis.end)
+yLabel = TeX("$\mathbf{J}_y$").scale(.5)(se=yaxis.end+P(0,.05))
+zLabel = TeX("$\mathbf{J}_z$").scale(.5)(sw=zaxis.end)
 
-rad = Path(P(0,-0.59),P(0.5,-0.59))
-rad.rotate(p=rad.bbox().w,angle=20)
-radArrow = ArrowHead(tip=rad.end+P(0.01,0.02),dir="e",width=0.06,height=0.06,angle=20)
-radThing = Group(rad,radArrow)
-radLabel = TeX(sw=rad.bbox().c,text="$\mathcal{R}$").scale(0.5,0.5)
+# define the vector R
+rad = Path(P(0,-0.59), P(0.5,-0.59))
+rad.rotate(p=rad.bbox().w, angle=20)
+radArrow = ArrowHead(tip=rad.end, width=0.06, height=0.06, angle=90+20)
+radThing = Group(rad, radArrow)
+radLabel = TeX("$\mathcal{R}$").scale(0.5,0.5)(sw=rad.P(.5))
 
-fig = Group(circ1,circ2,circ3,
-	    zaxis,xaxis,yaxis,
-	    xArrow,yArrow,zArrow,
-	    xLabel,yLabel,zLabel,
-	    radThing,radLabel)
+# define the figure describing the diagram
+fig = Group(circ1, circ2, circ3, 
+        zaxis, xaxis, yaxis,
+        xArrow, yArrow, zArrow,
+        xLabel, yLabel, zLabel,
+        radThing, radLabel)
 
-render(fig,file="sphere.eps")
+# render the diagram
+render(fig, file="sphere.eps")
+
+# vim: expandtab shiftwidth=4:
