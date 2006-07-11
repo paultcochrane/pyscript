@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 
 # state sniffing in a cryptography scheme with a quantum cloner diagram
-
-import sys
-sys.path.append('../../')
-sys.path.append('../../pyscript')
-sys.path.append('../../pyscript/lib')
-
 from pyscript import *
-from optics import *
+from pyscript.lib.optics import *
+from math import *
 
 #----------------------------------------------------------------------------------------------
 defaults.units=UNITS['cm']
@@ -54,7 +49,7 @@ def ArrowHead(tip=P(0,0),width=0.2,height=0.2,dir="e",fg=Color("black"),bg=Color
 
     return ah
 
-def Line(start=P(0,0), length=1.0, angle=0, dash="[]"):
+def Line(start=P(0,0), length=1.0, angle=0, dash=None):
     """
     A dodgy line object
     """
@@ -77,7 +72,7 @@ mainInput = Group(inputLine,inputArrow,inputText)
 
 ### first PBS
 pbsHeight = 0.7
-pbsBox = PBS(c=inputHead+P(0.2+pbsHeight/2.0,0.0),h=pbsHeight,angle=90)
+pbsBox = PBS(c=inputHead+P(0.2+pbsHeight/2.0,0.0),height=pbsHeight,angle=90)
 pbs = Group(pbsBox)
 
 ### line to input of bottom cloner
@@ -112,8 +107,8 @@ amp = Group(ampBox,ampText)
 
 # vac 1
 vac1 = Group()
-vac1.append(Line(start=ampBox.c+P(-0.7,0.4),length=1.0,angle=150,dash="[ 3] 0"))
-vac1.append(Line(start=ampBox.c+P(0.7,-0.4),length=1.0,angle=-30,dash="[ 3] 0"))
+vac1.append(Line(start=ampBox.c+P(-0.7,0.4),length=1.0,angle=150,dash=Dash(3)))
+vac1.append(Line(start=ampBox.c+P(0.7,-0.4),length=1.0,angle=-30,dash=Dash(3)))
 vac1Text = TeX(se=ampBox.c+P(-1.1,0.9),text=r"$\hat{v}_1$")
 vac1.append(vac1Text)
 tipPoint = ampBox.c+P(0.7+sqrt(3.0)/2.0,-0.8)
@@ -136,7 +131,7 @@ beamSplitter = BSLine(c=outAmpHead+P(bsDist/2.0,0), angle=-45)
 # vac 2
 vac2Head = outAmpHead+P(bsDist/2.0,-0.3)
 vac2Tail = vac2Head+P(0,-1.0)
-vac2Mode = Path(vac2Tail,vac2Head,dash="[ 3] 0")
+vac2Mode = Path(vac2Tail,vac2Head,dash=Dash(3))
 vac2Arrow = ArrowHead(tip=vac2Head,dir="n")
 vac2Text = TeX(sw=vac2Tail+P(0.2,0),text=r"$\hat{v}_2$")
 vac2 = Group(vac2Mode,vac2Text,vac2Arrow)
@@ -207,8 +202,8 @@ amp = Group(ampBox,ampText)
 
 # vac 1
 vac1 = Group()
-vac1.append(Line(start=ampBox.c+P(-0.7,0.4),length=1.0,angle=150,dash="[ 3] 0"))
-vac1.append(Line(start=ampBox.c+P(0.7,-0.4),length=1.0,angle=-30,dash="[ 3] 0"))
+vac1.append(Line(start=ampBox.c+P(-0.7,0.4),length=1.0,angle=150,dash=Dash(3)))
+vac1.append(Line(start=ampBox.c+P(0.7,-0.4),length=1.0,angle=-30,dash=Dash(3)))
 vac1Text = TeX(se=ampBox.c+P(-1.1,0.9),text=r"$\hat{v}_1$")
 vac1.append(vac1Text)
 tipPoint = ampBox.c+P(0.7+sqrt(3.0)/2.0,-0.8)
@@ -231,7 +226,7 @@ beamSplitter = BSLine(c=outAmpHead+P(bsDist/2.0,0.0), angle=45)
 # vac 2
 vac2Head = outAmpHead+P(bsDist/2.0,0.3)
 vac2Tail = vac2Head+P(0,1.0)
-vac2Mode = Path(vac2Tail,vac2Head,dash="[ 3] 0")
+vac2Mode = Path(vac2Tail,vac2Head,dash=Dash(3))
 vac2Arrow = ArrowHead(tip=vac2Head,dir="s")
 vac2Text = TeX(nw=vac2Tail+P(0.2,0),text=r"$\hat{v}_2$")
 vac2 = Group(vac2Mode,vac2Text,vac2Arrow)
@@ -287,7 +282,7 @@ cloner2 = Group(input,
 rightExtent = b2Head+P(2.4+pbsHeight,0.0)
 ### top output pbs
 
-pbsBox = PBS(c=b2Head+P(0.2+pbsHeight/2.0,0.0),h=pbsHeight,angle=90)
+pbsBox = PBS(c=b2Head+P(0.2+pbsHeight/2.0,0.0),height=pbsHeight,angle=90)
 pbsLineTail = b2Head+P(0.4+pbsHeight,0.0)
 pbsLineHead = rightExtent
 pbsArrow = ArrowHead(tip=pbsLineHead, dir="e")
@@ -296,7 +291,7 @@ pbsOutTop = Group(pbsBox,pbsLine,pbsArrow)
 
 ### bottom output pbs
 
-pbsBox = PBS(c=b1Head+P(0.2+pbsHeight/2.0,0.0),h=pbsHeight,angle=90)
+pbsBox = PBS(c=b1Head+P(0.2+pbsHeight/2.0,0.0),height=pbsHeight,angle=90)
 pbsLineTail = b1Head+P(0.4+pbsHeight,0.0)
 pbsLineHead = rightExtent-P(0.0,1.3)
 pbsArrow = ArrowHead(tip=pbsLineHead, dir="e")
