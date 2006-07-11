@@ -1,13 +1,18 @@
-%!PS-Adobe-2.0 EPSF-2.0
-%%Creator: pyscript v0.0.1
-%%CreationDate: Wed Jul  2 14:57:54 2003
-%%BoundingBox: -5 -5 147 133
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 0 0 147 132
+%%Creator: PyScript 0.6.1
+%%CreationDate: Tue Jul 11 15:57:12 2006
+%%LanguageLevel: 2
+%%Title: PyScriptEPS
+%%Pages: 1
 %%EndComments
-%% show text with kerning if supplied
+%%BeginProlog
+%%BeginResource: procset pyscript
+/PyScriptDict 10 dict def PyScriptDict begin
+%show text with kerning if supplied
 /kernshow { 0 2 2 counttomark 2 sub { -2 roll } for
 counttomark 2 idiv { exch show 0 rmoveto} repeat pop
 } bind def
-
 /BeginEPSF { 
 /b4_Inc_state save def 
 /dict_count countdictstack def 
@@ -24,14 +29,20 @@ userdict begin
 } if
 } if
 } bind def
-
 /EndEPSF { 
 count op_count sub {pop} repeat 
 countdictstack dict_count sub {end} repeat
 b4_Inc_state restore
 } bind def
-/uu {28.346000 mul} def 0.500000 setlinewidth 
-%DVIPSSource:  TeX output 2003.07.02:1457
+/PyScriptStart {} def
+/PyScriptEnd {} def
+/showpage {} def
+end
+%%EndResource
+%DVIPSWebPage: (www.radicaleye.com)
+%DVIPSCommandLine: dvips -q -tunknown -Ppdf -o temp.ps temp.dvi
+%DVIPSParameters: dpi=8000, compressed
+%DVIPSSource:  TeX output 2006.07.11:1557
 %%BeginProcSet: tex.pro
 %!
 /TeXDict 300 dict def TeXDict begin/N{def}def/B{bind def}N/S{exch}N/X{S
@@ -59,7 +70,7 @@ restore}B/D{/cc X A type/stringtype ne{]}if nn/base get cc ctr put nn
 }if put/ctr ctr 1 add N}B/I{cc 1 add D}B/bop{userdict/bop-hook known{
 bop-hook}if/SI save N @rigin 0 0 moveto/V matrix currentmatrix A 1 get A
 mul exch 0 get A mul add .99 lt{/QV}{/RV}ifelse load def pop pop}N/eop{
-SI restore userdict/eop-hook known{eop-hook}if }N/@start{
+SI restore userdict/eop-hook known{eop-hook}if showpage}N/@start{
 userdict/start-hook known{start-hook}if pop/VResolution X/Resolution X
 1000 div/DVImag X/IEn 256 array N 2 string 0 1 255{IEn S A 360 add 36 4
 index cvrs cvn put}for pop 65781.76 div/vsize X 65781.76 div/hsize X}N
@@ -137,7 +148,7 @@ forall N/D{/cc X A type/stringtype ne{]}if nn/base get cc ctr put nn
 }if put/ctr ctr 1 add N}B/I{cc 1 add D}B/bop{userdict/bop-hook known{
 bop-hook}if/SI save N @rigin 0 0 moveto/V matrix currentmatrix A 1 get A
 mul exch 0 get A mul add .99 lt{/QV}{/RV}ifelse load def pop pop}N/eop{
-SI restore userdict/eop-hook known{eop-hook}if }N/@start{
+SI restore userdict/eop-hook known{eop-hook}if showpage}N/@start{
 userdict/start-hook known{start-hook}if pop/VResolution X/Resolution X
 1000 div/DVImag X/IEn 256 array N 2 string 0 1 255{IEn S A 360 add 36 4
 index cvrs cvn put}for pop 65781.76 div/vsize X 65781.76 div/hsize X}N
@@ -156,6 +167,82 @@ p -2 w}B/o{p -1 w}B/q{p 1 w}B/r{p 2 w}B/s{p 3 w}B/t{p 4 w}B/x{0 S
 rmoveto}B/y{3 2 roll p a}B/bos{/SS save N}B/eos{SS restore}B end
 
 %%EndProcSet
+%%BeginProcSet: f7b6d320.enc
+% Thomas Esser, Dec 2002. public domain
+%
+% Encoding for:
+%     cmb10 cmbx10 cmbx12 cmbx5 cmbx6 cmbx7 cmbx8 cmbx9 cmbxsl10
+%     cmdunh10 cmr10 cmr12 cmr17cmr6 cmr7 cmr8 cmr9 cmsl10 cmsl12 cmsl8
+%     cmsl9 cmss10cmss12 cmss17 cmss8 cmss9 cmssbx10 cmssdc10 cmssi10
+%     cmssi12 cmssi17 cmssi8cmssi9 cmssq8 cmssqi8 cmvtt10
+%
+/TeXf7b6d320Encoding [
+/Gamma /Delta /Theta /Lambda /Xi /Pi /Sigma /Upsilon /Phi /Psi /Omega
+/ff /fi /fl /ffi /ffl /dotlessi /dotlessj /grave /acute /caron /breve
+/macron /ring /cedilla /germandbls /ae /oe /oslash /AE /OE /Oslash
+/suppress /exclam /quotedblright /numbersign /dollar /percent /ampersand
+/quoteright /parenleft /parenright /asterisk /plus /comma /hyphen
+/period /slash /zero /one /two /three /four /five /six /seven /eight
+/nine /colon /semicolon /exclamdown /equal /questiondown /question /at
+/A /B /C /D /E /F /G /H /I /J /K /L /M /N /O /P /Q /R /S /T /U /V /W /X
+/Y /Z /bracketleft /quotedblleft /bracketright /circumflex /dotaccent
+/quoteleft /a /b /c /d /e /f /g /h /i /j /k /l /m /n /o /p /q /r /s /t /u
+/v /w /x /y /z /endash /emdash /hungarumlaut /tilde /dieresis /suppress
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /space
+/Gamma /Delta /Theta /Lambda /Xi /Pi /Sigma /Upsilon /Phi /Psi /.notdef
+/.notdef /Omega /ff /fi /fl /ffi /ffl /dotlessi /dotlessj /grave /acute
+/caron /breve /macron /ring /cedilla /germandbls /ae /oe /oslash /AE
+/OE /Oslash /suppress /dieresis /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+] def
+
+%%EndProcSet
+%%BeginProcSet: aae443f0.enc
+% Thomas Esser, Dec 2002. public domain
+%
+% Encoding for:
+%     cmmi10 cmmi12 cmmi5 cmmi6 cmmi7 cmmi8 cmmi9 cmmib10
+%
+/TeXaae443f0Encoding [
+/Gamma /Delta /Theta /Lambda /Xi /Pi /Sigma /Upsilon /Phi /Psi /Omega
+/alpha /beta /gamma /delta /epsilon1 /zeta /eta /theta /iota /kappa
+/lambda /mu /nu /xi /pi /rho /sigma /tau /upsilon /phi /chi /psi
+/omega /epsilon /theta1 /pi1 /rho1 /sigma1 /phi1 /arrowlefttophalf
+/arrowleftbothalf /arrowrighttophalf /arrowrightbothalf /arrowhookleft
+/arrowhookright /triangleright /triangleleft /zerooldstyle /oneoldstyle
+/twooldstyle /threeoldstyle /fouroldstyle /fiveoldstyle /sixoldstyle
+/sevenoldstyle /eightoldstyle /nineoldstyle /period /comma /less /slash
+/greater /star /partialdiff /A /B /C /D /E /F /G /H /I /J /K /L /M /N
+/O /P /Q /R /S /T /U /V /W /X /Y /Z /flat /natural /sharp /slurbelow
+/slurabove /lscript /a /b /c /d /e /f /g /h /i /j /k /l /m /n /o /p
+/q /r /s /t /u /v /w /x /y /z /dotlessi /dotlessj /weierstrass /vector
+/tie /psi /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/space /Gamma /Delta /Theta /Lambda /Xi /Pi /Sigma /Upsilon /Phi /Psi
+/.notdef /.notdef /Omega /alpha /beta /gamma /delta /epsilon1 /zeta /eta
+/theta /iota /kappa /lambda /mu /nu /xi /pi /rho /sigma /tau /upsilon
+/phi /chi /psi /tie /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef
+] def
+
+%%EndProcSet
 %%BeginProcSet: texps.pro
 %!
 TeXDict begin/rf{findfont dup length 1 add dict begin{1 index/FID ne 2
@@ -171,6 +258,65 @@ mul exch}def/ReEncodeFont{CharStrings rcheck{/Encoding false def dup[
 exch{dup CharStrings exch known not{pop/.notdef/Encoding true def}if}
 forall Encoding{]exch pop}{cleartomark}ifelse}if/Encoding exch def}def
 end
+
+%%EndProcSet
+%%BeginProcSet: special.pro
+%!
+TeXDict begin/SDict 200 dict N SDict begin/@SpecialDefaults{/hs 612 N
+/vs 792 N/ho 0 N/vo 0 N/hsc 1 N/vsc 1 N/ang 0 N/CLIP 0 N/rwiSeen false N
+/rhiSeen false N/letter{}N/note{}N/a4{}N/legal{}N}B/@scaleunit 100 N
+/@hscale{@scaleunit div/hsc X}B/@vscale{@scaleunit div/vsc X}B/@hsize{
+/hs X/CLIP 1 N}B/@vsize{/vs X/CLIP 1 N}B/@clip{/CLIP 2 N}B/@hoffset{/ho
+X}B/@voffset{/vo X}B/@angle{/ang X}B/@rwi{10 div/rwi X/rwiSeen true N}B
+/@rhi{10 div/rhi X/rhiSeen true N}B/@llx{/llx X}B/@lly{/lly X}B/@urx{
+/urx X}B/@ury{/ury X}B/magscale true def end/@MacSetUp{userdict/md known
+{userdict/md get type/dicttype eq{userdict begin md length 10 add md
+maxlength ge{/md md dup length 20 add dict copy def}if end md begin
+/letter{}N/note{}N/legal{}N/od{txpose 1 0 mtx defaultmatrix dtransform S
+atan/pa X newpath clippath mark{transform{itransform moveto}}{transform{
+itransform lineto}}{6 -2 roll transform 6 -2 roll transform 6 -2 roll
+transform{itransform 6 2 roll itransform 6 2 roll itransform 6 2 roll
+curveto}}{{closepath}}pathforall newpath counttomark array astore/gc xdf
+pop ct 39 0 put 10 fz 0 fs 2 F/|______Courier fnt invertflag{PaintBlack}
+if}N/txpose{pxs pys scale ppr aload pop por{noflips{pop S neg S TR pop 1
+-1 scale}if xflip yflip and{pop S neg S TR 180 rotate 1 -1 scale ppr 3
+get ppr 1 get neg sub neg ppr 2 get ppr 0 get neg sub neg TR}if xflip
+yflip not and{pop S neg S TR pop 180 rotate ppr 3 get ppr 1 get neg sub
+neg 0 TR}if yflip xflip not and{ppr 1 get neg ppr 0 get neg TR}if}{
+noflips{TR pop pop 270 rotate 1 -1 scale}if xflip yflip and{TR pop pop
+90 rotate 1 -1 scale ppr 3 get ppr 1 get neg sub neg ppr 2 get ppr 0 get
+neg sub neg TR}if xflip yflip not and{TR pop pop 90 rotate ppr 3 get ppr
+1 get neg sub neg 0 TR}if yflip xflip not and{TR pop pop 270 rotate ppr
+2 get ppr 0 get neg sub neg 0 S TR}if}ifelse scaleby96{ppr aload pop 4
+-1 roll add 2 div 3 1 roll add 2 div 2 copy TR .96 dup scale neg S neg S
+TR}if}N/cp{pop pop showpage pm restore}N end}if}if}N/normalscale{
+Resolution 72 div VResolution 72 div neg scale magscale{DVImag dup scale
+}if 0 setgray}N/psfts{S 65781.76 div N}N/startTexFig{/psf$SavedState
+save N userdict maxlength dict begin/magscale true def normalscale
+currentpoint TR/psf$ury psfts/psf$urx psfts/psf$lly psfts/psf$llx psfts
+/psf$y psfts/psf$x psfts currentpoint/psf$cy X/psf$cx X/psf$sx psf$x
+psf$urx psf$llx sub div N/psf$sy psf$y psf$ury psf$lly sub div N psf$sx
+psf$sy scale psf$cx psf$sx div psf$llx sub psf$cy psf$sy div psf$ury sub
+TR/showpage{}N/erasepage{}N/setpagedevice{pop}N/copypage{}N/p 3 def
+@MacSetUp}N/doclip{psf$llx psf$lly psf$urx psf$ury currentpoint 6 2 roll
+newpath 4 copy 4 2 roll moveto 6 -1 roll S lineto S lineto S lineto
+closepath clip newpath moveto}N/endTexFig{end psf$SavedState restore}N
+/@beginspecial{SDict begin/SpecialSave save N gsave normalscale
+currentpoint TR @SpecialDefaults count/ocount X/dcount countdictstack N}
+N/@setspecial{CLIP 1 eq{newpath 0 0 moveto hs 0 rlineto 0 vs rlineto hs
+neg 0 rlineto closepath clip}if ho vo TR hsc vsc scale ang rotate
+rwiSeen{rwi urx llx sub div rhiSeen{rhi ury lly sub div}{dup}ifelse
+scale llx neg lly neg TR}{rhiSeen{rhi ury lly sub div dup scale llx neg
+lly neg TR}if}ifelse CLIP 2 eq{newpath llx lly moveto urx lly lineto urx
+ury lineto llx ury lineto closepath clip}if/showpage{}N/erasepage{}N
+/setpagedevice{pop}N/copypage{}N newpath}N/@endspecial{count ocount sub{
+pop}repeat countdictstack dcount sub{end}repeat grestore SpecialSave
+restore end}N/@defspecial{SDict begin}N/@fedspecial{end}B/li{lineto}B
+/rl{rlineto}B/rc{rcurveto}B/np{/SaveX currentpoint/SaveY X N 1
+setlinecap newpath}N/st{stroke SaveX SaveY moveto}N/fil{fill SaveX SaveY
+moveto}N/ellipse{/endangle X/startangle X/yrad X/xrad X/savematrix
+matrix currentmatrix N TR xrad yrad scale 0 0 1 startangle endangle arc
+savematrix setmatrix}N end
 
 %%EndProcSet
 %%BeginFont: CMMI7
@@ -193,7 +339,7 @@ end readonly def
 /FontMatrix [0.001 0 0 0.001 0 0] readonly def
 /Encoding 256 array
 0 1 255 {1 index exch /.notdef put} for
-dup 99 /c put
+dup 0 /.notdef put
 readonly def
 /FontBBox{0 -250 1171 750}readonly def
 /UniqueID 5087382 def
@@ -263,7 +409,7 @@ end readonly def
 /FontMatrix [0.001 0 0 0.001 0 0] readonly def
 /Encoding 256 array
 0 1 255 {1 index exch /.notdef put} for
-dup 184 /lambda put
+dup 0 /.notdef put
 readonly def
 /FontBBox{-32 -250 1048 750}readonly def
 /UniqueID 5087385 def
@@ -333,7 +479,7 @@ end readonly def
 /FontMatrix [0.001 0 0 0.001 0 0] readonly def
 /Encoding 256 array
 0 1 255 {1 index exch /.notdef put} for
-dup 185 /macron put
+dup 0 /.notdef put
 readonly def
 /FontBBox{-251 -250 1009 969}readonly def
 /UniqueID 5000793 def
@@ -381,83 +527,92 @@ C7132C27DAD24CE70F05E9501F85A531502CD09B5B287F788BBEF1719E9AFE18
 cleartomark
 %%EndFont 
 TeXDict begin 40258437 52099154 1000 8000 8000 (temp.dvi)
-@start /Fa 156[396 99[{}1 774.872 /CMMI7 rf /Fb 234[646
-21[{}1 1106.96 /CMMI10 rf /Fc 233[553 22[{}1 1106.96
-/CMR10 rf end
+@start /Fa 156[396 99[{ TeXaae443f0Encoding ReEncodeFont }1
+774.872 /CMMI7 rf /Fb 234[646 21[{ TeXaae443f0Encoding ReEncodeFont }1
+1106.96 /CMMI10 rf /Fc 233[553 22[{ TeXf7b6d320Encoding ReEncodeFont }1
+1106.96 /CMR10 rf end
 %%EndProlog
 %%BeginSetup
-%%Feature: *Resolution 8000dpi
-TeXDict begin
-
- end
+PyScriptDict begin
+/uu {28.346000 mul} def 0.5 setlinewidth 
+1 setlinecap 0 setlinejoin 10 setmiterlimit
+end
 %%EndSetup
-
-gsave [1 0 0 1 0 uu 0.52334 uu] concat
+%%Page: 1 1
+PyScriptDict begin
+gsave [1 0 0 1 0.105835 uu 0.599732 uu] concat
 gsave [6.12303e-17 1 -1 6.12303e-17 0 uu 0 uu] concat
 gsave [1 0 0 1 0 uu 0 uu] concat
-0 uu 0 uu translate newpath 0 uu 0 uu moveto
+newpath 0 uu 0 uu moveto
 4 uu 0 uu lineto
 gsave  0 setgray  fill grestore
  0 setgray  stroke
 grestore
-gsave [1 0 0 1 3.8 uu -0.05 uu] concat
-0.2 uu 0.05 uu translate newpath 0 uu 0 uu moveto
+gsave [1 0 0 1 4 uu 0 uu] concat
+newpath 0 uu 0 uu moveto
 -0.2 uu -0.05 uu lineto
 -0.2 uu 0.05 uu lineto
 0 uu 0 uu lineto
- closepath gsave  0 setgray  fill grestore
+gsave  0 setgray  fill grestore
  0 setgray  stroke
 grestore
 grestore
 gsave [1 0 0 1 0 uu 0 uu] concat
 gsave [1 0 0 1 0 uu 0 uu] concat
-0 uu 0 uu translate newpath 0 uu 0 uu moveto
+newpath 0 uu 0 uu moveto
 5 uu 0 uu lineto
 gsave  0 setgray  fill grestore
  0 setgray  stroke
 grestore
-gsave [1 0 0 1 4.8 uu -0.05 uu] concat
-0.2 uu 0.05 uu translate newpath 0 uu 0 uu moveto
+gsave [1 0 0 1 5 uu 0 uu] concat
+newpath 0 uu 0 uu moveto
 -0.2 uu -0.05 uu lineto
 -0.2 uu 0.05 uu lineto
 0 uu 0 uu lineto
- closepath gsave  0 setgray  fill grestore
+gsave  0 setgray  fill grestore
  0 setgray  stroke
 grestore
 grestore
-gsave [1 0 0 1 2 uu 0 uu] concat
--2 uu 0 uu translate [ 2] 0 setdash newpath 2 uu 3.8 uu moveto
+gsave [1 0 0 1 0 uu 0 uu] concat
+[ 2] 0 setdash newpath 2 uu 3.8 uu moveto
 2 uu 0 uu lineto
  0.5 setgray  stroke
 grestore
-gsave [1 0 0 1 0.5 uu 2 uu] concat
--0.5 uu -2 uu translate 1.000000 setlinewidth newpath 0.5 uu 2 uu moveto
+gsave [1 0 0 1 0 uu 0 uu] concat
+1 setlinewidth newpath 0.5 uu 2 uu moveto
 2 uu 2 uu lineto
  0 setgray  stroke
 grestore
-gsave [1 0 0 1 2 uu 0.3 uu] concat
--2 uu -0.3 uu translate 1.000000 setlinewidth newpath 4 uu 3.7 uu moveto
+gsave [1 0 0 1 0 uu 0 uu] concat
+1 setlinewidth newpath 4 uu 3.7 uu moveto
 3 uu 3.5 uu 2 uu 3 uu 2 uu 2 uu curveto
 2 uu 1 uu 3 uu 0.5 uu 4 uu 0.3 uu curveto
  0 setgray  stroke
 grestore
-gsave [1 0 0 1 2 uu 2 uu] concat
--2 uu -2 uu translate 1.000000 setlinewidth [ 3] 0 setdash newpath 2 uu 2 uu moveto
+gsave [1 0 0 1 0 uu 0 uu] concat
+1 setlinewidth [ 3] 0 setdash newpath 2 uu 2 uu moveto
 4 uu 2 uu lineto
  0 setgray  stroke
 grestore
 gsave [1 0 0 1 1.78833 uu -0.52334 uu] concat
 -5.2212 uu -23.1073 uu translate  0 setgray 
+TeXDict begin 1 0 bop
+ 6863 5867 a 8570 6682
+a Fc(\271)8524 6974 y Fb(\270)9170 7140 y Fa(c)9989 6974
+y
 
-TeXDict begin 1 0 bop 8570 6682 a Fc(\271)8524 6974 y
-Fb(\270)9170 7140 y Fa(c)p eop end
-
+eop end
 grestore
 gsave [1 0 0 1 4.48249 uu -0.488062 uu] concat
 -5.2212 uu -23.1426 uu translate  0 setgray 
+TeXDict begin 1 0 bop
+ 6863 5867 a 8570 6682
+a Fc(\271)8524 6974 y Fb(\270)9538 6974 y
 
-TeXDict begin 2 1 bop 8570 6682 a Fc(\271)8524 6974 y
-Fb(\270)p eop end
-
+eop end
 grestore
 grestore
+end %PyScriptDict
+showpage
+%%Trailer
+%%EOF
