@@ -16,6 +16,8 @@
 
 # $Id$
 
+.PHONY: clean reallyclean
+
 MAIN = pyscript
 FIGS = 
 
@@ -66,7 +68,7 @@ $(FIGS) : %.pdf : %.py
 figs: $(FIGS)
 
 clean:
-	-rm -f *~ *.mpx *.log *.aux *.blg
+	-rm -f *.mpx *.log *.aux *.blg *.toc *.out *.bbl *.dvi $(MAIN).pdf
 
 reallyclean: clean
-	-rm -f figs.[0-9]*.eps *.pdf *.dvi $(FIGS) *.bbl
+	-rm -f figs.[0-9]*.eps *.pdf $(FIGS) *~
