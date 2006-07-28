@@ -50,6 +50,24 @@ class TeXBox(Group):
             **options):
         Group.__init__(self, **options)
 
+        # argument checking:
+        # make sure that the arguments passed in aren't None
+        assert(text is not None)
+        assert(fixed_width is not None)
+        assert(tex_scale is not None)
+        assert(align is not None)
+        assert(fg is not None)
+        assert(text_style is not None)
+
+        # check that they're the right type
+        assert(isinstance(text, types.StringType))
+        assert(isinstance(fixed_width, types.FloatType))
+        assert(isinstance(tex_scale, types.FloatType) or
+                isinstance(tex_scale, types.IntType))
+        assert(isinstance(align, types.StringType))
+        #assert(isinstance(fg, types.StringType))
+        assert(isinstance(text_style, types.StringType))
+
         self.text = text
         self.fixed_width = fixed_width
         self.tex_scale = tex_scale
@@ -280,14 +298,14 @@ class Poster(Page):
             styleFname = style + ".py"
             HOME = os.path.expandvars("$HOME")
             if os.path.exists(HOME + "/.pyscript/styles/" + styleFname):
-                print "Found %s in .pyscript/styles dir" % style
+                print "Found style '%s' in .pyscript/styles dir" % style
                 self._read_style(HOME + "/.pyscript/styles/" + styleFname)
             elif os.path.exists(styleFname):
-                print "Found %s in current dir" % style
+                print "Found style '%s' in current dir" % style
                 self._read_style(styleFname)
             else:
                 # barf
-                raise ValueError, "Style %s not found!" % style
+                raise ValueError, "Style '%s' not found!" % style
 
         self.logos = []
         self.columns = []
@@ -1207,6 +1225,7 @@ class Talk(Pages):
 
         self.bg = Color('RoyalBlue')*0.9
         self.fg = self.bg
+        self.make_background_func = None
 
         self.logos = []
         self.logo_height = 0.8
@@ -1587,9 +1606,9 @@ class Slide(Page):
 
         # if we just get a string, put it in a TeX object in the current style
         if isinstance(self.title, types.StringType):
-            ttext = "%s %s" % (talk.title_textstyle, self.title)
-            return TeX(ttext, fg=talk.title_fg).scale(talk.title_scale*0.8,
-                                                      talk.title_scale)
+            ttext = "%s %s" % (talk.slide_title_textstyle, self.title)
+            return TeX(ttext, fg=talk.slide_title_fg)\
+                    .scale(talk.slide_title_scale, talk.slide_title_scale)
         else:
             # just return the object itself
             return self.title
@@ -1683,7 +1702,7 @@ class Slide(Page):
             tex.append(TeXBox(text=heading_text,
                             fixed_width=self.area.width-5,
                             fg=heading_fg,
-                            tex_scale=heading_scale))
+                            tex_scale=heading_scale).make())
  
             padding = Area(sw=tex.sw, width=heading_indent, height=0)
             heading_proper = Align(a1="e", a2="w", angle=90, space=0)
@@ -1850,42 +1869,19 @@ class Slide(Page):
         """
         Makes the background of the slide
         """
-        back = Group()
-        back.append(Rectangle(sw=self.area.sw,
-                        width=self.area.width,
-                        height=self.area.height,
-                        fg=None,
-                        bg=talk.bg,
+        if talk.make_background_func is None:
+            print "Using default background function"
+            back = Group()
+            back.append(Rectangle(sw=self.area.sw,
+                            width=self.area.width,
+                            height=self.area.height,
+                            fg=None,
+                            bg=talk.bg,
+                            )
                         )
-                    )
-        back.append(Rectangle(sw=self.area.sw,
-                        width=2.5,
-                        height=self.area.height,
-                        fg=None,
-                        bg=talk.bg*0.5,
-                        )
-                    )
-        back.append(Rectangle(sw=self.area.sw,
-                        width=self.area.width,
-                        height=1.5,
-                        fg=None,
-                        bg=talk.bg*0.5,
-                        )
-                    )
-        back.append(Rectangle(nw=self.area.nw,
-                        width=self.area.width,
-                        height=2.5,
-                        fg=None,
-                        bg=talk.bg*0.5,
-                        )
-                    )
-        back.append(Rectangle(nw=self.area.nw,
-                        width=2.5,
-                        height=2.5,
-                        fg=None,
-                        bg=Color('firebrick'),
-                        )
-                    )
+        else:
+            print "Using user-defined background function"
+            exec(talk.make_background_func)
 
         return back
         
