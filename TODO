@@ -14,3 +14,9 @@ o Housekeeping and docs
 o Illustrative examples
 
 o Testing (unit testing and testing of ps output)
+
+o Addition of SVG as well as or instead of postscript output?  Could we easily
+  add PDF output?  This would be cool to add PDF specials for talks so that
+  there would be transitions between slides.
+
+
