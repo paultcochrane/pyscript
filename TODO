@@ -1,1 +1,16 @@
+o Add the quantum information library.
 
+o Add debugging of PSObjs.
+
+o Plotting of data with matplotlib.  Could we do this internally?
+
+o Caching?
+
+o Clipping of objects and curves.  Definition of curves.  Filling of
+  objects/paths/curves.
+
+o Housekeeping and docs
+
+o Illustrative examples
+
+o Testing (unit testing and testing of ps output)
