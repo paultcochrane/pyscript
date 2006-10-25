@@ -1,4 +1,5 @@
 # talk style for PyScript, following the Rico contributed design of prosper
+# $Id$
 
 HOME = os.path.expandvars("$HOME")
 stylesDir = HOME + "/.pyscript/styles/"
@@ -50,6 +51,13 @@ self.headings_scales[3] = 2.2
 self.headings_textstyle[3] = r"\sf"
 self.headings_bullets[3] = Epsf(file=stylesDir+"rico_bullet3.ps").scale(0.3,0.3)
 self.headings_indent[3] = 1 
+
+# set the colour, scale, textstyle, bullet and indent type for an equation heading
+self.headings_fgs['equation'] = Color('black')
+self.headings_scales['equation'] = 2.5
+self.headings_textstyle['equation'] = r""
+self.headings_bullets['equation'] = Rectangle(height=1, fg=self.bg, bg=self.bg)
+self.headings_indent['equation'] = 2 
 
 # set the colour, textstyle and scale for placed text
 self.text_scale = 3.0
