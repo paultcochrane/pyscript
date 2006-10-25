@@ -1436,9 +1436,9 @@ class Talk(Pages):
         for slide in self.slides:
             slide.pageNumber = i
             if (slide.get_title() is not None):
-                print 'Adding slide %d: "%s" ...' % (i, slide.get_title())
+                print '\nAdding slide %d: "%s" ...\n' % (i, slide.get_title())
             else:
-                print 'Adding slide %d ...' % i
+                print '\nAdding slide %d ...\n' % i
             temp.append(slide._make(self))
             i += 1
 
