@@ -1435,7 +1435,10 @@ class Talk(Pages):
         temp = Pages()
         for slide in self.slides:
             slide.pageNumber = i
-            print 'Adding slide', str(i), '...'
+            if (slide.get_title() is not None):
+                print 'Adding slide %d: "%s" ...' % (i, slide.get_title())
+            else:
+                print 'Adding slide %d ...' % i
             temp.append(slide._make(self))
             i += 1
 
@@ -1595,6 +1598,12 @@ class Slide(Page):
         """
         self.title = title
         return
+
+    def get_title(self):
+        """
+        Get the title of the slide
+        """
+        return self.title
 
     def _make_title(self, talk):
         """
