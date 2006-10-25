@@ -1311,15 +1311,26 @@ class Talk(Pages):
         # process the style option
         if style is not None:
             # make sure the file exists in either the .pyscript/styles
-            # directory, or the current directory
+            # directory, the current directory, or in the user's PYTHONPATH
+            # environmnent variable
             styleFname = style + ".py"
             HOME = os.path.expandvars("$HOME")
+            PYTHONPATH = os.path.expandvars("$PYTHONPATH")
             if os.path.exists(HOME + "/.pyscript/styles/" + styleFname):
                 print "Found %s in .pyscript/styles dir" % style
                 self._read_style(HOME + "/.pyscript/styles/" + styleFname)
             elif os.path.exists(styleFname):
                 print "Found %s in current dir" % style
                 self._read_style(styleFname)
+            elif os.path.exists(PYTHONPATH + "/contrib/styles/" + styleFname):
+                # XXX
+                # searching the python path is actually harder than this, as
+                # we need to split the path on colons and search the list
+                # for the first match.  In other words, the implementation
+                # here works only for the very specialised situation where
+                # the only element in PYTHONPATH is the pyscript path.
+                print "Found %s in PYTHONPATH" % style
+                self._read_style(PYTHONPATH + "/contrib/styles/" + styleFname)
             else:
                 # barf
                 raise ValueError, "Style %s not found!" % style
