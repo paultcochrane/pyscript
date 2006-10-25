@@ -1,4 +1,5 @@
 #!/usr/bin/env pyscript
+# $Id$
 
 from pyscript import *
 from pyscript.lib.presentation import Box_1,TeXBox

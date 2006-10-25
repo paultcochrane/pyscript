@@ -1,3 +1,6 @@
+#!/usr/bin/env pyscript
+# $Id$
+
 from pyscript import *
 
 defaults.units=UNITS['mm']

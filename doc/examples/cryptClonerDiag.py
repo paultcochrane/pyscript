@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# $Id$
 
 # state sniffing in a cryptography scheme with a quantum cloner diagram
 from pyscript import *
