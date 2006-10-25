@@ -19,6 +19,7 @@ MAIN = align.eps\
        tex.eps\
        tutorial.eps\
        twoqubitQST.eps\
+       xmdsFunctionality.eps\
        xmdsProcess.eps
 
 all: $(MAIN) Makefile
