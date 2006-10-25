@@ -52,8 +52,10 @@ include pyscript/lib/quantumcircuits.py
 include doc/examples/Makefile
 include doc/examples/align.py
 include doc/examples/align2.py
+include doc/examples/arrow.py
 include doc/examples/atom.py
 include doc/examples/bifurcate.py
+include doc/examples/cryptClonerDiag.py
 include doc/examples/detector.py
 include doc/examples/distribute.py
 include doc/examples/div_con.py
@@ -69,8 +71,8 @@ include doc/examples/teleport.py
 include doc/examples/tex.py
 include doc/examples/tutorial.py
 include doc/examples/twoqubitQST.py
-
-include doc/examples/ccp2004_poster.py
+include doc/examples/xmdsFunctionality.py
+include doc/examples/xmdsProcess.py
 
 # add the manual (as it currently stands)
 include doc/manual/Makefile
