@@ -2,6 +2,7 @@
 
 MAIN = align.eps\
        align2.eps\
+       arrow.eps\
        atom.eps\
        bifurcate.eps\
        detector.eps\
