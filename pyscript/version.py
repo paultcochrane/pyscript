@@ -22,6 +22,6 @@ The PyScript version
 
 __revision__ = '$Revision$'
 
-version = "0.6.1"
+version = "0.6.2"
 
 # vim: expandtab shiftwidth=4:
