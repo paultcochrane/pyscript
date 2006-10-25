@@ -18,7 +18,8 @@ MAIN = align.eps\
        teleport.eps\
        tex.eps\
        tutorial.eps\
-       twoqubitQST.eps
+       twoqubitQST.eps\
+       xmdsProcess.eps
 
 all: $(MAIN) Makefile
 
