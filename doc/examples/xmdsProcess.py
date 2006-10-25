@@ -1,17 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env pyscript
 
 from pyscript import *
 from pyscript.lib.presentation import Box_1,TeXBox
-from pyscript.lib.misc import Arrow, ArrowHead
 
 defaults.tex_head+=r"\newcommand{\xmds}{\textsc{xmds}\xspace}"
-
-# class Box(Box_1):
-#     fg=Color('black')*.4
-#     bg=Color('LightGoldenRod')*1.1
-#     border=1
-#     pad=.2
-#     fixed_width = 6
 
 def Box(item, bg=Color('LightSteelBlue')*1.1):
     bg=bg
