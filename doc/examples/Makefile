@@ -5,6 +5,7 @@ MAIN = align.eps\
        arrow.eps\
        atom.eps\
        bifurcate.eps\
+       cryptClonerDiag.eps\
        detector.eps\
        distribute.eps\
        div_con.eps\
