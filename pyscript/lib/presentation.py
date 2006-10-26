@@ -1315,25 +1315,45 @@ class Talk(Pages):
             # environmnent variable
             styleFname = style + ".py"
             HOME = os.path.expandvars("$HOME")
-            PYTHONPATH = os.path.expandvars("$PYTHONPATH")
             if os.path.exists(HOME + "/.pyscript/styles/" + styleFname):
                 print "Found %s in .pyscript/styles dir" % style
                 self._read_style(HOME + "/.pyscript/styles/" + styleFname)
             elif os.path.exists(styleFname):
                 print "Found %s in current dir" % style
                 self._read_style(styleFname)
-            elif os.path.exists(PYTHONPATH + "/contrib/styles/" + styleFname):
-                # XXX
-                # searching the python path is actually harder than this, as
-                # we need to split the path on colons and search the list
-                # for the first match.  In other words, the implementation
-                # here works only for the very specialised situation where
-                # the only element in PYTHONPATH is the pyscript path.
-                print "Found %s in PYTHONPATH" % style
-                self._read_style(PYTHONPATH + "/contrib/styles/" + styleFname)
+            elif os.path.expandvars("$PYTHONPATH") is not None:
+                styleFilePath = self._find_style_in_pythonpath(styleFname)
+                if styleFilePath is not None:
+                    print "Found %s in PYTHONPATH" % style
+                    self._read_style(styleFilePath)
+                else:
+                    # this is a last-ditch effort, so barf here as well
+                    raise ValueError, "Style %s not found!" % style
+
             else:
                 # barf
                 raise ValueError, "Style %s not found!" % style
+
+    def _find_style_in_pythonpath(self, styleFname):
+        """
+        Determine if the style file is able to be found via the PYTHONPATH 
+        environment variable.
+        
+        @param styleFname: The name of the style file to look for
+        @type styleFname: string
+
+        @return path to style file on success or None on failure
+        """
+        PYTHONPATH = os.path.expandvars("$PYTHONPATH")
+
+        # break up the path according to colons
+        path_elems = PYTHONPATH.split(":")
+        for elem in path_elems:
+            styleFilePath = elem + "/contrib/styles/" + styleFname
+            if os.path.exists(styleFilePath):
+                return styleFilePath
+
+        return None
 
     def _read_style(self, styleFname):
         """
