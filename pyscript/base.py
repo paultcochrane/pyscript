@@ -143,8 +143,8 @@ class PsObj(object):
 
     def bbox(self):
         """
-        return objects bounding box
-        this can be a Null Bbox() if object doesn't
+        return object's bounding box
+        (this can be a Null Bbox() if object doesn't
         draw anything on the page.)
 
         NB that the bbox should be dynamically calculated and take
