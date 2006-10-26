@@ -1313,6 +1313,13 @@ class Talk(Pages):
             # make sure the file exists in either the .pyscript/styles
             # directory, the current directory, or in the user's PYTHONPATH
             # environmnent variable
+
+            # hmmm, this finds the style file, but not necessarily the
+            # correct location for the .ps files that go along with it.  The
+            # path to those files is hard-coded into the style file itself.
+            # This must be improved so that if the style file is found in
+            # one location, then the presenation library looks in that
+            # location for the other associated files.
             styleFname = style + ".py"
             HOME = os.path.expandvars("$HOME")
             if os.path.exists(HOME + "/.pyscript/styles/" + styleFname):
@@ -1415,15 +1422,25 @@ class Talk(Pages):
         self.address = address
         return
 
-    def add_logo(self, logo, height=None):
+    def add_logo(self, logo, height=None, anchor=None):
         """
         Add a logo to the talk
 
         @param logo: eps file name of logo
         @type logo: string
+
+        @param height: height of the logo in the current units
+        @type height: float
         """
         if height is None:
             height = self.logo_height
+
+        if anchor is not None:
+            # anchor can only be "e" or "w"
+            if anchor != "e" and anchor != "w":
+                raise ValueError, \
+                        "Expected an anchor location of either 'e' or 'w'"
+            self.logo_anchor = anchor
 
         self.logos.append(Epsf(file=logo, height=height))
 
@@ -1507,13 +1524,13 @@ class Slide(Page):
 
     def _make_logos(self):
         """
-        Put the logos on the page
+        Put the logos on the slide
         """
         if len(self.logos) == 0:
             return Area(width=0, height=0)
         elif len(self.logos) == 1:
             return Group(
-                Area(width=self.area.width-0.4, height=0),
+                #Area(width=self.area.width-0.4, height=0),
                 self.logos[0]
                 )
 
@@ -1527,6 +1544,7 @@ class Slide(Page):
 
         space = width/(len(self.logos)-1)
         a = Align(a1="e", a2="w", angle=90, space=space)
+
         for logo in self.logos:
             a.append(logo)
 
@@ -1956,7 +1974,15 @@ class Slide(Page):
                 ).rotate(-90, p)
 
         logos = self._make_logos()
-        logos.nw = self.area.nw + P(0.2, -0.2)
+
+        if talk.logo_anchor == "w" or talk.logo_anchor is None:
+            logos.nw = self.area.nw + P(0.2, -0.2)
+        elif talk.logo_anchor == "e":
+            logos.ne = self.area.ne + P(-0.2, -0.2)
+        else:
+            raise ValueError, \
+                "Expected a logo anchor value of 'e' or 'w', I got '%s'" % \
+                talk.logo_anchor
 
         self.pages = len(talk.slides)
 
@@ -1967,11 +1993,13 @@ class Slide(Page):
                 self._make_epsf(),
                 self._make_figs(),
                 self._make_textObjs(),
+                logos,
                 signature,
                 self._make_footer(talk),
-                logos,
                 self._make_waitbar(talk)
-                ).scale(scale, scale)
+                )
+
+        All.scale(scale, scale)
 
         return Page(All, orientation=self.orientation)
 
