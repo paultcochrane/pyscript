@@ -94,7 +94,7 @@ if os.path.isfile(HOME+'/.pyscript/defaults.py'):
 else:
     print "No user defaults file found."
 
-print "Executing script..."
+print "Executing script \"%s\" ..." % args[0]
 
 #---------------------------------------------------------------------
 # now run the script
