@@ -1229,6 +1229,8 @@ class Talk(Pages):
 
         self.logos = []
         self.logo_height = 0.8
+
+        self.epsf = []
         
         self.title = ""
         self.title_fg = Color('white')
@@ -1444,6 +1446,67 @@ class Talk(Pages):
 
         self.logos.append(Epsf(file=logo, height=height))
 
+    def add_titlepage_epsf(self, file="", **options):
+        """
+        Add an arbitrary epsf image to the title page
+
+        @param file: eps file name to include
+        @type file: string
+
+        @keyword width: the width of the image in the current default units.  
+        If only this variable is given, then the aspect ratio of the image
+        is maintained.
+        @type width: float
+
+        @keyword height: the width of the image in the current default units.  
+        If only this variable is given, then the aspect ratio of the image
+        is maintained.
+        @type height: float
+
+        @keyword c, n, ne, e, se, s, sw, w, nw: the location of the anchor point
+        """
+        if options.has_key('width'):
+            picture = Epsf(file, width=options['width'])
+        elif options.has_key('height'):
+            picture = Epsf(file, height=options['height'])
+        elif options.has_key('width') and options.has_key('height'):
+            picture = Epsf(file, width=options['width'], 
+                    height=options['height'])
+        else:
+            picture = Epsf(file)
+
+        # there must be a better way to do this!!!
+        if options.has_key('e'):
+            picture.e = options['e']
+        elif options.has_key('se'):
+            picture.se = options['se']
+        elif options.has_key('s'):
+            picture.s = options['s']
+        elif options.has_key('sw'):
+            picture.sw = options['sw']
+        elif options.has_key('w'):
+            picture.w = options['w']
+        elif options.has_key('nw'):
+            picture.nw = options['nw']
+        elif options.has_key('n'):
+            picture.n = options['n']
+        elif options.has_key('ne'):
+            picture.ne = options['ne']
+        elif options.has_key('c'):
+            picture.c = options['c']
+        else:
+            picture.sw = P(0.0, 0.0)
+
+        offset = 0.2
+        background = Rectangle(width=picture.bbox().width+offset,
+                                height=picture.bbox().height+offset,
+                                bg=Color('white'),
+                                fg=Color('white'),
+                                )
+        background.sw = picture.sw-P(offset/2.0, offset/2.0)
+        figure = Group(background, picture)
+        self.epsf.append(figure)
+
     def _make_authors(self):
         """
         Generate the authors text on the titlepage
@@ -1514,6 +1577,7 @@ class Slide(Page):
         self.headings = []
         self.epsf = []
         self.figs = []
+        self.objects = []
         self.area = self.area()
         self.title = None
         self.logos = talk.logos
@@ -1633,6 +1697,84 @@ class Slide(Page):
 
         # add the figure to the list of figures
         self.figs.append(fig)
+
+    def add_object(self, obj, **options):
+        """
+        Put an arbitrary object onto the page
+
+        @param obj: the PyScript object to use
+        @type obj: PyScript object
+        """
+        if options.has_key('bg'):
+            backColor = options['bg']
+        else:
+            backColor = Color('white')
+
+        if options.has_key('fg'):
+            frontColor = options['fg']
+        else:
+            frontColor = None
+
+        if options.has_key('height'):
+            figHeight = options['height']
+        else:
+            figHeight = None
+
+        if options.has_key('width'):
+            figWidth = options['width']
+        else:
+            figWidth = None
+
+        fig = Group(obj)
+
+        # now scale the height/width appropriately if figWidth and/or
+        # figHeight are set
+        if figHeight is not None and figWidth is None:
+            if fig.bbox().height == 0.0:
+                raise ValueError, "Initial figure height is zero!!"
+            else:
+                scale = figHeight/fig.bbox().height
+            fig.scale(scale, scale)
+        elif figHeight is None and figWidth is not None:
+            if fig.bbox().width == 0.0:
+                raise ValueError, "Initial figure width is zero!!"
+            else:
+                scale = figWidth/fig.bbox().width
+            fig.scale(scale, scale)
+        elif figHeight is not None and figWidth is not None:
+            if fig.bbox().height == 0.0:
+                raise ValueError, "Initial figure height is zero!!"
+            elif fig.bbox().width == 0.0:
+                raise ValueError, "Initial figure width is zero!!"
+            else:
+                scalex = figWidth/fig.bbox().width
+                scaley = figHeight/fig.bbox().height
+                fig.scale(scalex, scaley)
+
+        # there must be a better way to do this!!!
+        if options.has_key('e'):
+            fig.e = options['e']
+        elif options.has_key('se'):
+            fig.se = options['se']
+        elif options.has_key('s'):
+            fig.s = options['s']
+        elif options.has_key('sw'):
+            fig.sw = options['sw']
+        elif options.has_key('w'):
+            fig.w = options['w']
+        elif options.has_key('nw'):
+            fig.nw = options['nw']
+        elif options.has_key('n'): 
+            fig.n = options['n']
+        elif options.has_key('ne'):
+            fig.ne = options['ne']
+        elif options.has_key('c'):
+            fig.c = options['c']
+        else:
+            fig.sw = P(0.0, 0.0)
+
+        # add the figure to the list of figures
+        self.objects.append(fig)
 
     def set_titlepage(self):
         """
@@ -1892,6 +2034,15 @@ class Slide(Page):
             figs.append(fig)
         return figs
 
+    def _make_objects(self):
+        """
+        Collects all the objects together
+        """
+        objs = Group()
+        for obj in self.objects:
+            objs.append(obj)
+        return objs
+
     def _make_textObjs(self):
         """
         Collects all the text objects together
@@ -1918,8 +2069,17 @@ class Slide(Page):
 
         if talk.authors is not None:
             titlepage.append(talk._make_authors())
+
         if talk.address is not None:
             titlepage.append(talk._make_address())
+
+        # if we have epsf images to add to the titlepage add them here
+        # dodgy hack to make this do what I want it to do.  VERY short term!
+        figs = Align(a1="e", a2="w", angle=90, space=3)
+        if len(talk.epsf) != 0:
+            for fig in talk.epsf:
+                figs.append(fig)
+            titlepage.append(figs)
 
         return titlepage
 
@@ -1949,6 +2109,7 @@ class Slide(Page):
         object ready for rendering.
         """
         
+        # if I'm a the titlepage, make myself
         if self.titlepage:
             all = self._make_titlepage(talk)
             all.c = self.area.c + P(0.0, 0.8)
@@ -1993,6 +2154,7 @@ class Slide(Page):
                 self._make_epsf(),
                 self._make_figs(),
                 self._make_textObjs(),
+                self._make_objects(),
                 logos,
                 signature,
                 self._make_footer(talk),
