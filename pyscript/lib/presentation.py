@@ -1236,6 +1236,7 @@ class Talk(Pages):
         self.title_fg = Color('white')
         self.title_scale = 5
         self.title_textstyle = ""
+        self.titlepage_elements_spacing = 0.4
 
         self.slide_title = ""
         self.slide_title_fg = Color('white')
@@ -2056,7 +2057,8 @@ class Slide(Page):
         """
         Makes the titlepage of the talk
         """
-        titlepage = Align(a1="s", a2="n", angle=180, space=0.4)
+        titlepage = Align(a1="s", a2="n", angle=180,
+                space=talk.titlepage_elements_spacing)
 
         if isinstance(talk.title, types.StringType):
             ttext = "%s %s" % (talk.title_textstyle, talk.title)
