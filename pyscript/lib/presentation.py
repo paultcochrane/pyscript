@@ -2139,9 +2139,9 @@ class Slide(Page):
         logos = self._make_logos()
 
         if talk.logo_anchor == "w" or talk.logo_anchor is None:
-            logos.nw = self.area.nw + P(0.2, -0.2)
+            logos.nw = self.area.nw + P(0.8, -0.2)
         elif talk.logo_anchor == "e":
-            logos.ne = self.area.ne + P(-0.2, -0.2)
+            logos.ne = self.area.ne + P(-0.8, -0.2)
         else:
             raise ValueError, \
                 "Expected a logo anchor value of 'e' or 'w', I got '%s'" % \
