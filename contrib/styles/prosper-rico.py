@@ -14,6 +14,10 @@ self.title_bg = Color('black')
 # set the talk title's text style
 self.title_textstyle = r"\bf\sf"
 
+# set how far apart the title, authors, and address elements are on the
+# titlepage
+self.titlepage_elements_spacing = 0.7
+
 # set the text style for the text of who is giving the talk
 self.speaker_textstyle = r"\sf"
 
