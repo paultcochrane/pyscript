@@ -1547,10 +1547,14 @@ class Talk(Pages):
         temp = Pages()
         for slide in self.slides:
             slide.pageNumber = i
-            if (slide.get_title() is not None):
-                print '\nAdding slide %d: "%s" ...\n' % (i, slide.get_title())
+            if (slide._is_titlepage()):
+                print '\nAdding slide "titlepage" ...\n'
             else:
-                print '\nAdding slide %d ...\n' % i
+                if (slide.get_title() is not None):
+                    print '\nAdding slide %d: "%s" ...\n' % \
+                            (i, slide.get_title())
+                else:
+                    print '\nAdding slide %d ...\n' % i
             temp.append(slide._make(self))
             i += 1
 
@@ -1614,6 +1618,15 @@ class Slide(Page):
             a.append(logo)
 
         return a
+
+    def _is_titlepage(self):
+        """
+        Boolean function to test if the slide is the title page
+        """
+        if self.titlepage:
+            return True
+        else:
+            return False
 
     def add_fig(self, obj, **options):
         """
