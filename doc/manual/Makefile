@@ -16,59 +16,47 @@
 
 # $Id$
 
-.PHONY: clean reallyclean
+.PHONY: clean realclean figs optics
 
 MAIN = pyscript
-FIGS = 
+TEXFILES = $(MAIN).tex \
+	   pyscript_defs.tex \
+	   libpresent.tex \
+	   libpresentation.tex \
+	   libqi.tex \
+	   pyscriptElectronics.tex \
+	   pyscriptOptics.tex \
+	   pyscript.bib
 
-all: $(FIGS) $(MAIN).pdf
+all: figs optics pdf
 
-view: $(FIGS) $(MAIN).pdf
+figs:
+	$(MAKE) --directory=$@
+
+optics:
+	$(MAKE) --directory=$@
+
+view: all
 	gv $(MAIN).pdf
 
-acro: $(FIGS) $(MAIN).pdf
+acro: all
 	acroread $(MAIN).pdf
 
 pdf: $(MAIN).pdf
 
-dvi: $(MAIN).dvi
-
-$(FIGS) : %.pdf : %.py
-	./$<
-	epstopdf $*.eps
-
-%.pdf:  %.tex $(FIGS) pyscript_defs.tex libpresent.tex libpresentation.tex libqi.tex pyscriptElectronics.tex pyscriptOptics.tex pyscript.bib
+$(MAIN).pdf: $(TEXFILES)
 	pdflatex $<
 	-bibtex $*
 	pdflatex $<
 	pdflatex $<
-
-%.dvi:  %.tex $(FIGS) pyscript_defs.tex libpresent.tex libpresentation.tex libqi.tex pyscriptElectronics.tex pyscriptOptics.tex pyscript.bib
-	latex $<
-	-bibtex $*
-	latex $<
-	latex $<
-
-# standard TeX stuff
-#%.dvi:  %.tex $(FIGS)
-#	latex $<
-#	-bibtex $*
-#	latex $<
-#	latex $<
-
-#%.ps: %.dvi
-#	dvips -o $*.ps $*.dvi
-
-#%.pdf: %.tex
-#	ps2pdf $*.ps $*.pdf
-
-#dvi: $(MAIN).dvi
-#ps: $(MAIN).ps
-#pdf: $(MAIN).pdf
-figs: $(FIGS)
 
 clean:
 	-rm -f *.mpx *.log *.aux *.blg *.toc *.out *.bbl *.dvi $(MAIN).pdf
 
-reallyclean: clean
-	-rm -f figs.[0-9]*.eps *.pdf $(FIGS) *~
+realclean: clean
+	for d in figs optics;                \
+	do                                   \
+	     $(MAKE) --directory=$$d clean;  \
+	done
+
+# vim: shiftwidth=4:
