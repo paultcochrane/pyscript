@@ -26,6 +26,7 @@ TEXFILES = $(MAIN).tex \
 	   libqi.tex \
 	   pyscriptElectronics.tex \
 	   pyscriptOptics.tex \
+	   libContribOptics.tex \
 	   pyscript.bib
 
 all: figs optics electronics pdf
