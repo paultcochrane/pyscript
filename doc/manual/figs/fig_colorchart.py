@@ -1,6 +1,4 @@
-#from pyscript import *
-
-#defaults.units=UNITS['cm']
+#!/usr/bin/env pyscript
 
 # first grab all the colors in a list so we can sort them
 # also find the longest name

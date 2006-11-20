@@ -1,3 +1,5 @@
+#!/usr/bin/env pyscript
+
 from pyscript import *
 
 tex=TeX(r'$|\psi_t\rangle=e^{-iHt/\hbar}|\psi_0\rangle$',w=P(.5,0))

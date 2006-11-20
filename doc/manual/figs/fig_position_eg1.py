@@ -1,3 +1,5 @@
+#!/usr/bin/env pyscript
+
 from pyscript import *
 
 r=Rectangle(width=2,height=2)

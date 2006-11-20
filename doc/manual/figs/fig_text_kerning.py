@@ -1,3 +1,5 @@
+#!/usr/bin/env pyscript
+
 from pyscript import *
 
 t1=Text('SWEPT AWAY',kerning=0,size=20)

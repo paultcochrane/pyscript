@@ -1,3 +1,5 @@
+#!/usr/bin/env pyscript
+
 from pyscript import *
 from math import sqrt
 

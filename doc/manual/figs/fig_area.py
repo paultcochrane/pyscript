@@ -1,3 +1,5 @@
+#!/usr/bin/env pyscript
+
 from pyscript import *
 
 # define our own dot

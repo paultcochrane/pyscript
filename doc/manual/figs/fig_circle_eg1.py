@@ -1,3 +1,5 @@
+#!/usr/bin/env pyscript
+
 from pyscript import *
 
 c=Circle(r=.5,bg=Color('gold'))
