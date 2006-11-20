@@ -1,0 +1,5 @@
+from pyscript import *
+from pyscript.lib.electronics import *
+
+obj = AndGate()
+render(obj,file="AndGate.eps")
