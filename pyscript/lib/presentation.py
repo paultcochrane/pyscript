@@ -1859,14 +1859,61 @@ class Slide(Page):
         else:
             scale = self.text_scale
 
+        if options.has_key('width'):
+            width = options['width']
+        else:
+            width = None
+
+        if options.has_key('height'):
+            height = options['height']
+        else:
+            height = None
+
+        # can't use scale and width/height together
+        if (width is not None or height is not None) \
+                and options.has_key('scale'):
+            raise ValueError, "Can't specify height/width with scale"
+
         # check for what kind of object we have...
         if isinstance(text, types.StringType):
             # prepend the style if it is just a string
             text = self.text_textstyle + " " + text
-            obj = TeX(text, fg=frontColor).scale(scale, scale)
+            obj = TeX(text, fg=frontColor)
         else:
             raise ValueError, \
                     "Cannot yet handle non-string objects in Slide.add_text()"
+
+        # find the text width and height
+        text_width = obj.bbox().width
+        text_height = obj.bbox().height
+
+        if width is None and height is None:
+            scale_x = scale
+            scale_y = scale
+        elif width is not None and height is None:
+            if text_width == 0.0:
+                raise ValueError, "text width found to be zero!"
+            scale_x = width/text_width
+            scale_y = scale_x
+            print scale_x
+            print scale_y
+        elif width is None and height is not None:
+            if text_height == 0.0:
+                raise ValueError, "text height found to be zero!"
+            scale_y = height/text_height
+            scale_x = scale_y
+        elif width is not None and height is not None:
+            if text_width == 0.0:
+                raise ValueError, "text width found to be zero!"
+            if text_height == 0.0:
+                raise ValueError, "text height found to be zero!"
+            scale_x = width/text_width
+            scale_y = height/text_height
+        else:
+            raise ValueError, "width/height a very strange value"
+
+        # scale the text
+        obj.scale(scale_x, scale_y)
 
         # there must be a better way to do this!!!
         if options.has_key('e'):
