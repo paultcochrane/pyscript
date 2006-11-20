@@ -16,7 +16,7 @@
 
 # $Id$
 
-.PHONY: clean realclean figs optics
+.PHONY: clean realclean figs optics electronics
 
 MAIN = pyscript
 TEXFILES = $(MAIN).tex \
@@ -28,12 +28,15 @@ TEXFILES = $(MAIN).tex \
 	   pyscriptOptics.tex \
 	   pyscript.bib
 
-all: figs optics pdf
+all: figs optics electronics pdf
 
 figs:
 	$(MAKE) --directory=$@
 
 optics:
+	$(MAKE) --directory=$@
+
+electronics:
 	$(MAKE) --directory=$@
 
 view: all
