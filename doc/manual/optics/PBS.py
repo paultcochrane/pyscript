@@ -5,8 +5,6 @@
 from pyscript import *
 from pyscript.lib.optics import *
 
-import os
-
 # PBS object
 obj = PBS()
 render(obj, file="PBS.eps")
