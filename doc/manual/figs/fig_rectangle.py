@@ -33,3 +33,5 @@ render(
     
     file="fig_rectangle.eps",
     )
+
+# vim: expandtab shiftwidth=4:

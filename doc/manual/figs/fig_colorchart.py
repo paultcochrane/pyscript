@@ -113,3 +113,5 @@ for xx in xrange(4):
         ii+=1
 
 render(chart,file="fig_colorchart.eps")
+
+# vim: expandtab shiftwidth=4:

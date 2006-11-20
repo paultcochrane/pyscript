@@ -27,3 +27,5 @@ render(
     Text("c2",s=p2+c2+d),
     file="fig_path.eps"
     )
+
+# vim: expandtab shiftwidth=4:

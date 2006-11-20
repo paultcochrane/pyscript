@@ -8,3 +8,5 @@ g=Group(Rectangle(sw=P(0,0),width=2,height=2),
 g.scale(1.5,.5)
 render(g,
        file="fig_circle_eg2.eps")
+
+# vim: expandtab shiftwidth=4:

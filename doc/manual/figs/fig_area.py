@@ -34,3 +34,5 @@ render(
     
     file="fig_area.eps",
     )
+
+# vim: expandtab shiftwidth=4:

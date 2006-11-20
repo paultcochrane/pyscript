@@ -107,4 +107,4 @@ schlange = Group(script,body,eyes,squiggle,dots,tongue,py)
 # draw it!
 render(schlange,file="logo.eps")
 
-
+# vim: expandtab shiftwidth=4:

@@ -3,3 +3,5 @@ from pyscript.lib.electronics import *
 
 obj = NandGate()
 render(obj,file="NandGate.eps")
+
+# vim: expandtab shiftwidth=4:

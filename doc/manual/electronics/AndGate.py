@@ -3,3 +3,5 @@ from pyscript.lib.electronics import *
 
 obj = AndGate()
 render(obj,file="AndGate.eps")
+
+# vim: expandtab shiftwidth=4:

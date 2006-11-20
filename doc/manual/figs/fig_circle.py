@@ -35,3 +35,5 @@ render(
     radt.rotate(-30)(s=rad.P(.5)+U(-30,.2)),
     file="fig_circle.eps",
     )
+
+# vim: expandtab shiftwidth=4:

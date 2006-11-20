@@ -9,3 +9,5 @@ for ii in range(0,360,30):
         )
 
 render(g,file="fig_circle_eg1.eps")
+
+# vim: expandtab shiftwidth=4:

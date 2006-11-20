@@ -3,3 +3,5 @@ from pyscript.lib.electronics import *
 
 obj = Capacitor()
 render(obj,file="Capacitor.eps")
+
+# vim: expandtab shiftwidth=4:

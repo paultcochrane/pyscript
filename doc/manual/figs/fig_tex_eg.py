@@ -7,3 +7,5 @@ for ii in range(0,360,60):
     g.append(tex.copy().rotate(ii,P(0,0)))
 
 render(g,file="fig_tex_eg.eps")
+
+# vim: expandtab shiftwidth=4:
