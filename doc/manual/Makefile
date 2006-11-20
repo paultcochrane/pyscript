@@ -49,7 +49,7 @@ pdf: $(MAIN).pdf
 
 $(MAIN).pdf: $(TEXFILES)
 	pdflatex $<
-	-bibtex $*
+	-bibtex $(MAIN)
 	pdflatex $<
 	pdflatex $<
 
