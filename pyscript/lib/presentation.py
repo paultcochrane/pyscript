@@ -2212,7 +2212,6 @@ class Slide(Page):
         All = Group(
                 back,
                 all,
-                headings,
                 self._make_epsf(),
                 self._make_figs(),
                 self._make_textObjs(),
@@ -2220,7 +2219,8 @@ class Slide(Page):
                 logos,
                 signature,
                 self._make_footer(talk),
-                self._make_waitbar(talk)
+                self._make_waitbar(talk),
+                headings,
                 )
 
         All.scale(scale, scale)
