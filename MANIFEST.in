@@ -142,3 +142,63 @@ include contrib/styles rico_bullet3.ps
 
 # poster styles
 include contrib/styles/ccp2004-poster.py
+
+# add other contributed parts
+include contrib/optics_components/NPRO.eps
+include contrib/optics_components/NPRO_plus_pzt.eps
+include contrib/optics_components/OPA_SHG_curved_curved.eps
+include contrib/optics_components/OPA_SHG_flat_curved.eps
+include contrib/optics_components/amplifier.eps
+include contrib/optics_components/amplitude_phase_modulator1.eps
+include contrib/optics_components/amplitude_phase_modulator2.eps
+include contrib/optics_components/aom.eps
+include contrib/optics_components/beam_dump.eps
+include contrib/optics_components/beamsplitter_cube.eps
+include contrib/optics_components/beamsplitter_plate.eps
+include contrib/optics_components/copyright_note.eps
+include contrib/optics_components/crystal_curved_curved.eps
+include contrib/optics_components/crystal_flat_curved.eps
+include contrib/optics_components/crystal_flat_flat.eps
+include contrib/optics_components/dichroic_beamsplitter_cube.eps
+include contrib/optics_components/dichroic_mirror1.eps
+include contrib/optics_components/dichroic_mirror2.eps
+include contrib/optics_components/difference.eps
+include contrib/optics_components/faraday_rotator.eps
+include contrib/optics_components/flip_mirror.eps
+include contrib/optics_components/frequency_generator1.eps
+include contrib/optics_components/frequency_generator2.eps
+include contrib/optics_components/grating.eps
+include contrib/optics_components/highpass_filter.eps
+include contrib/optics_components/hv_amplifier1.eps
+include contrib/optics_components/hv_amplifier2.eps
+include contrib/optics_components/laser1.eps
+include contrib/optics_components/laser2.eps
+include contrib/optics_components/laser_diode.eps
+include contrib/optics_components/lens_concave_concave.eps
+include contrib/optics_components/lens_convex_convex.eps
+include contrib/optics_components/lens_flat_convex.eps
+include contrib/optics_components/lowpass_filter.eps
+include contrib/optics_components/mirror_curved.eps
+include contrib/optics_components/mirror_curved_with_pzt.eps
+include contrib/optics_components/mirror_flat.eps
+include contrib/optics_components/mirror_with_pzt.eps
+include contrib/optics_components/mixer.eps
+include contrib/optics_components/mode_cleaner_with_pzt.eps
+include contrib/optics_components/mode_cleaner_without_pzt.eps
+include contrib/optics_components/optical_diode1.eps
+include contrib/optics_components/optical_diode2.eps
+include contrib/optics_components/optical_diode_green.eps
+include contrib/optics_components/photodetector1.eps
+include contrib/optics_components/photodetector2.eps
+include contrib/optics_components/photodetector3.eps
+include contrib/optics_components/photodetector4.eps
+include contrib/optics_components/servo1.eps
+include contrib/optics_components/servo2.eps
+include contrib/optics_components/single_mode_fibre.eps
+include contrib/optics_components/spectrum_analyser.eps
+include contrib/optics_components/sum.eps
+include contrib/optics_components/sum_difference.eps
+include contrib/optics_components/waveplate1.eps
+include contrib/optics_components/waveplate2.eps
+include contrib/optics_components/waveplate3.eps
+
