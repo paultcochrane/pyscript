@@ -61,7 +61,8 @@ class TeXBox(Group):
 
         # check that they're the right type
         assert(isinstance(text, types.StringType))
-        assert(isinstance(fixed_width, types.FloatType))
+        assert(isinstance(fixed_width, types.FloatType) or
+                isinstance(fixed_width, types.IntType))
         assert(isinstance(tex_scale, types.FloatType) or
                 isinstance(tex_scale, types.IntType))
         assert(isinstance(align, types.StringType))
