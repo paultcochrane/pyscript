@@ -387,11 +387,11 @@ def Distribute(*items, **options):
     assert a2 in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
 
     # note the swap:
-    as = options.get('as', a2)
-    ae = options.get('ae', a1)
+    a_s = options.get('as', a2)
+    a_e = options.get('ae', a1)
 
-    assert as in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
-    assert ae in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
+    assert a_s in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
+    assert a_e in ["n", "ne", "e", "se", "s", "sw", "w", "nw", "c"]
 
     # these two have to be present
     p1 = options['p1']
@@ -424,23 +424,23 @@ def Distribute(*items, **options):
 
         # place items at the edges
         # ---first object----
-        ov = getattr(items[0].bbox(), as)-p1
+        ov = getattr(items[0].bbox(), a_s)-p1
 
         # how much we need to move by
         mv = -pv.U*ov*pv.U
         items[0].move(mv)
 
         space -= abs(( getattr(items[0].bbox(), a1)
-                         - getattr(items[0].bbox(), as) )*pv.U)
+                         - getattr(items[0].bbox(), a_s) )*pv.U)
 
         # ---second object---
-        ov = getattr(items[-1].bbox(), ae)-p2
+        ov = getattr(items[-1].bbox(), a_e)-p2
 
         # how much we need to move by
         mv = -pv.U*ov*pv.U
         items[-1].move(mv)
 
-        space -= abs(( getattr(items[-1].bbox(), ae)
+        space -= abs(( getattr(items[-1].bbox(), a_e)
                          - getattr(items[-1].bbox(), a2) )*pv.U)
 
         if len(items)>2:
