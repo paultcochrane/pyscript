@@ -6,7 +6,7 @@ Pyscript is a set of modules and scripts for python that facilitate
 the creation of high-quality postscript diagrams. The diagrams are
 scripted rather than drawn.
 
-See http://pyscript.sourceforge.net
+See https://paultcochrane.github.io/pyscript/
 
 
 ## Installation
